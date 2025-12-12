@@ -1,0 +1,6 @@
+@F1Season2025.Competition_HostAddress = http://localhost:5248
+
+GET {{F1Season2025.Competition_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,6 @@
+@F1Season2025.Engeneering_HostAddress = http://localhost:5184
+
+GET {{F1Season2025.Engeneering_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
