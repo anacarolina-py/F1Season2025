@@ -1,3 +1,7 @@
 <Solution>
-  <Project Path="Models/Models.csproj" />
+  <Folder Name="/1- Presentation/" />
+  <Folder Name="/2- Domain/">
+    <Project Path="Models/F1Season2025.Models.csproj" />
+  </Folder>
+  <Folder Name="/3- Infrastructure/" />
 </Solution>
