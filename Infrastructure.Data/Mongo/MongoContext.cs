@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Data.Mongo;
+﻿namespace Infrastructure.Competition.Data.Mongo;
 
 public class MongoContext
 {
