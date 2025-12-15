@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="Services\" />
+    <ProjectReference Include="..\Models\Domain.Competition.Models.csproj" />
   </ItemGroup>
 
 </Project>
