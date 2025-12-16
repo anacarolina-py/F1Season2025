@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Infrastructure.Data\Infrastructure.Competition.Data.csproj" />
     <ProjectReference Include="..\Models\Domain.Competition.Models.csproj" />
   </ItemGroup>
 

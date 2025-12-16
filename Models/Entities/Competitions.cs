@@ -1,31 +1,33 @@
-﻿using Domain.Competition.Models.Entities.Enum;
+﻿using Domain.Competition.Models.DTOs.Competition;
+using Domain.Competition.Models.Entities.Enum;
+using MongoDB.Bson;
 
 namespace Domain.Competition.Models.Entities
 {
-    public class Competition
+    public class Competitions
     {
-        public Guid Id { get; private set; }
+        public ObjectId Id { get; private set; }
         public int Round { get; private set; }
         public Guid CircuitId { get; private set; }
         public Circuit Circuit { get; private set; }
         public CompetitionStatus Status { get; private set; }
-        public bool IsCompleted { get; private set; }
+        public bool IsActive { get; private set; }
 
-        public Competition() { }
+        public Competitions() { }
 
-        public Competition(int round, Circuit circuit, bool isCompleted)
+        public Competitions(int round, Circuit circuit, bool isActive)
         {
-            Id = Guid.NewGuid();
+            Id = ObjectId.GenerateNewId();
             Round = round;
             Circuit = circuit ?? 
                  throw new ArgumentNullException(nameof(circuit));
             Status = CompetitionStatus.Scheduled;
-            IsCompleted = isCompleted;
+            IsActive = isActive;
         }
 
-        public (bool IsValid, string Error) ValidateCircuitRace(Competition? competitionNext)
+        public (bool IsValid, string Error) ValidateCircuitRace(Competitions? competitionNext)
         {
-            if (!IsCompleted)
+            if (!IsActive)
             {
                 return (false, "The race is inactive");
             }
@@ -49,7 +51,7 @@ namespace Domain.Competition.Models.Entities
         }
         public void StartCompetition()
         {
-            if (!IsCompleted)
+            if (!IsActive)
             {
                 throw new InvalidOperationException("Cannot complete an inactive competition");
             }
@@ -61,7 +63,7 @@ namespace Domain.Competition.Models.Entities
         }
         public void CompleteCompetition()
         {
-            if (!IsCompleted)
+            if (!IsActive)
             {
                 throw new InvalidOperationException("Cannot complete an inactive competition");
             }
@@ -71,5 +73,7 @@ namespace Domain.Competition.Models.Entities
             }
             Status = CompetitionStatus.Finished;
         }
+
+      
     }
 }

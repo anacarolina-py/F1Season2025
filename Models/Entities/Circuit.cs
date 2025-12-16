@@ -1,9 +1,11 @@
-﻿namespace Domain.Competition.Models.Entities;
+﻿using MongoDB.Bson;
+
+namespace Domain.Competition.Models.Entities;
 
 public class Circuit
 {
 
-    public Guid Id { get; set; }
+    public ObjectId Id { get; set; }
     public string NameCircuit { get; set; }
     public string Country { get; private set; }
     public int Laps { get; private set; }
@@ -22,7 +24,7 @@ public class Circuit
         {
             throw new ArgumentException("The number of laps must be greater than zero");
         }
-        Id = Guid.NewGuid();
+        Id = ObjectId.GenerateNewId();
         NameCircuit = nameCircuit;
         Country = country;
         Laps = laps;

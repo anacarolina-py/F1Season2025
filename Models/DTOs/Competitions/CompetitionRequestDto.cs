@@ -5,7 +5,8 @@ namespace Domain.Competition.Models.DTOs.Competition
     public class CompetitionRequestDto
     {
         [Required]
-        public Guid CircuitId { get; init; }
+        public string CircuitId { get; init; } = string.Empty;
+
         [Required]
         public int Round { get; init; }
     }

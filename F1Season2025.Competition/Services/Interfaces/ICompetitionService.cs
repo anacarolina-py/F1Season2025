@@ -1,14 +1,17 @@
 ﻿using Domain.Competition.Models.DTOs.Competition;
-using Microsoft.AspNetCore.Components.Server.Circuits;
+using Domain.Competition.Models.Entities;
 
 namespace F1Season2025.Competition.Services.Interfaces
 {
     public interface ICompetitionService
     {
-        Task<Circuit> RegisterCircuitAsync (string ameCircuit, string country, int laps);
+        Task<Circuit> RegisterCircuitAsync (string nameCircuit, string country, int laps);
         Task<CompetitionResponseDto> AddToCalendarSeasonAsync(CompetitionRequestDto competitionRequestDto);
-        Task StartSimulationAsync (int round);
         Task<ValidateStartDto> ValidateStartCompetitionAsync(int round);
-        Task CompleteCompetitionAsync(int round);
+        Task StartSimulationAsync (int round);
+        Task <CompetitionResponseDto?> CompleteSimulationAsync(int round);
+
+        Task<Circuit> GetCircuitDetailsAsync(string circuitId);
+        Task<IEnumerable<CompetitionResponseDto>> GetSeasonAsync();
     }
 }

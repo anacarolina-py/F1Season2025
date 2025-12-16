@@ -1,16 +1,18 @@
 ﻿using Domain.Competition.Models.Entities;
 using F1Season2025.Competition.Data;
+using F1Season2025.Competition.Repository.Interfaces;
+using F1Season2025.Competition.Services.Interfaces;
 using MongoDB.Driver;
 
 namespace F1Season2025.Competition.Repository
 {
-    public class CircuitRepository : ICircuitRepository
+    public class CompetitionRepository : ICompetitionService
     {
         private readonly ILogger<CircuitRepository> _logger;
         private readonly IMongoCollection<Circuit> _collection;
         private readonly ConnectionDB _connection;
 
-        public CircuitRepository(ILogger<CircuitRepository> logger, ConnectionDB connection)
+        public CompetitionRepository(ILogger<CircuitRepository> logger, ConnectionDB connection)
         {
             _logger = logger;
             _connection = connection;

@@ -11,7 +11,7 @@ namespace Domain.Competition.Models.DTOs.Competition
         public string Name { get; init; } = string.Empty;
         [Required]
         public string Country { get; init; } = string.Empty;
-        [Range(1, 78)]
+        [Range(44, 78)]
         public int Laps { get; init; }
     }
 }
