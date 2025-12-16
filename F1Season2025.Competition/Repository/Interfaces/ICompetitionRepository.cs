@@ -13,5 +13,4 @@ namespace F1Season2025.Competition.Repository.Interfaces
 
         Task<IEnumerable<Competitions>> GetAllCompetitionsAsync();
     }
-
 }
