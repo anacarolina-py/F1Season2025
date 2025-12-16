@@ -1,30 +1,34 @@
-﻿using Domain.Competition.Models.Entities;
+﻿using CompetitionEntity = Domain.Competition.Models.Entities.Competition;
 using F1Season2025.Competition.Data;
+using F1Season2025.Competition.Repository.Interfaces;
 using MongoDB.Driver;
 
 namespace F1Season2025.Competition.Repository
 {
-    public class CircuitRepository : ICircuitRepository
+    public class CompetitionRepository : ICompetitionRepository
     {
-        private readonly ILogger<CircuitRepository> _logger;
-        private readonly IMongoCollection<Circuit> _collection;
+        /*private readonly ILogger<CompetitionRepository> _logger;
+
+        private readonly IMongoCollection<CompetitionEntity> _collection;
+
         private readonly ConnectionDB _connection;
 
-        public CircuitRepository(ILogger<CircuitRepository> logger, ConnectionDB connection)
+        public CompetitionRepository(ILogger<CompetitionRepository> logger, ConnectionDB connection)
         {
             _logger = logger;
             _connection = connection;
             _collection = _connection.GetMongoCollection();
         }
 
-        public async Task<Circuit> CreateCircuitAsync(Circuit circuit)
+        public async Task<CompetitionEntity> CreateCompetitionAsync(CompetitionEntity competition)
         {
-            _logger.LogInformation("Creating circuit {Name} in database", circuit.NameCircuit);
+            _logger.LogInformation("Creating competition for round {Round}", competition.Round);
 
-            return await CreateCircuitAsync(circuit);
+            await _collection.InsertOneAsync(competition);
+            return competition;
         }
 
-        public async Task<List<Circuit>> GetAllCircuitAsync()
+        public async Task<List<CompetitionEntity>> GetAllCircuitAsync()
         {
             _logger.LogInformation("Listing all circuits");
 
@@ -33,16 +37,22 @@ namespace F1Season2025.Competition.Repository
                  .ToListAsync();
         }
 
-        public async Task<Circuit?> GetByIdCircuitAsync(Guid id) 
+        public async Task<CompetitionEntity?> GetByRoundAsync(int round) 
         {
-            _logger.LogInformation("Searching circuit with Id {CircuitId}", id);
+            _logger.LogInformation("Searching competition for round {Round}", round);
 
             return await _collection
-                .Find(c => c.Id == id)
+                .Find(c => c.Round == round)
                 .FirstOrDefaultAsync();
         }
 
-        
+        public async Task<List<CompetitionEntity>> GetAllCompetitionAsync() 
+        {
+            _logger.LogInformation("Listing all competitions");
 
+            return await _collection
+                .Find(_ => true)
+                .ToListAsync();
+        }*/
     }
 }

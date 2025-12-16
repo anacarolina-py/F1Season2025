@@ -2,11 +2,10 @@
 
 namespace F1Season2025.Competition.Repository.Interfaces
 {
-    public interface ICircuitRepository
+    public interface ICompetitionRepository
     {
-        Task<Circuit> CreateCircuitAsync(Circuit circuit);
-        Task<Circuit?> GetByIdAsync(Guid id);
-        Task<List<Circuit>> GetAllAsync();
+        /* Task<Circuit> CreateCircuitAsync(Circuit circuit);
+         Task<Circuit?> GetByIdAsync(Guid id);
+         Task<List<Circuit>> GetAllAsync();*/
     }
-
 }
