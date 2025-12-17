@@ -8,7 +8,7 @@ namespace Domain.Competition.Models.Entities
     {
         public ObjectId Id { get; private set; }
         public int Round { get; private set; }
-        public Guid CircuitId { get; private set; }
+        public ObjectId CircuitId { get; private set; }
         public Circuit Circuit { get; private set; }
         public CompetitionStatus Status { get; private set; }
         public bool IsActive { get; private set; }
@@ -21,6 +21,7 @@ namespace Domain.Competition.Models.Entities
             Round = round;
             Circuit = circuit ?? 
                  throw new ArgumentNullException(nameof(circuit));
+            CircuitId = circuit.Id;
             Status = CompetitionStatus.Scheduled;
             IsActive = isActive;
         }

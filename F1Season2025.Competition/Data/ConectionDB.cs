@@ -1,4 +1,4 @@
-﻿using CompetitionEntity = Domain.Competition.Models.Entities.Competition;
+﻿using Domain.Competition.Models.Entities;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -6,18 +6,17 @@ namespace F1Season2025.Competition.Data
 {
     public class ConnectionDB
     {
-        public readonly IMongoCollection<CompetitionEntity> mongoCollection;
+        private readonly IMongoDatabase _database;
 
         public ConnectionDB(IOptions<MongoDbSettings> mongoDbSettings)
         {
-            MongoClient client = new MongoClient(mongoDbSettings.Value.ConnectionURI);
-            IMongoDatabase database = client.GetDatabase(mongoDbSettings.Value.DatabaseName);
-            mongoCollection = database.GetCollection<CompetitionEntity>(mongoDbSettings.Value.CollectionName);
+            var client = new MongoClient(mongoDbSettings.Value.ConnectionURI);
+            _database = client.GetDatabase(mongoDbSettings.Value.DatabaseName);
         }
 
-        public IMongoCollection<CompetitionEntity> GetMongoCollection()
+        public IMongoCollection<T> GetMongoCollection<T>(string collectionName)
         {
-            return mongoCollection;
+            return _database.GetCollection<T>(collectionName);
         }
     }
 
