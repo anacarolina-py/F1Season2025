@@ -34,14 +34,14 @@ builder.Services.AddSingleton<ITeamService, TeamService>();
 builder.Services.AddSingleton<ITeamRepository, TeamRepository>();
 builder.Services.AddSingleton<ICarService, CarService>();
 builder.Services.AddSingleton<ICarRepository, CarRepository>();
-builder.Services.AddSingleton<IBossService, BossService>();
-builder.Services.AddSingleton<IBossRepository, BossRepository>();
-builder.Services.AddSingleton<IDriverService, DriverService>();
-builder.Services.AddSingleton<IDriverRepository, DriverRepository>();
-builder.Services.AddSingleton<IAerodynamicEngineerService, AerodynamicEngineerService>();
-builder.Services.AddSingleton<IAerodynamicEngineerRepository, AerodynamicEngineerRepository>();
-builder.Services.AddSingleton<IPowerEngineerService, PowerEngineerService>();
-builder.Services.AddSingleton<IPowerEngineerRepository, PowerEngineerRepository>();
+builder.Services.AddScoped<IBossService, BossService>();
+builder.Services.AddScoped<IBossRepository, BossRepository>();
+builder.Services.AddScoped<IDriverService, DriverService>();
+builder.Services.AddScoped<IDriverRepository, DriverRepository>();
+builder.Services.AddScoped<IAerodynamicEngineerService, AerodynamicEngineerService>();
+builder.Services.AddScoped<IAerodynamicEngineerRepository, AerodynamicEngineerRepository>();
+builder.Services.AddScoped<IPowerEngineerService, PowerEngineerService>();
+builder.Services.AddScoped<IPowerEngineerRepository, PowerEngineerRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -12,7 +12,14 @@ public abstract class AStaff
 
     public decimal Experience { get; private set; }
 
-    public int TeamId { get; private set; }
-
     public string Status { get; private set; }
+
+    public AStaff(string firstName, string lastName, int age)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+        Age = age;
+        Experience = (decimal)( new Random().Next(1000,5000)) / (decimal)(1000);
+        Status = "Inativo";
+    }
 }

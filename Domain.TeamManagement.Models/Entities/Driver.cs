@@ -10,4 +10,11 @@ public class Driver : AStaff
 
     public decimal Handicap { get; private set; }
 
+    public Driver(string firstName, string lastName, int age, decimal performancePoints, decimal handicap)
+        : base(firstName, lastName, age)
+    {
+        PerformancePoints = performancePoints;
+        Handicap = handicap;
+    }
+
 }

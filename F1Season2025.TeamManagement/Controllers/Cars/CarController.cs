@@ -56,7 +56,7 @@ public class CarController : ControllerBase
         catch(Exception ex)
         {
             _logger.LogError($"Error creating car: {ex.Message}");
-            return BadRequest($"{ex.Message}");
+            return StatusCode(500, "Internal server error");
         }
     }
 
@@ -92,7 +92,7 @@ public class CarController : ControllerBase
         catch(Exception ex)
         {
             _logger.LogError($"Error getting cars by model: {ex.Message}");
-            return BadRequest($"{ex.Message}");
+            return StatusCode(500, "Internal server error");
         }
     }
 
@@ -128,7 +128,7 @@ public class CarController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError($"Error getting car by id: {ex.Message}");
-            return BadRequest($"{ex.Message}");
+            return StatusCode(500, "Internal server error");
         }
     }
 
@@ -158,7 +158,7 @@ public class CarController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError($"Error getting all cars: {ex.Message}");
-            return BadRequest($"{ex.Message}");
+            return StatusCode(500, "Internal server error");
         }
     }
 
@@ -188,7 +188,7 @@ public class CarController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError($"Error getting active cars: {ex.Message}");
-            return BadRequest($"{ex.Message}");
+            return StatusCode(500, "Internal server error");
         }
     }
 
@@ -218,7 +218,7 @@ public class CarController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError($"Error getting inactive cars: {ex.Message}");
-            return BadRequest($"{ex.Message}");
+            return StatusCode(500, "Internal server error");
         }
     }
 
