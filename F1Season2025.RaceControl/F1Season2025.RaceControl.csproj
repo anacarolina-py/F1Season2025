@@ -8,7 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
+    <PackageReference Include="MongoDB.Driver" Version="3.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain.RaceControl.Models\Domain.RaceControl.Models.csproj" />
+    <ProjectReference Include="..\Infrastructure.RaceControl.Data\Infrastructure.RaceControl.Data.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
-﻿using Infrastructure.RaceControl.Data.Mongo.Settings;
-using Microsoft.Extensions.Configuration;
+﻿using Domain.RaceControl.Models.Entities;
+using Infrastructure.RaceControl.Data.Mongo.Settings;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -9,15 +9,15 @@ public class MongoContext
 {
     private readonly IMongoDatabase _database;
 
-    public MongoContext(IOptions<MongoSettings> settings)
+    public MongoContext(MongoSettings settings)
     {
-        var connectionString = settings.Value.ConnectionString;
-        var databaseName = settings.Value.DatabaseName;
+        var connectionString = settings.ConnectionString;
+        var databaseName = settings.DatabaseName;
 
         var client = new MongoClient(connectionString);
         _database = client.GetDatabase(databaseName);
     }
 
-    public IMongoCollection<Domain.RaceControl.Models.Entities.RaceControl> RaceControls
-        => _database.GetCollection<Domain.RaceControl.Models.Entities.RaceControl>("RaceControl");
+    public IMongoCollection<RaceGrandPix> RaceControls
+        => _database.GetCollection<RaceGrandPix>("RaceControl");
 }

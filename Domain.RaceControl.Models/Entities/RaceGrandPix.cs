@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Domain.RaceControl.Models.Entities;
 
-public class RaceControl
+public class RaceGrandPix
 {
     [BsonId]
     public ObjectId Id { get; init; }
@@ -13,7 +13,7 @@ public class RaceControl
     private readonly List<Session> _session = new();
     public IReadOnlyCollection<Session> Session => _session;
 
-    public RaceControl(Circuit circuit, Season season)
+    public RaceGrandPix(Circuit circuit, Season season)
     {
         Id = ObjectId.GenerateNewId();
         Circuit = circuit;

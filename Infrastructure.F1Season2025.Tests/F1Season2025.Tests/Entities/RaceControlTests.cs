@@ -24,7 +24,7 @@ public class RaceControlTests
 
         var season = new Season(expectedId, expectedTitle);
 
-        var raceControl = new RaceControl(circuit, season);
+        var raceControl = new RaceGrandPix(circuit, season);
 
         raceControl.Season.Should().Be(season);
         raceControl.Circuit.Should().Be(circuit);
@@ -45,7 +45,7 @@ public class RaceControlTests
 
         var season = new Season(expectedId, expectedTitle);
 
-        var raceControl = new RaceControl(circuit, season);
+        var raceControl = new RaceGrandPix(circuit, season);
 
         raceControl.StartSession(EType.FreePractice1);
 
@@ -73,7 +73,7 @@ public class RaceControlTests
 
         var season = new Season(expectedId, expectedTitle);
 
-        var raceControl = new RaceControl(circuit, season);
+        var raceControl = new RaceGrandPix(circuit, season);
 
         //Assert.Throws<Exception>(() => raceControl.StartSession(typeSession));
     }
@@ -93,7 +93,7 @@ public class RaceControlTests
 
         var season = new Season(expectedId, expectedTitle);
 
-        var raceControl = new RaceControl(circuit, season);
+        var raceControl = new RaceGrandPix(circuit, season);
 
         var constructors = new List<ConstructorChampionship>();
         var drivers = new List<DriverChampionship>();

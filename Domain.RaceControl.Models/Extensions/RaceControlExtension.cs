@@ -1,5 +1,17 @@
-﻿namespace Domain.RaceControl.Models.Extensions;
+﻿using Domain.RaceControl.Models.DTOs;
+using Domain.RaceControl.Models.Entities;
 
-public class RaceControlExtension
+namespace Domain.RaceControl.Models.Extensions;
+
+public static class RaceControlExtension
 {
+    public static RaceControlResponseDto ToDto(this RaceGrandPix race)
+    {
+        return new RaceControlResponseDto
+        {
+            Circuit = race.Circuit,
+            Season = race.Season,
+            Session = race.Session
+        };
+    }
 }
