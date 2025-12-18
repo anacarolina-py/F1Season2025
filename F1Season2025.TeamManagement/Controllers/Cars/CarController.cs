@@ -1,0 +1,225 @@
+﻿using Domain.TeamManagement.Models.DTOs.Cars;
+using F1Season2025.TeamManagement.Services.Cars.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+
+namespace F1Season2025.TeamManagement.Controllers.Cars;
+
+[Route("api/[controller]")]
+[ApiController]
+public class CarController : ControllerBase
+{
+    private readonly ICarService _carService;
+    private readonly ILogger _logger;
+
+    public CarController(ICarService carService, ILogger<CarController> logger)
+    {
+        _carService = carService;
+        _logger = logger;
+    }
+
+    [HttpGet("heartbeat")]
+    public ActionResult GetHeartBeat()
+    {
+        return Ok("Car is Ok");
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> CreateCarAsync([FromBody] CarRequestDTO carDTO)
+    {
+        try
+        {
+            _logger.LogInformation("Creating a new car");
+            await _carService.CreateCarAsync(carDTO);
+            return Created();
+        }
+        catch(SqlException ex)
+        {
+            _logger.LogError($"Error creating car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch(ArgumentOutOfRangeException ex)
+        {
+            _logger.LogError($"Error creating car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch(ArgumentException ex)
+        {
+            _logger.LogError($"Error creating car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch(InvalidOperationException ex)
+        {
+            _logger.LogError($"Error creating car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError($"Error creating car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+    }
+
+    [HttpGet("models/{carModel}")]
+    public async Task<ActionResult<List<CarResponseDTO>>> GetCarsByModelAsync(string carModel)
+    {
+        try
+        {
+            _logger.LogInformation("Getting cars by model");
+
+            var cars = await _carService.GetCarsByModelAsync(carModel);
+
+            if(cars.Count is 0)
+                return NotFound("Model not found.");
+
+            return Ok(cars);
+        }
+        catch(SqlException ex)
+        {
+            _logger.LogError($"Error getting cars by model: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch(ArgumentException ex)
+        {
+            _logger.LogError($"Error getting cars by model: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch(InvalidOperationException ex)
+        {
+            _logger.LogError($"Error getting cars by model: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError($"Error getting cars by model: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+    }
+
+    [HttpGet("ids/{carId}")]
+    public async Task<ActionResult<CarResponseDTO>> GetCarsByIdAsync(int carId)
+    {
+        try
+        {
+            _logger.LogInformation("Getting car by id");
+
+            var car = await _carService.GetCarByIdAsync(carId);
+
+            if (car is null)
+                return NotFound("Car not found.");
+
+            return Ok(car);
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Error getting car by id: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error getting car by id: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error getting car by id: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error getting car by id: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+    }
+
+    [HttpGet("all")]
+    public async Task<ActionResult<List<CarResponseDTO>>> GetAllCarsAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Getting all cars");
+            var cars = await _carService.GetAllCarsAsync();
+
+            if (cars.Count is 0)
+                return NotFound("No cars found.");
+
+            return Ok(cars);
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Error getting all cars: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error getting all cars: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error getting all cars: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+    }
+
+    [HttpGet("actives")]
+    public async Task<ActionResult<List<CarResponseDTO>>> GetActiveCarsAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Getting all active cars");
+            var cars = await _carService.GetActiveCarsAsync();
+
+            if (cars.Count is 0)
+                return NotFound("No cars found.");
+
+            return Ok(cars);
+        }
+        catch(SqlException ex)
+        {
+            _logger.LogError($"Error getting active cars: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error getting active cars: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error getting active cars: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+    }
+
+    [HttpGet("inactives")]
+    public async Task<ActionResult<List<CarResponseDTO>>> GetInactiveCarsAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Getting all inactive cars");
+            var cars = await _carService.GetInactiveCarsAsync();
+
+            if (cars.Count is 0)
+                return NotFound("No cars found.");
+
+            return Ok(cars);
+        }
+        catch(SqlException ex)
+        {
+            _logger.LogError($"Error getting inactive cars: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error getting inactive cars: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error getting inactive cars: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+    }
+
+}

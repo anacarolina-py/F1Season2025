@@ -6,7 +6,7 @@ using Infrastructure.TeamManagement.Data.SQL.Connection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
-namespace F1Season2025.TeamManagement.Repositories
+namespace F1Season2025.TeamManagement.Repositories.Teams
 {
     public class TeamRepository : ITeamRepository
     {
@@ -26,6 +26,7 @@ namespace F1Season2025.TeamManagement.Repositories
 
             try
             {
+                _logger.LogInformation("Creating a new team: {TeamName}", team.Name);
                 await _connection.ExecuteAsync(sqlInsertTeam, new { Name = team.Name , Status = "Inativo" });
             }
             catch(SqlException sqlEx)

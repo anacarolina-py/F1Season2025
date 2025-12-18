@@ -1,0 +1,159 @@
+﻿using Domain.TeamManagement.Models.DTOs.Cars;
+using Domain.TeamManagement.Models.Entities;
+using F1Season2025.TeamManagement.Repositories.Cars.Interfaces;
+using F1Season2025.TeamManagement.Services.Cars.Interfaces;
+using Microsoft.Data.SqlClient;
+
+namespace F1Season2025.TeamManagement.Services.Cars;
+
+public class CarService : ICarService
+{
+    private readonly ICarRepository _carRepository;
+    private readonly ILogger _logger;
+
+    public CarService(ICarRepository carRepository, ILogger<CarService> logger)
+    {
+        _carRepository = carRepository;
+        _logger = logger;
+    }
+
+    public async Task CreateCarAsync(CarRequestDTO carDTO)
+    {
+        #region Validation
+        if (string.IsNullOrEmpty(carDTO.Model))
+        {
+            _logger.LogWarning("Attempted to create a car with an empty model.");
+            throw new ArgumentException("Car model cannot be null or empty.", nameof(carDTO.Model));
+        }
+        if(carDTO.Model.Trim().Length is not 5) { 
+            _logger.LogWarning("Attempted to create a car with invalid model length: {Length}", carDTO.Model.Length);
+            throw new ArgumentException("Car model must be exactly 5 characters long.", nameof(carDTO.Model));
+        }
+        
+        if (carDTO.Weight < 700 || carDTO.Weight > 1000)
+        {
+            _logger.LogWarning("Attempted to create a car with invalid weight: {Weight}", carDTO.Weight);
+            throw new ArgumentOutOfRangeException(nameof(carDTO.Weight), "Car weight must be between 700 and 1000 kg.");
+        }
+        #endregion
+
+        try
+        {
+            _logger.LogInformation("Creating a new car with model: {Model}", carDTO.Model);
+            var cars = await _carRepository.GetCarsByModelAsync(carDTO.Model);
+
+            if (cars.Count > 1) { 
+                _logger.LogWarning("Multiple cars found with the same model: {Model}", carDTO.Model);
+                throw new InvalidOperationException($"Multiple cars found with the model: {carDTO.Model}");
+            }
+
+            var newCar = new Car(carDTO.Model, carDTO.Weight);
+            await _carRepository.CreateCarAsync(newCar);
+        }
+        catch(SqlException ex)
+        {
+            _logger.LogError(ex, "Error occurred while logging car creation for model: {Model}", carDTO.Model);
+            throw;
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while logging car creation for model: {Model}", carDTO.Model);
+            throw;
+        }
+    }
+
+    public async Task<List<CarResponseDTO>> GetCarsByModelAsync(string carModel)
+    {
+        try
+        {
+            _logger.LogInformation("Retrieving cars with model: {Model}", carModel);
+            return await _carRepository.GetCarsByModelAsync(carModel);
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "Error occurred while retrieving cars with model: {Model}", carModel);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while retrieving cars with model: {Model}", carModel);
+            throw;
+        }
+    }
+
+    public async Task<CarResponseDTO?> GetCarByIdAsync(int carId)
+    {
+        try
+        {
+            _logger.LogInformation("Retrieving car with ID: {Id}", carId);
+            return await _carRepository.GetCarByIdAsync(carId);
+        }
+        catch(SqlException ex)
+        {
+            _logger.LogError(ex, "Error occurred while retrieving car with ID: {Id}", carId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while retrieving car with ID: {Id}", carId);
+            throw;
+        }
+    }
+
+    public async Task<List<CarResponseDTO>> GetAllCarsAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Retrieving all cars.");
+            return await _carRepository.GetAllCarsAsync();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "Error occurred while retrieving all cars.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while retrieving all cars.");
+            throw;
+        }
+    }
+
+    public async Task<List<CarResponseDTO>> GetActiveCarsAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Retrieving all active cars.");
+            return await _carRepository.GetActiveCarsAsync();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "Error occurred while retrieving all active cars.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while retrieving all active cars.");
+            throw;
+        }
+    }
+    
+    public async Task<List<CarResponseDTO>> GetInactiveCarsAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Retrieving all inactive cars.");
+            return await _carRepository.GetInactiveCarsAsync();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "Error occurred while retrieving all inactive cars.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while retrieving all inactive cars.");
+            throw;
+        }
+    }
+}

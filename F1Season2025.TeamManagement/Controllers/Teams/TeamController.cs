@@ -1,9 +1,8 @@
 ﻿using Domain.TeamManagement.Models.DTOs.Teams;
 using F1Season2025.TeamManagement.Services.Teams.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection.Metadata.Ecma335;
 
-namespace F1Season2025.TeamManagement.Controllers;
+namespace F1Season2025.TeamManagement.Controllers.Teams;
 
 [Route("api/[controller]")]
 [ApiController]

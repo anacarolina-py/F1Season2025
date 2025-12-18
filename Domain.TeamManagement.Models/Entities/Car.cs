@@ -14,13 +14,12 @@ public class Car
 
     public string Status { get; private set; }
 
-    public int TeamId { get; private set; }
-
-    public int DriverId { get; private set; }
-
-    public int AerodynamicEngineerId { get; private set; }
-
-    public int PowerEngineerId { get; private set; }
-
-
+    public Car(string model, decimal weight)
+    {
+        Model = model;
+        AerodynamicCoefficient = (decimal)(new Random().Next(10000)) / (decimal)1000.00;
+        PowerCoefficient = (decimal)(new Random().Next(10000)) / (decimal)1000.00;
+        Weight = weight;
+        Status = "Inativo";
+    }
 }

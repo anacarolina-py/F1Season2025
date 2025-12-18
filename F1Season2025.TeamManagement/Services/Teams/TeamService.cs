@@ -4,7 +4,7 @@ using F1Season2025.TeamManagement.Repositories.Teams.Interfaces;
 using F1Season2025.TeamManagement.Services.Teams.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace F1Season2025.TeamManagement.Services
+namespace F1Season2025.TeamManagement.Services.Teams
 {
     public class TeamService : ITeamService
     {
