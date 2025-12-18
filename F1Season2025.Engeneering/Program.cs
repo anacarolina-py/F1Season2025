@@ -10,12 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<SqlConnectionFactory>();
-builder.Services.AddScoped(sp =>
-    new SqlConnectionFactory(
-        builder.Configuration.GetConnectionString("SqlServer")!
-    ));
-
+builder.Services.AddScoped<SqlConnectionFactory>();
 builder.Services.AddScoped<EngineeringService>();
 builder.Services.AddScoped<EngineeringRepository>();
 
@@ -24,7 +19,6 @@ builder.Services.AddHttpClient<TeamManagementClient>(client =>
 {
     client.BaseAddress = new Uri("https://localhost5001/team/api/");
 });
-
 
 
 

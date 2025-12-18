@@ -169,7 +169,7 @@ namespace F1Season2025.Engineering.Services
             try
             {
                 decimal newHandicap = Math.Round(data.DriverHandicap -
-                    (data.DriverExperience * 0.5m), 3, MidpointRounding.AwayFromZero));
+                    (data.DriverExperience * 0.5m), 3, MidpointRounding.AwayFromZero);
 
                 if (newHandicap < 0.000m)
                     newHandicap = 0.000m;

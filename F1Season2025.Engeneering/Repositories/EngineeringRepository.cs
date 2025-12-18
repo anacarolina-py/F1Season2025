@@ -18,17 +18,17 @@ namespace F1Season2025.Engineering.Repositories
         {
             using var connection = _connectionFactory.GetConnection();
             connection.Open();
-            var sql = @"IF EXISTS (SELECT 1 FROM Cars WHERE Id = @CarId)
+            var sql = @"IF EXISTS (SELECT 1 FROM Cars WHERE Id = @carId)
                                  BEGIN
                                     UPDATE Cars
-                                    SET AerodynamicCoefficient = @Ca,
-                                        PowerCoefficient = @Cp
-                                    WHERE Id = @CarId
+                                    SET AerodynamicCoefficient = @ca,
+                                        PowerCoefficient = @cp
+                                    WHERE Id = @carId
                                  END
                                  ELSE
                                  BEGIN
                                     INSERT INTO Cars (Id, AerodynamicCoefficient, PowerCoefficient)
-                                    VALUES (@CarId, @Ca, @Cp)
+                                    VALUES (@carId, @ca, @cp)
                                  END";
               
             connection.Execute(sql, new 
@@ -128,7 +128,7 @@ namespace F1Season2025.Engineering.Repositories
 
             var sql = @"SELECT Id, QualifyingPd
                         FROM Drivers
-                        WHERE QualyfingPd IS NOT NULL
+                        WHERE QualifyingPd IS NOT NULL
                         ORDER BY QualifyingPd DESC";
 
             return await connection.QueryAsync<DriverQualificationDTO>(sql);
