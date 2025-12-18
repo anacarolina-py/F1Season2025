@@ -17,4 +17,7 @@
     <Project Path="Infrastructure.RaceControl.Data/Infrastructure.RaceControl.Data.csproj" Id="02c0625d-4785-479e-a2bf-cec28eb7a5fe" />
     <Project Path="Infrastructure.TeamManagement.Data/Infrastructure.TeamManagement.Data.csproj" Id="81341837-8490-4725-9adf-d4625e47eecc" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="Infrastructure.F1Season2025.Tests/F1Season2025.Tests.csproj" Id="aec8ca02-45cf-4b2f-afe6-97148c414269" />
+  </Folder>
 </Solution>
