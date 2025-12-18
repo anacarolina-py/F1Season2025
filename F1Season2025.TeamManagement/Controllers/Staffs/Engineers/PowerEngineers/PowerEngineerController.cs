@@ -15,4 +15,10 @@ public class PowerEngineerController : ControllerBase
         _powerEngineerService = powerEngineerService;
         _logger = logger;
     }
+
+    [HttpGet("heartbeat")]
+    public ActionResult GetHeartBeat()
+    {
+        return Ok("PowerEngineer is Ok");
+    }
 }

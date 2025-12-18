@@ -16,5 +16,10 @@ public class DriverController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet("heartbeat")]
+    public ActionResult GetHeartBeat()
+    {
+        return Ok("Driver is Ok");
+    }
 
 }

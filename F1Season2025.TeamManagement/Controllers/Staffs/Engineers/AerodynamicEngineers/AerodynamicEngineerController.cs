@@ -15,4 +15,10 @@ public class AerodynamicEngineerController : ControllerBase
         _aerodynamicEngineerService = aerodynamicEngineerService;
         _logger = logger;
     }
+
+    [HttpGet("heartbeat")]
+    public ActionResult GetHeartBeat()
+    {
+        return Ok("AerodynamicEngineer is Ok");
+    }
 }
