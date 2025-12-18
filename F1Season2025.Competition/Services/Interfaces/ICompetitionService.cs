@@ -1,4 +1,5 @@
 ﻿using Domain.Competition.Models.DTOs.Competition;
+using Domain.Competition.Models.DTOs.Competitions;
 using Domain.Competition.Models.Entities;
 
 namespace F1Season2025.Competition.Services.Interfaces
@@ -10,8 +11,9 @@ namespace F1Season2025.Competition.Services.Interfaces
         Task<ValidateStartDto> ValidateStartCompetitionAsync(int round);
         Task StartSimulationAsync (int round);
         Task <CompetitionResponseDto?> CompleteSimulationAsync(int round);
-
         Task<Circuit> GetCircuitDetailsAsync(string circuitId);
+        Task<IEnumerable<CircuitResponseDto>> GetAllCircuitsAsync();
         Task<IEnumerable<CompetitionResponseDto>> GetSeasonAsync();
+        Task UpdateRaceStatusAsync(string id, bool isActive);
     }
 }

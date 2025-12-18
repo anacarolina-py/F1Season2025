@@ -11,7 +11,9 @@ public static class CompetitionExtension
         {
             Id = competition.Id.ToString(),
             Round = competition.Round,
-            circuitName = competition.Circuit.NameCircuit ?? "Loading",
+            CircuitName = competition.Circuit.NameCircuit,
+            Country = competition.Circuit.Country,
+            Laps = competition.Circuit.Laps,
             Status = competition.Status.ToString(),
             IsActive = competition.IsActive
         };

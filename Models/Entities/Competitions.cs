@@ -1,6 +1,6 @@
-﻿using Domain.Competition.Models.DTOs.Competition;
-using Domain.Competition.Models.Entities.Enum;
+﻿using Domain.Competition.Models.Entities.Enum;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Domain.Competition.Models.Entities
 {
@@ -10,6 +10,8 @@ namespace Domain.Competition.Models.Entities
         public int Round { get; private set; }
         public ObjectId CircuitId { get; private set; }
         public Circuit Circuit { get; private set; }
+
+        [BsonRepresentation(BsonType.String)]
         public CompetitionStatus Status { get; private set; }
         public bool IsActive { get; private set; }
 

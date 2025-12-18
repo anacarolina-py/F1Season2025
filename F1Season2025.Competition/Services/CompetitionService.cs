@@ -4,6 +4,8 @@ using F1Season2025.Competition.Repository.Interfaces;
 using F1Season2025.Competition.Services.Interfaces;
 using Domain.Competition.Models.Extensions;
 using MongoDB.Bson;
+using Domain.Competition.Models.Entities.Enum;
+using Domain.Competition.Models.DTOs.Competitions;
 
 namespace F1Season2025.Competition.Services
 {
@@ -19,6 +21,11 @@ namespace F1Season2025.Competition.Services
         }
         public async Task<Circuit> RegisterCircuitAsync(string nameCircuit, string country, int laps)
         {
+            bool circuitExists = await _circuits.ExistCircuitNameCountryAsync(nameCircuit, country);
+            if (circuitExists)
+            {
+                throw new InvalidOperationException($"The circuit {nameCircuit} in {country} is already registered.");
+            }
             var circuit = new Circuit(nameCircuit, country, laps);
 
             await _circuits.AddCircuitAsync(circuit);
@@ -38,11 +45,20 @@ namespace F1Season2025.Competition.Services
             {
                 throw new ArgumentException($"Circuit with Id {requestDto.CircuitId} not found.");
             }
-
+            if (!circuit.IsActive)
+            {
+                throw new InvalidOperationException($"The circuit {circuit.NameCircuit} Cannot add an inactive circuit to the season calendar.");
+            }
+            bool circuitExists = await _competitions.CheckCompetitionExistsAsync(circuit.NameCircuit, circuit.Country);
+            if (circuitExists)
+            {
+                throw new InvalidOperationException($"The circuit {circuit.NameCircuit} is already registered in the season calendar.");
+            }
             int activeCount = await _competitions.GetActiveCompetitionsCountAsync();
-            bool isActive = activeCount < 24;
+            bool maxRaces = activeCount < 24;
 
-            var competition = new Competitions(requestDto.Round, circuit, isActive);
+            var newRound = activeCount + 1;
+            var competition = new Competitions(newRound, circuit, maxRaces);
 
             await _competitions.AddCompetitionAsync(competition);
 
@@ -55,10 +71,12 @@ namespace F1Season2025.Competition.Services
 
             if (targetCompetition is null)
             {
-                return new ValidateStartDto { 
-                    CanStart = false, 
-                    Message = "Race not found.", 
-                    Round = round };
+                return new ValidateStartDto
+                {
+                    CanStart = false,
+                    Message = "Race not found.",
+                    Round = round
+                };
             }
 
             var previusRace = round > 1 ? await _competitions.GetCompetitionByRoundAsync(round - 1) : null;
@@ -78,11 +96,28 @@ namespace F1Season2025.Competition.Services
             var competition = await _competitions.GetCompetitionByRoundAsync(round);
             if (competition is null)
             {
-                throw new KeyNotFoundException($"Competition with round {round} not found.");
+                throw new KeyNotFoundException($"Competition with round: {round} not found.");
             }
+            if (competition.Status != CompetitionStatus.Scheduled)
+            {
+                throw new InvalidOperationException($"This race cannot be started because the current status is {competition.Status}.");
+            }
+            if (round > 1)
+            {  
+                var previusRace = await _competitions.GetCompetitionByRoundAsync(round - 1);
+                if (previusRace is null)
+                {
+                    throw new InvalidOperationException("Cannot start the race before completing the previous one.");
+                }
+                if (previusRace.Status != CompetitionStatus.Finished)
+                {
+                    throw new InvalidOperationException("The previus GP is not finished.");
+                }
 
-            competition.StartCompetition();
-            await _competitions.UpdateStatusRaceAsync(competition);
+            }
+                competition.StartCompetition();
+                await _competitions.UpdateStatusRaceAsync(competition);
+
         }
         public async Task<CompetitionResponseDto?> CompleteSimulationAsync(int round)
         {
@@ -101,7 +136,7 @@ namespace F1Season2025.Competition.Services
         {
             if (!ObjectId.TryParse(circuitId, out ObjectId id))
             {
-                throw new ArgumentException($"Invalid CircuitId format. {circuitId}");
+                throw new ArgumentException($"Invalid {circuitId} format.");
             }
             var circuit = await _circuits.GetCircuitByIdAsync(id);
             if (circuit is null)
@@ -110,10 +145,33 @@ namespace F1Season2025.Competition.Services
             }
             return circuit;
         }
-        public async Task <IEnumerable<CompetitionResponseDto>> GetSeasonAsync()
+        public async Task<IEnumerable<CircuitResponseDto>> GetAllCircuitsAsync()
+        {
+            var circuits = await _circuits.GetAllCircuitsAsync();
+            var circuitsDto = circuits.Select(c => c.ToCircuitResponseDto());
+            return circuitsDto;
+        }
+        public async Task<IEnumerable<CompetitionResponseDto>> GetSeasonAsync()
         {
             var competitions = await _competitions.GetAllCompetitionsAsync();
             return competitions.Select(c => c.ToResponse());
+        }
+        public async Task UpdateRaceStatusAsync(string id, bool isActive)
+        {
+            if (!ObjectId.TryParse(id, out var objectId))
+            {
+                throw new ArgumentException($"Invalid CompetitionId format. {id}");
+            }
+            var race = await _competitions.GetbyCompetitionByIdAsync(objectId);
+            if (race is null)
+            {
+                throw new KeyNotFoundException($"Competition {id} not found.");
+            }
+            if (race.Status == CompetitionStatus.Finished)
+            {
+                throw new InvalidOperationException("Is not possible to change the status of a ride that has already been completed.");
+            }
+            await _competitions.UpdateActiveStatusAsync(objectId, isActive);
         }
 
     }

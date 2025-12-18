@@ -6,9 +6,10 @@ public class Circuit
 {
 
     public ObjectId Id { get; set; }
-    public string NameCircuit { get; set; }
+    public string NameCircuit { get; private set; }
     public string Country { get; private set; }
     public int Laps { get; private set; }
+    public bool IsActive { get; private set; }
 
     public Circuit(string nameCircuit, string country, int laps)
     {
@@ -28,6 +29,7 @@ public class Circuit
         NameCircuit = nameCircuit;
         Country = country;
         Laps = laps;
+        IsActive = true;
     }
     
 }

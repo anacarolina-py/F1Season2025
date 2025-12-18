@@ -23,11 +23,24 @@ namespace F1Season2025.Competition.Controllers
             try
             {
                 var circuit = await _competitionService.RegisterCircuitAsync(requestDto.Name, requestDto.Country, requestDto.Laps);
-                return Ok(circuit);
+                return Ok(
+                    new
+                    {
+                        Id = circuit.Id.ToString(),
+                        Name = circuit.NameCircuit,
+                        Country = circuit.Country,
+                        Laps = circuit.Laps
+                    }
+                    );
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { status = 500, error = "Internal Error", message = ex.Message });
+                return StatusCode(500, new 
+                { 
+                    status = 500, 
+                    error = "Internal Error", 
+                    message = ex.Message 
+                });
             }
         }
         [HttpPost("calendar")]
@@ -40,11 +53,20 @@ namespace F1Season2025.Competition.Controllers
             }
             catch (ArgumentException ex)
             {
-                return StatusCode(400, new { status = 400, error = "Invalid data", message = ex.Message });
+                return StatusCode(400, new 
+                { 
+                    status = 400, error = "Invalid data", 
+                    message = ex.Message 
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { status = 500, error = "Internal Error", message = ex.Message });
+                return StatusCode(500, 
+                    new 
+                    { 
+                        status = 500, error = "Internal Error", 
+                        message = ex.Message 
+                    });
             }
         }
         [HttpGet("validate-start/{round}")]
@@ -58,7 +80,7 @@ namespace F1Season2025.Competition.Controllers
                     return StatusCode(400, new
                     {
                         status = 400,
-                        error = "Largada Bloqueada",
+                        error = "Blocked Start",
                         message = result.Message
                     });
                 }
@@ -66,7 +88,11 @@ namespace F1Season2025.Competition.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { status = 500, error = "Internal Error", message = ex.Message });
+                return StatusCode(500, new 
+                { 
+                    status = 500, error = "Internal Error", 
+                    message = ex.Message 
+                });
             }
         }
         [HttpPatch("start/{round}")]
@@ -75,11 +101,37 @@ namespace F1Season2025.Competition.Controllers
             try
             {
                 await _competitionService.StartSimulationAsync(round);
-                return Ok(new { message = $"Simulation for round {round} started successfully." });
+                return Ok(new
+                {
+                    message = $"Simulation for round {round} started successfully."
+                });
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
-                return NotFound(new { status = 404, error = "Not found", message = "Race not found." });
+                return NotFound(new
+                {
+                    status = 404,
+                    error = "Not found",
+                    message = "Race not found."
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new
+                {
+                    status = 400,
+                    error = "The race could not be started.",
+                    message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    error = "Failed to Start",
+                    message = ex.Message
+                });
             }
         }
         [HttpPatch("complete/{round}")]
@@ -90,7 +142,10 @@ namespace F1Season2025.Competition.Controllers
                 var nextRace = await _competitionService.CompleteSimulationAsync(round);
                 if (nextRace is null)
                 {
-                    return Ok(new { Message = "Season 2025 is over! The champion has been decided." });
+                    return Ok(new
+                    {
+                        Message = "Season 2025 is over! The champion has been decided."
+                    });
                 }
                 return Ok(new
                 {
@@ -124,6 +179,19 @@ namespace F1Season2025.Competition.Controllers
                 return NotFound(new { status = 404, error = "Circuit does not exist", message = "No circuits were found with that ID." });
             }
         }
+        [HttpGet("circuits")]
+        public async Task<IActionResult> GetAllCircuitsAsync()
+        {
+            try
+            {
+                var circuits = await _competitionService.GetAllCircuitsAsync();
+                return Ok(circuits);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { status = 500, error = "Internal Error", message = ex.Message });
+            }
+        }
         [HttpGet("season")]
         public async Task<IActionResult> GetSeasonAsync()
         {
@@ -134,7 +202,45 @@ namespace F1Season2025.Competition.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { status = 500, error = "Internal Error", message = ex.Message });
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    error = "Internal Error",
+                    message = ex.Message
+                });
+            }
+        }
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateRaceStatusAsync(string id, [FromBody] bool isActive)
+        {
+            try
+            {
+                await _competitionService.UpdateRaceStatusAsync(id, isActive);
+                return Ok(new
+                {
+                    Sucess = true,
+                    Message = isActive ? "Race successfully activated." : "Race deactivated.",
+                    RaceId = id
+                });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new
+                {
+                    statusCode = 404,
+                    error = "Not Found",
+                    message = "Race not found."
+                });
+            }
+            catch (ArgumentException)
+            {
+                return NotFound(new
+                {
+                    status = 400,
+                    error = "Invalid format.",
+                    message = "The ID format is incorrect."
+                });
+
             }
         }
     }
