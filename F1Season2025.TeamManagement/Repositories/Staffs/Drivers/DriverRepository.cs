@@ -1,5 +1,7 @@
-﻿namespace F1Season2025.TeamManagement.Repositories.Staffs.Drivers;
+﻿using F1Season2025.TeamManagement.Repositories.Staffs.Drivers.Interfaces;
 
-public class DriverRepository
+namespace F1Season2025.TeamManagement.Repositories.Staffs.Drivers;
+
+public class DriverRepository : IDriverRepository
 {
 }

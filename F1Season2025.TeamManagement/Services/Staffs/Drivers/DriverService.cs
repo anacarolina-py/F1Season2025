@@ -1,5 +1,7 @@
-﻿namespace F1Season2025.TeamManagement.Services.Staffs.Drivers;
+﻿using F1Season2025.TeamManagement.Services.Staffs.Drivers.Interfaces;
 
-public class DriverService
+namespace F1Season2025.TeamManagement.Services.Staffs.Drivers;
+
+public class DriverService : IDriverService
 {
 }

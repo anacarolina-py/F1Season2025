@@ -1,5 +1,7 @@
-﻿namespace F1Season2025.TeamManagement.Services.Staffs.Bosses;
+﻿using F1Season2025.TeamManagement.Services.Staffs.Bosses.Interfaces;
 
-public class BossService
+namespace F1Season2025.TeamManagement.Services.Staffs.Bosses;
+
+public class BossService : IBossService
 {
 }
