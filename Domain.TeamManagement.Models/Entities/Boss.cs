@@ -1,9 +1,8 @@
 ﻿using Domain.TeamManagement.Models.Entities.Abstracts;
 
-namespace Domain.TeamManagement.Models.Entities
+namespace Domain.TeamManagement.Models.Entities;
+
+public class Boss : AStaff
 {
-    public class Boss : AStaff
-    {
-        public int BossId { get; private set; }
-    }
+    public int BossId { get; private set; }
 }

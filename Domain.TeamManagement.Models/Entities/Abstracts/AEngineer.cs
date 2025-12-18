@@ -1,7 +1,6 @@
-﻿namespace Domain.TeamManagement.Models.Entities.Abstracts
+﻿namespace Domain.TeamManagement.Models.Entities.Abstracts;
+
+public abstract class AEngineer : AStaff
 {
-    public abstract class AEngineer : AStaff
-    {
-        int EngineerId { get; set; }
-    }
+    int EngineerId { get; set; }
 }

@@ -1,9 +1,8 @@
 ﻿using Domain.TeamManagement.Models.Entities.Abstracts;
 
-namespace Domain.TeamManagement.Models.Entities
+namespace Domain.TeamManagement.Models.Entities;
+
+public  class PowerEngineer : AEngineer
 {
-    public  class PowerEngineer : AEngineer
-    {
-        public int PowerEngineerId { get; private set; }
-    }
+    public int PowerEngineerId { get; private set; }
 }

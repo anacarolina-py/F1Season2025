@@ -7,4 +7,11 @@ public class Team
     public string Name { get; private set; }
 
     public string Status { get; private set; }
+
+    //CREATE TEAM CONSTRUCTOR
+    public Team(string Name)
+    {
+        this.Name = Name;
+        this.Status = "Inactive";
+    }
 }
