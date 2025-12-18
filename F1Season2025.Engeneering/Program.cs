@@ -1,7 +1,7 @@
+using F1Season2025.Engineering.Data.SQL;
 using F1Season2025.Engineering.Repositories;
 using F1Season2025.Engineering.Services;
 using Infrastructure.Engeneering.Data.Client;
-using Infrastructure.Engeneering.Data.SQL;
 using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);

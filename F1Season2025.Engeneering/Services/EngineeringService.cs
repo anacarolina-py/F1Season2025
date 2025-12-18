@@ -4,10 +4,11 @@ using Infrastructure.Engeneering.Data.Client;
 using System;
 using Dapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using F1Season2025.Engineering.Services.Interfaces;
 
 namespace F1Season2025.Engineering.Services
 {
-    public class EngineeringService
+    public class EngineeringService : IEngineeringService
     {
         private readonly ILogger<EngineeringService> _logger;
         private readonly TeamManagementClient _teamClient;

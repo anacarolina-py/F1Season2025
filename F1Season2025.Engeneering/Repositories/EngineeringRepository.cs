@@ -1,12 +1,13 @@
 ﻿using Dapper;
 using Domain.Engeneering.Models.DTOs;
-using Infrastructure.Engeneering.Data.SQL;
+using F1Season2025.Engineering.Data.SQL;
+using F1Season2025.Engineering.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
 using RabbitMQ.Client;
 
 namespace F1Season2025.Engineering.Repositories
 {
-    public class EngineeringRepository
+    public class EngineeringRepository : IEngineeringRepository
     {
         private readonly SqlConnectionFactory _connectionFactory;
 
@@ -14,48 +15,48 @@ namespace F1Season2025.Engineering.Repositories
         {
             _connectionFactory = connectionFactory;
         }
-        public void UpdateCar(int carId, decimal ca, decimal cp)
+        public async Task UpdateCar(int carId, decimal ca, decimal cp)
         {
             using var connection = _connectionFactory.GetConnection();
             connection.Open();
-            var sql = @"IF EXISTS (SELECT 1 FROM Cars WHERE Id = @carId)
+            var sql = @"IF EXISTS (SELECT 1 FROM Cars WHERE Id = @CarId)
                                  BEGIN
                                     UPDATE Cars
-                                    SET AerodynamicCoefficient = @ca,
-                                        PowerCoefficient = @cp
-                                    WHERE Id = @carId
+                                    SET AerodynamicCoefficient = @Ca,
+                                        PowerCoefficient = @Cp
+                                    WHERE Id = @CarId
                                  END
                                  ELSE
                                  BEGIN
                                     INSERT INTO Cars (Id, AerodynamicCoefficient, PowerCoefficient)
-                                    VALUES (@carId, @ca, @cp)
+                                    VALUES (@CarId, @Ca, @Cp)
                                  END";
               
-            connection.Execute(sql, new 
+            await connection.ExecuteAsync(sql, new 
             { Id = carId,
               AerodynamicCoefficient = ca,
               PowerCoefficient = cp
             });
         }
 
-        public void UpdateHandicap(int driverId, decimal handicap)
+        public async Task UpdateHandicap(int driverId, decimal handicap)
         {
             using var connection = _connectionFactory.GetConnection();
             connection.Open();
 
-            var sql = @"   UPDATE Drivers
-                                    SET Handicap = @Handicap,
-                                    WHERE Id = @DriverId";
+            var sql = @"UPDATE Drivers
+                        SET Handicap = @Handicap
+                            WHERE Id = @DriverId";
                               
 
-            connection.Execute(sql, new
+            await connection.ExecuteAsync(sql, new
             {
                 Id = driverId,
                 Handicap = handicap
             });
         }
 
-        public void UpdateQualifyingPD(int driverId, decimal pd)
+        public async Task UpdateQualifyingPD(int driverId, decimal pd)
         {
             using var connection = _connectionFactory.GetConnection();
             connection.Open();
@@ -68,27 +69,27 @@ namespace F1Season2025.Engineering.Repositories
                                  END
                                  ELSE
                                  BEGIN
-                                    INSERT INTO Driver (Id, QualifyingPd)
+                                    INSERT INTO Drivers (Id, QualifyingPd)
                                     VALUES (@DriverId, @Pd)
                                  END";
 
-            connection.Execute(sql, new
+            await connection.ExecuteAsync(sql, new
             {
                 Id = driverId,
                 Pd = pd
             });
         }
 
-        public void UpdateRacePD(int driverId, decimal pd)
+        public async Task UpdateRacePD(int driverId, decimal pd)
         {
             using var connection = _connectionFactory.GetConnection();
             connection.Open();
 
             var sql = @"UPDATE Drivers
-                                 SET RacePd = @Pd
-                                 WHERE Id = @DriverId";
+                        SET RacePd = @Pd
+                        WHERE Id = @DriverId";
 
-            connection.Execute(sql, new
+            await connection.ExecuteAsync(sql, new
             {
                 Id = driverId,
                 Pd = pd
