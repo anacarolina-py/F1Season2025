@@ -18,10 +18,13 @@ BEGIN
         RETURN;
     END
 
-    IF EXISTS (SELECT 1 FROM inserted WHERE [Status] = 'Ativo')
+    IF EXISTS (SELECT 1 
+               FROM inserted 
+               WHERE [Status] = 'Ativo')
     BEGIN
-        IF (SELECT COUNT(*) 
-            FROM Teams 
+        
+        IF (SELECT COUNT(*)
+            FROM Teams
             WHERE [Status] = 'Ativo') > 11
         BEGIN
             RAISERROR ('Failure: Limit of 11 active teams exceeded.', 16, 1);
@@ -29,60 +32,54 @@ BEGIN
             RETURN;
         END
 
-    IF EXISTS (SELECT 1 
-               FROM inserted 
-               WHERE [Status] = 'Ativo')
-    BEGIN
-        IF EXISTS (
-            SELECT 1 
-            FROM inserted t
-            WHERE (
-                (SELECT COUNT(*) 
-                 FROM TeamsCars tc 
-                 JOIN Cars c ON tc.CarId = c.CarId 
-                 WHERE tc.TeamId = t.TeamId AND 
-                       tc.[Status] = 'Ativo' AND 
-                       c.[Status] = 'Ativo') != 2
-                OR
-                (SELECT COUNT(*) 
-                 FROM TeamBosses tb 
-                 JOIN Staffs s ON (SELECT StaffId 
-                                   FROM Bosses 
-                                   WHERE BossId = tb.BossId) = s.StaffId
-                 WHERE tb.TeamId = t.TeamId AND 
-                                   tb.[Status] = 'Ativo' AND 
-                                   s.[Status] = 'Ativo') != 2
-                OR
-                (SELECT COUNT(*) 
-                 FROM TeamsDrivers td 
-                 JOIN Staffs s ON (SELECT StaffId 
-                                   FROM Drivers 
-                                   WHERE DriverId = td.DriverId) = s.StaffId
-                 WHERE td.TeamId = t.TeamId AND 
-                                   td.[Status] = 'Ativo' AND 
-                                   s.[Status] = 'Ativo') != 2
-                OR
-                (SELECT COUNT(*) 
-                 FROM TeamsAerodynamic ta 
-                 JOIN Staffs s ON (SELECT StaffId 
-                                   FROM Engineers 
-                                   WHERE EngineerId = (SELECT EngineerId 
-                                                       FROM AerodynamicEngineers 
-                                                       WHERE AerodynamicEngineerId = ta.AerodynamicEngineerId)) = s.StaffId
-                 WHERE ta.TeamId = t.TeamId AND
-                                   ta.[Status] = 'Ativo' AND 
-                                   s.[Status] = 'Ativo') != 2
-                OR
-                (SELECT COUNT(*) 
-                 FROM TeamsPower tp 
-                 JOIN Staffs s ON (SELECT StaffId
-                                   FROM Engineers 
-                                   WHERE EngineerId = (SELECT EngineerId
-                                                       FROM PowerEngineers
-                                                       WHERE PowerEngineerId = tp.PowerEngineerId)) = s.StaffId
-                 WHERE tp.TeamId = t.TeamId AND 
-                                   tp.[Status] = 'Ativo' AND
-                                   s.[Status] = 'Ativo') != 2
+        IF EXISTS (SELECT 1 
+                   FROM inserted t
+                   WHERE ((SELECT COUNT(*) 
+                           FROM TeamsCars tc 
+                           JOIN Cars c ON tc.CarId = c.CarId 
+                           WHERE tc.TeamId = t.TeamId AND 
+                                 tc.[Status] = 'Ativo' AND 
+                                 c.[Status] = 'Ativo') != 2 OR
+
+                  (SELECT COUNT(*) 
+                   FROM TeamBosses tb 
+                   JOIN Staffs s ON (SELECT StaffId 
+                                     FROM Bosses 
+                                     WHERE BossId = tb.BossId) = s.StaffId
+                   WHERE tb.TeamId = t.TeamId AND 
+                         tb.[Status] = 'Ativo' AND
+                         s.[Status] = 'Ativo') != 2 OR
+
+                  (SELECT COUNT(*) 
+                   FROM TeamsDrivers td 
+                   JOIN Staffs s ON (SELECT StaffId 
+                                     FROM Drivers 
+                                     WHERE DriverId = td.DriverId) = s.StaffId
+                   WHERE td.TeamId = t.TeamId AND 
+                         td.[Status] = 'Ativo' AND 
+                         s.[Status] = 'Ativo') != 2 OR
+
+                  (SELECT COUNT(*) 
+                   FROM TeamsAerodynamic ta 
+                   JOIN Staffs s ON (SELECT StaffId 
+                                     FROM Engineers
+                                     WHERE EngineerId = (SELECT EngineerId 
+                                                         FROM AerodynamicEngineers
+                                                         WHERE AerodynamicEngineerId = ta.AerodynamicEngineerId)) = s.StaffId
+                   WHERE ta.TeamId = t.TeamId AND 
+                         ta.[Status] = 'Ativo' AND 
+                         s.[Status] = 'Ativo') != 2 OR
+
+                  (SELECT COUNT(*) 
+                   FROM TeamsPower tp 
+                   JOIN Staffs s ON (SELECT StaffId 
+                                     FROM Engineers 
+                                     WHERE EngineerId = (SELECT EngineerId 
+                                                         FROM PowerEngineers
+                                                         WHERE PowerEngineerId = tp.PowerEngineerId)) = s.StaffId
+                   WHERE tp.TeamId = t.TeamId AND 
+                         tp.[Status] = 'Ativo' AND 
+                         s.[Status] = 'Ativo') != 2
             )
         )
         BEGIN
@@ -91,8 +88,8 @@ BEGIN
             RETURN;
         END
     END
-    END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_ValidateCars
 ON Cars
@@ -150,6 +147,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_ValidateStaffs
 ON Staffs
@@ -207,6 +205,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_ValidateSpecialization
 ON Staffs
@@ -239,6 +238,7 @@ BEGIN
         END
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_ValidateBossUniqueness
 ON Bosses
@@ -263,6 +263,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_ValidateDriverUniqueness
 ON Drivers
@@ -287,6 +288,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_ValidateEngineerUniqueness
 ON Engineers
@@ -311,7 +313,7 @@ BEGIN
         RETURN;
     END
 END;
-
+GO
 
 CREATE OR ALTER TRIGGER TR_ValidateDrivers
 ON Drivers
@@ -334,6 +336,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_ValidateEngineerSpecialty
 ON Engineers
@@ -354,6 +357,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_LimitTeamAssets
 ON TeamsCars
@@ -373,6 +377,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_LimitTeamBosses
 ON TeamBosses
@@ -392,6 +397,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_LimitTeamDrivers
 ON TeamsDrivers
@@ -411,6 +417,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_LimitTeamAerodynamic
 ON TeamsAerodynamic
@@ -430,6 +437,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_LimitTeamPower
 ON TeamsPower
@@ -449,6 +457,7 @@ BEGIN
         RETURN;
     END
 END;
+GO
 
 CREATE OR ALTER TRIGGER TR_ValidateCarDriverTeam
 ON CarsDrivers
@@ -469,3 +478,4 @@ BEGIN
         RETURN;
     END
 END;
+GO
