@@ -16,10 +16,10 @@ public abstract class AStaff
 
     public AStaff(string firstName, string lastName, int age)
     {
-        FirstName = firstName;
-        LastName = lastName;
-        Age = age;
-        Experience = (decimal)( new Random().Next(1000,5000)) / (decimal)(1000);
-        Status = "Inativo";
+        this.FirstName = firstName;
+        this.LastName = lastName;
+        this.Age = age;
+        this.Experience = (decimal)( new Random().Next(1000,5000)) / (decimal)(1000);
+        this.Status = "Inativo";
     }
 }

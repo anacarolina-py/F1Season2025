@@ -1,4 +1,4 @@
-﻿using Domain.TeamManagement.Models.DTOs.Bosses;
+﻿using Domain.TeamManagement.Models.DTOs.Staffs.Bosses;
 using F1Season2025.TeamManagement.Services.Staffs.Bosses.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;

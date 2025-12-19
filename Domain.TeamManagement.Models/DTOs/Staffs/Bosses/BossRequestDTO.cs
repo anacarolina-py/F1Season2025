@@ -1,4 +1,4 @@
-﻿namespace Domain.TeamManagement.Models.DTOs.Bosses
+﻿namespace Domain.TeamManagement.Models.DTOs.Staffs.Bosses
 {
     public class BossRequestDTO
     {

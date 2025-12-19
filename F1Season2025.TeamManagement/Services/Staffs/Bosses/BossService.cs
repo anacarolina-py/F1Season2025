@@ -1,4 +1,4 @@
-﻿using Domain.TeamManagement.Models.DTOs.Bosses;
+﻿using Domain.TeamManagement.Models.DTOs.Staffs.Bosses;
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Staffs.Bosses.Interfaces;
 using F1Season2025.TeamManagement.Services.Staffs.Bosses.Interfaces;

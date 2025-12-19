@@ -16,10 +16,10 @@ public class Car
 
     public Car(string model, decimal weight)
     {
-        Model = model;
-        AerodynamicCoefficient = (decimal)(new Random().Next(10000)) / (decimal)1000.00;
-        PowerCoefficient = (decimal)(new Random().Next(10000)) / (decimal)1000.00;
-        Weight = weight;
-        Status = "Inativo";
+        this.Model = model;
+        this.AerodynamicCoefficient = (decimal)(new Random().Next(10000)) / (decimal)1000.00;
+        this.PowerCoefficient = (decimal)(new Random().Next(10000)) / (decimal)1000.00;
+        this.Weight = weight;
+        this.Status = "Inativo";
     }
 }

@@ -10,11 +10,12 @@ public class Driver : AStaff
 
     public decimal Handicap { get; private set; }
 
-    public Driver(string firstName, string lastName, int age, decimal performancePoints, decimal handicap)
+    public Driver(int driverId,string firstName, string lastName, int age)
         : base(firstName, lastName, age)
     {
-        PerformancePoints = performancePoints;
-        Handicap = handicap;
+        this.DriverId = driverId;
+        this.PerformancePoints = 0;
+        this.Handicap = (decimal)new Random().Next(5000,10000) / (decimal)100;
     }
 
 }

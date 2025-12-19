@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using Domain.TeamManagement.Models.DTOs.Bosses;
+using Domain.TeamManagement.Models.DTOs.Staffs.Bosses;
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Staffs.Bosses.Interfaces;
 using Infrastructure.TeamManagement.Data.SQL.Connection;
@@ -20,13 +20,7 @@ public class BossRepository : IBossRepository
 
     public async Task CreateBossAsync(Boss boss)
     {
-        var sqlInsertBoss = @"INSERT INTO Staffs([FirstName],[LastName],[Age],[Experience],[Status])
-                              VALUES (@FirstName,@LastName,@Age,@Experience,@Status);
-
-                              DECLARE @NewStaffId INTEGER = SCOPE_IDENTITY();
- 
-                              INSERT INTO Bosses(StaffId) 
-                              VALUES (@NewStaffId);";
+        var sqlInsertBoss = "EXEC sp_InsertBoss @FirstName, @LastName, @Age, @Experience, @Status";
         try
         {
             _logger.LogInformation("Creating a new boss: {FirstName} {LastName}", boss.FirstName, boss.LastName);

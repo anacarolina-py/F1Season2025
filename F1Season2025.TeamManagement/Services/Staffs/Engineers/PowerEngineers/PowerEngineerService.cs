@@ -1,4 +1,5 @@
-﻿using F1Season2025.TeamManagement.Repositories.Staffs.Engineers.PowerEngineers;
+﻿using Domain.TeamManagement.Models.DTOs.Staffs.Engineers.PowerEngineers;
+using F1Season2025.TeamManagement.Repositories.Staffs.Engineers.PowerEngineers;
 using F1Season2025.TeamManagement.Repositories.Staffs.Engineers.PowerEngineers.Interfaces;
 using F1Season2025.TeamManagement.Services.Staffs.Engineers.PowerEngineers.Interfaces;
 
@@ -13,6 +14,41 @@ namespace F1Season2025.TeamManagement.Services.Staffs.Engineers.PowerEngineers
         {
             _powerEngineerRepository = powerEngineerService;
             _logger = logger;
+        }
+
+        public Task CreatePowerEngineerAsync(PowerEngineerRequestDTO powerEngineerDTO)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<PowerEngineerResponseDTO>> GetActivePowerEngineersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<PowerEngineerResponseDTO>> GetAllPowerEngineersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<PowerEngineerResponseDTO>> GetInactivePowerEngineersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PowerEngineerResponseDTO?> GetPowerEngineerByEngineerIdAsync(int engineerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PowerEngineerResponseDTO?> GetPowerEngineerByPowerEngineerIdAsync(int powerEngineerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PowerEngineerResponseDTO?> GetPowerEngineerByStaffIdAsync(int staffId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
