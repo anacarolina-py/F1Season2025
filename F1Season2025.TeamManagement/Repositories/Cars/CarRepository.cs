@@ -163,4 +163,28 @@ public class CarRepository : ICarRepository
         }
     }
 
+    public async Task ChangeCarStatusByCarIdAsync(int carId, string newStatus)
+    {
+        var sqlChangeCarStatus = @"EXEC sp_ChangeCarStatus @CarId,@NewStatus;";
+        try
+        {
+            _logger.LogInformation("Changing car status by Id in the database.");
+            await _connection.ExecuteAsync(sqlChangeCarStatus, new
+            {
+                CarId = carId,
+                NewStatus = newStatus
+            });
+        }
+        catch (SqlException sqlEx)
+        {
+            _logger.LogError(sqlEx, "SQL error occurred while changing car status by Id.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while changing car status by Id.");
+            throw;
+        }
+    }
+
 }

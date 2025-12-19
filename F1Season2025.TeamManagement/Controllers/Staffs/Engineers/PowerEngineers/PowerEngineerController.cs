@@ -192,4 +192,30 @@ public class PowerEngineerController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    [HttpPut("ids/{powerEngineerId}")]
+    public async Task<ActionResult> ChangePowerEngineerStatusByPowerEngineerIdAsync(int powerEngineerId)
+    {
+        try
+        {
+            _logger.LogInformation($"Changing status for power engineer with ID: {powerEngineerId}");
+            await _powerEngineerService.ChangePowerEngineerStatusByPowerEngineerIdAsync(powerEngineerId);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error changing power engineer status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error changing power engineer status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error changing power engineer status: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }

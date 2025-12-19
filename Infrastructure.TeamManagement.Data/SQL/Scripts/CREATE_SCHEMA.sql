@@ -109,7 +109,7 @@ CREATE TABLE [CarsDrivers] (
 );
 GO
 
-CREATE TABLE [TeamBosses] (
+CREATE TABLE [TeamsBosses] (
 	[TeamId] INTEGER NOT NULL,
 	[BossId] INTEGER NOT NULL,
 	[Status] NVARCHAR(7) NOT NULL DEFAULT 'Ativo',

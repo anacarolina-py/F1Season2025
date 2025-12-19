@@ -11,4 +11,6 @@ public interface IDriverRepository
     Task<List<DriverResponseDTO>> GetAllDriversAsync();
     Task<List<DriverResponseDTO>> GetActiveDriversAsync();
     Task<List<DriverResponseDTO>> GetInactiveDriversAsync();
+
+    Task ChangeDriverStatusByDriverIdAsync(int driverId, string newStatus);
 }

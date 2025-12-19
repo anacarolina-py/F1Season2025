@@ -17,6 +17,36 @@ public class AerodynamicEngineerService : IAerodynamicEngineerService
         _logger = logger;
     }
 
+    public async Task ChangeAerodynamicEngineerStatusByAerodynamicEngineerIdAsync(int aerodynamicEngineerId)
+    {
+        try 
+        { 
+            _logger.LogInformation("Changing status of aerodynamic engineer with ID: {AerodynamicEngineerId}.", aerodynamicEngineerId);
+
+            var aerodynamicEngineer = await _aerodynamicEngineerRepository.GetAerodynamicEngineerByAerodynamicEngineerIdAsync(aerodynamicEngineerId);
+
+            if (aerodynamicEngineer is null)
+            {
+                _logger.LogWarning("Aerodynamic engineer with ID: {AerodynamicEngineerId} not found.", aerodynamicEngineerId);
+                throw new KeyNotFoundException($"Aerodynamic engineer with ID {aerodynamicEngineerId} not found.");
+            }
+
+            var newStatus = aerodynamicEngineer.Status is "Ativo" ? "Inativo" : "Ativo";
+
+            await _aerodynamicEngineerRepository.ChangeAerodynamicEngineerStatusByAerodynamicEngineerIdAsync(aerodynamicEngineerId, newStatus);
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "A SQL error occurred while changing status of aerodynamic engineer with ID: {AerodynamicEngineerId}.", aerodynamicEngineerId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while changing status of aerodynamic engineer with ID: {AerodynamicEngineerId}.", aerodynamicEngineerId);
+            throw;
+        }
+    }
+
     public async Task CreateAerodynamicEngineerAsync(AerodynamicEngineerRequestDTO aerodynamicEngineerDTO)
     {
         #region Validation

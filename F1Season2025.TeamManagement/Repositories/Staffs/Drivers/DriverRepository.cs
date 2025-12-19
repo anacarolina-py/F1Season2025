@@ -20,6 +20,26 @@ public class DriverRepository : IDriverRepository
         _logger = logger;
     }
 
+    public async Task ChangeDriverStatusByDriverIdAsync(int driverId, string newStatus)
+    {
+        try 
+        { 
+            var sqlUpdateDriverStatus = @"EXEC sp_ChangeDriverStatus @DriverId,@NewStatus;";
+            _logger.LogInformation("Changing status of driver with DriverId: {DriverId} to {Status}", driverId, newStatus);
+            await _connection.ExecuteAsync(sqlUpdateDriverStatus, new { NewStatus = newStatus, DriverId = driverId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL Error occurred while changing driver status.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while changing driver status.");
+            throw;
+        }
+    }
+
     public async Task CreateDriverAsync(Driver driver)
     {
         var sqlInsertDriver = @"EXEC sp_InsertDriver @FirstName,@LastName,@Age,@Experience,@Status,@DriverId,@PerformancePoints,@Handicap;";

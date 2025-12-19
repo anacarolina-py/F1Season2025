@@ -222,4 +222,34 @@ public class CarController : ControllerBase
         }
     }
 
+    [HttpPut("ids/{carId}")]
+    public async Task<ActionResult> ChangeCarStatusByIdAsync(int carId) { 
+        try
+        {
+            _logger.LogInformation("Changing car status by id");
+            await _carService.ChangeCarStatusByCarIdAsync(carId);
+            return NoContent();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Error changing car status by id: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error changing car status by id: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error changing car status by id: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error changing car status by id: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
 }

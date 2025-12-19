@@ -168,5 +168,31 @@ public class TeamController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    [HttpPut("ids/{teamId}")]
+    public async Task<ActionResult> ChangeTeamStatusByTeamIdAsync(int teamId)
+    {
+        try
+        {
+            _logger.LogInformation("Changing team status");
+            await _teamService.ChangeTeamStatusByTeamIdAsync(teamId);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error changing team status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error changing team status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error changing team status: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }
 

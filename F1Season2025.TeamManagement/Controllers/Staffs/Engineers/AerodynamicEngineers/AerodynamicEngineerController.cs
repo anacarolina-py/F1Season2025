@@ -185,4 +185,30 @@ public class AerodynamicEngineerController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    [HttpPut("ids/{aerodynamicEngineerId}")]
+    public async Task<ActionResult> ChangeAerodynamicEngineerStatusByAerodynamicEngineerIdAsync(int aerodynamicEngineerId)
+    {
+        try
+        {
+            _logger.LogInformation("Changing aerodynamic engineer status");
+            await _aerodynamicEngineerService.ChangeAerodynamicEngineerStatusByAerodynamicEngineerIdAsync(aerodynamicEngineerId);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error changing aerodynamic engineer status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error changing aerodynamic engineer status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error changing aerodynamic engineer status: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }

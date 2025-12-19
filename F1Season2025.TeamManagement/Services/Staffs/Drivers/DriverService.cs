@@ -2,6 +2,7 @@
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Staffs.Drivers.Interfaces;
 using F1Season2025.TeamManagement.Services.Staffs.Drivers.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
 namespace F1Season2025.TeamManagement.Services.Staffs.Drivers;
@@ -15,6 +16,36 @@ public class DriverService : IDriverService
     {
         _driverRepository = driverRepository;
         _logger = logger;
+    }
+
+    public async Task ChangeDriverStatusByDriverIdAsync(int driverId)
+    {
+        try 
+        { 
+            _logger.LogInformation("Changing status for driver with DriverId: {DriverId}.", driverId);
+
+            var driver = await _driverRepository.GetDriverByDriverIdAsync(driverId);
+
+            if(driver is null)
+            {
+                _logger.LogWarning("No driver found with DriverId {DriverId}. Status change aborted.", driverId);
+                throw new InvalidOperationException($"No driver found with DriverId {driverId}.");
+            }
+
+            var newStatus = driver.Status is "Ativo" ? "Inativo" : "Ativo";
+
+            await _driverRepository.ChangeDriverStatusByDriverIdAsync(driverId,newStatus);
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while changing status for driver with DriverId {DriverId}: {Message}", driverId, ex.Message);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while changing status for driver with DriverId {DriverId}: {Message}", driverId, ex.Message);
+            throw;
+        }
     }
 
     public async Task CreateDriverAsync(DriverRequestDTO driverDTO)

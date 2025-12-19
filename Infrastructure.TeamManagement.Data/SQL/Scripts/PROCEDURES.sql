@@ -129,3 +129,302 @@ BEGIN
     END CATCH
 END;
 GO
+
+CREATE PROCEDURE sp_ChangeCarStatus
+    @CarId INT,
+    @NewStatus VARCHAR(7)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF @NewStatus = 'Inativo'
+        BEGIN
+            UPDATE CarsAerodynamic 
+            SET [Status] = @NewStatus 
+            WHERE CarId = @CarId;
+
+            UPDATE CarsPower       
+            SET [Status] = @NewStatus 
+            WHERE CarId = @CarId;
+
+            UPDATE CarsDrivers    
+            SET [Status] = @NewStatus
+            WHERE CarId = @CarId;
+            
+            UPDATE TeamsCars
+            SET [Status] = @NewStatus
+            WHERE CarId = @CarId;
+        END
+
+        UPDATE Cars
+        SET [Status] = @NewStatus
+        WHERE CarId = @CarId;
+        
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE PROCEDURE sp_ChangeBossStatus
+    @BossId INT,
+    @NewStatus VARCHAR(7)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        DECLARE @StaffId INT;
+        SELECT @StaffId = StaffId FROM Bosses WHERE BossId = @BossId;
+
+        IF @NewStatus = 'Inativo'
+        BEGIN
+            UPDATE TeamsBosses 
+            SET [Status] = @NewStatus 
+            WHERE BossId = @BossId;
+
+            UPDATE Staffs
+            SET [Status] = @NewStatus
+            WHERE StaffId = @StaffId;
+        END
+        ELSE
+        BEGIN
+            UPDATE Staffs
+            SET [Status] = @NewStatus
+            WHERE StaffId = @StaffId;
+        END
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 
+            ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+
+CREATE PROCEDURE sp_ChangeDriverStatus
+    @DriverId INT,
+    @NewStatus VARCHAR(7) 
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        DECLARE @StaffId INT;
+        SELECT @StaffId = StaffId FROM Drivers WHERE DriverId = @DriverId;
+
+        IF @NewStatus = 'Inativo'
+        BEGIN
+            UPDATE CarsDrivers 
+            SET [Status] = @NewStatus
+            WHERE DriverId = @DriverId;
+
+            UPDATE TeamsDrivers
+            SET [Status] = @NewStatus
+            WHERE DriverId = @DriverId;
+
+            UPDATE Staffs
+            SET [Status] = @NewStatus
+            WHERE StaffId = @StaffId;
+        END
+        ELSE IF @NewStatus = 'Ativo'
+        BEGIN
+            UPDATE Staffs
+            SET [Status] = @NewStatus
+            WHERE StaffId = @StaffId;
+        END
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 
+            ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE PROCEDURE sp_ChangeAerodynamicEngineerStatus
+    @AerodynamicEngineerId INT,
+    @NewStatus VARCHAR(7)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+       DECLARE @StaffId INT, @EngineerId INT;
+        
+        SELECT @StaffId = e.StaffId, 
+               @EngineerId = e.EngineerId
+        FROM Engineers e
+        JOIN AerodynamicEngineers ae ON e.EngineerId = ae.EngineerId
+        WHERE ae.AerodynamicEngineerId = @AerodynamicEngineerId;
+
+        IF @NewStatus = 'Inativo'
+        BEGIN
+            UPDATE TeamsAerodynamic 
+            SET [Status] = @NewStatus 
+            WHERE AerodynamicEngineerId = @AerodynamicEngineerId;
+
+            UPDATE CarsAerodynamic  
+            SET [Status] = @NewStatus 
+            WHERE AerodynamicEngineerId = @AerodynamicEngineerId;
+
+            UPDATE Staffs 
+            SET [Status] = @NewStatus 
+            WHERE StaffId = @StaffId;
+        END
+
+        ELSE IF @NewStatus = 'Ativo'
+        BEGIN
+            UPDATE Staffs 
+            SET [Status] = @NewStatus 
+            WHERE StaffId = @StaffId;
+        END
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE PROCEDURE sp_ChangePowerEngineerStatus
+    @PowerEngineerId INT,
+    @NewStatus VARCHAR(7)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        DECLARE @StaffId INT, @EngineerId INT;
+        
+        SELECT @StaffId = e.StaffId, 
+               @EngineerId = e.EngineerId
+        FROM Engineers e
+        JOIN PowerEngineers pe ON e.EngineerId = pe.EngineerId
+        WHERE pe.PowerEngineerId = @PowerEngineerId;
+
+        IF @NewStatus = 'Inativo'
+        BEGIN
+            UPDATE TeamsPower 
+            SET [Status] = @NewStatus 
+            WHERE PowerEngineerId = @PowerEngineerId;
+
+            UPDATE CarsPower  
+            SET [Status] = @NewStatus 
+            WHERE PowerEngineerId = @PowerEngineerId;
+
+            UPDATE Staffs 
+            SET [Status] = @NewStatus 
+            WHERE StaffId = @StaffId;
+        END
+
+        ELSE IF @NewStatus = 'Ativo'
+        BEGIN
+            UPDATE Staffs 
+            SET [Status] = @NewStatus 
+            WHERE StaffId = @StaffId;
+        END
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE PROCEDURE sp_ChangeTeamStatus
+    @TeamId INT,
+    @NewStatus VARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF @NewStatus = 'Inativo'
+        BEGIN
+            UPDATE TeamsBosses 
+            SET [Status] = @NewStatus 
+            WHERE TeamId = @TeamId;
+
+            UPDATE TeamsCars 
+            SET [Status] = @NewStatus 
+            WHERE TeamId = @TeamId;
+
+            UPDATE CarsAerodynamic 
+            SET [Status] = @NewStatus 
+            WHERE CarId IN (SELECT CarId 
+                            FROM TeamsCars 
+                            WHERE TeamId = @TeamId);
+
+            UPDATE CarsPower 
+            SET [Status] = @NewStatus 
+            WHERE CarId IN (SELECT CarId 
+                            FROM TeamsCars
+                            WHERE TeamId = @TeamId);
+
+            UPDATE CarsDrivers 
+            SET [Status] = @NewStatus 
+            WHERE CarId IN (SELECT CarId 
+                            FROM TeamsCars 
+                            WHERE TeamId = @TeamId);
+
+            UPDATE TeamsDrivers
+            SET [Status] = @NewStatus 
+            WHERE TeamId = @TeamId;
+
+            UPDATE TeamsAerodynamic
+            SET [Status] = @NewStatus 
+            WHERE TeamId = @TeamId;
+
+            UPDATE TeamsPower 
+            SET [Status] = @NewStatus 
+            WHERE TeamId = @TeamId;
+
+            UPDATE Teams
+            SET [Status] = @NewStatus
+            WHERE TeamId = @TeamId;
+        END
+        ELSE IF @NewStatus = 'Ativo'
+        BEGIN
+            UPDATE Teams
+            SET [Status] = 'Em Preparo'
+            WHERE TeamId = @TeamId;
+        END
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 
+            ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO

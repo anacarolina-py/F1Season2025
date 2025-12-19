@@ -4,7 +4,6 @@ using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Staffs.Engineers.AerodynamicEngineers.Interfaces;
 using Infrastructure.TeamManagement.Data.SQL.Connection;
 using Microsoft.Data.SqlClient;
-using System.Net.NetworkInformation;
 
 namespace F1Season2025.TeamManagement.Repositories.Staffs.Engineers.AerodynamicEngineers;
 
@@ -17,6 +16,26 @@ public class AerodynamicEngineerRepository : IAerodynamicEngineerRepository
     {
         _connection = connection.GetConnection();
         _logger = logger;
+    }
+
+    public async Task ChangeAerodynamicEngineerStatusByAerodynamicEngineerIdAsync(int aerodynamicEngineerId, string newStatus)
+    {
+        try 
+        { 
+            var sqlUpdateAerodynamicEngineerStatus = @"EXEC sp_ChangeAerodynamicEngineerStatus @AerodynamicEngineerId,@NewStatus;";
+            _logger.LogInformation("Changing status of aerodynamic engineer with AerodynamicEngineerId: {AerodynamicEngineerId} to {Status}", aerodynamicEngineerId, newStatus);
+            await _connection.ExecuteAsync(sqlUpdateAerodynamicEngineerStatus, new { NewStatus = newStatus, AerodynamicEngineerId = aerodynamicEngineerId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"SQL Error changing aerodynamic engineer status.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error changing aerodynamic engineer status.");
+            throw;
+        }
     }
 
     public async Task CreateAerodynamicEngineerAsync(AerodynamicEngineer aerodynamicEngineer)

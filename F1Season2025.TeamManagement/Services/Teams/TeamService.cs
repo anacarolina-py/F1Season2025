@@ -146,5 +146,29 @@ namespace F1Season2025.TeamManagement.Services.Teams
                 throw;
             }
         }
+
+        public async Task ChangeTeamStatusByTeamIdAsync(int teamId)
+        {
+            try 
+            { 
+                _logger.LogInformation("Changing team status by Id in the database.");
+
+                var team = await GetTeamByIdAsync(teamId);
+                if (team is null)
+                {
+                    _logger.LogWarning("Team with Id {TeamId} not found.", teamId);
+                    throw new KeyNotFoundException($"Team with Id {teamId} not found.");
+                }
+
+                var newStatus = team.Status is "Ativo" ? "Inativo" : "Ativo";
+
+                await _teamRepository.ChangeTeamStatusByTeamIdAsync(teamId, newStatus);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while changing team status by Id.");
+                throw;
+            }
+        }
     }
 }

@@ -159,4 +159,30 @@ public class DriverController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    [HttpPut("ids/{driverId}")]
+    public async Task<ActionResult> ChangeDriverStatusByDriverIdAsync(int driverId)
+    {
+        try
+        {
+            _logger.LogInformation("Changing driver status");
+            await _driverService.ChangeDriverStatusByDriverIdAsync(driverId);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error changing driver status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error changing driver status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error changing driver status: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }

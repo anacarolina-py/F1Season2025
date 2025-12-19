@@ -16,4 +16,7 @@ public interface IBossRepository
     Task<List<BossResponseDTO>> GetActiveBossesAsync();
 
     Task<List<BossResponseDTO>> GetInactiveBossesAsync();
+
+    Task ChangeBossStatusByBossIdAsync(int bossId, string newStatus);
+
 }

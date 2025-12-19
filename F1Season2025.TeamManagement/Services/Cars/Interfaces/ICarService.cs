@@ -15,4 +15,6 @@ public interface ICarService
     Task<List<CarResponseDTO>> GetActiveCarsAsync();
 
     Task<List<CarResponseDTO>> GetInactiveCarsAsync();
+
+    Task ChangeCarStatusByCarIdAsync(int carId);
 }

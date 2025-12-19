@@ -184,5 +184,35 @@ namespace F1Season2025.TeamManagement.Services.Staffs.Engineers.PowerEngineers
                 throw;
             }
         }
+
+        public async Task ChangePowerEngineerStatusByPowerEngineerIdAsync(int powerEngineerId)
+        {
+            try 
+            { 
+                _logger.LogInformation("Changing status of power engineer with ID: {PowerEngineerId}.", powerEngineerId);
+
+                var powerEngineer =  await _powerEngineerRepository.GetPowerEngineerByPowerEngineerIdAsync(powerEngineerId);
+
+                if(powerEngineer is null)
+                {
+                    _logger.LogWarning("Power engineer with ID: {PowerEngineerId} not found.", powerEngineerId);
+                    throw new KeyNotFoundException($"Power engineer with ID {powerEngineerId} not found.");
+                }
+
+                var newStatus = powerEngineer.Status is "Ativo" ? "Inativo" : "Ativo";
+
+                await _powerEngineerRepository.ChangePowerEngineerStatusByPowerEngineerIdAsync(powerEngineerId, newStatus);
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "A SQL error occurred while changing status of power engineer with ID: {PowerEngineerId}.", powerEngineerId);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while changing status of power engineer with ID: {PowerEngineerId}.", powerEngineerId);
+                throw;
+            }
+        }
     }
 }

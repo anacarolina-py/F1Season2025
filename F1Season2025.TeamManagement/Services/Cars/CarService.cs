@@ -3,6 +3,7 @@ using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Cars.Interfaces;
 using F1Season2025.TeamManagement.Services.Cars.Interfaces;
 using Microsoft.Data.SqlClient;
+using System.Data.Common;
 
 namespace F1Season2025.TeamManagement.Services.Cars;
 
@@ -153,6 +154,30 @@ public class CarService : ICarService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while retrieving all inactive cars.");
+            throw;
+        }
+    }
+
+    public async Task ChangeCarStatusByCarIdAsync(int carId)
+    {
+        try
+        {
+            _logger.LogInformation("Changing car status by Id in the database.");
+            var car = await GetCarByIdAsync(carId);
+
+            if (car is null)
+            {
+                _logger.LogWarning("Car with Id {CarId} not found.", carId);
+                throw new KeyNotFoundException($"Car with Id {carId} not found.");
+            }
+
+            var newStatus = car.Status is "Ativo" ? "Inativo" : "Ativo";
+
+            await _carRepository.ChangeCarStatusByCarIdAsync(carId, newStatus);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while changing car status by Id.");
             throw;
         }
     }
