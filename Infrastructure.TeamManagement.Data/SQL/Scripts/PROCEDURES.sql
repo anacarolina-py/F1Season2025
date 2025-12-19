@@ -61,3 +61,71 @@ BEGIN
     END CATCH
 END;
 GO
+
+CREATE PROCEDURE sp_InsertAerodynamicEngineer
+    @FirstName VARCHAR(255),
+    @LastName VARCHAR(255),
+    @Age INT,
+    @Experience DECIMAL(4,3),
+    @Status VARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRANSACTION;
+
+    BEGIN TRY
+        INSERT INTO Staffs (FirstName, LastName, Age, Experience, [Status])
+        VALUES (@FirstName, @LastName, @Age, @Experience, @Status);
+
+        DECLARE @NewStaffId INT = SCOPE_IDENTITY();
+
+        INSERT INTO Engineers (StaffId)
+        VALUES (@NewStaffId);
+
+        DECLARE @NewEngineerId INT = SCOPE_IDENTITY();
+
+        INSERT INTO AerodynamicEngineers (EngineerId)
+        VALUES (@NewEngineerId);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE PROCEDURE sp_InsertPowerEngineer
+    @FirstName VARCHAR(255),
+    @LastName VARCHAR(255),
+    @Age INT,
+    @Experience DECIMAL(4,3),
+    @Status VARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRANSACTION;
+
+    BEGIN TRY
+        INSERT INTO Staffs (FirstName, LastName, Age, Experience, [Status])
+        VALUES (@FirstName, @LastName, @Age, @Experience, @Status);
+
+        DECLARE @NewStaffId INT = SCOPE_IDENTITY();
+
+        INSERT INTO Engineers (StaffId)
+        VALUES (@NewStaffId);
+
+        DECLARE @NewEngineerId INT = SCOPE_IDENTITY();
+
+        INSERT INTO PowerEngineers (EngineerId)
+        VALUES (@NewEngineerId);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO

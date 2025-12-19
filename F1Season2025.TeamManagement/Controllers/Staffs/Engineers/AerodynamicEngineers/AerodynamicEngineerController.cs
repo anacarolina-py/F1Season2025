@@ -173,8 +173,8 @@ public class AerodynamicEngineerController : ControllerBase
 
             if (aerodynamicEngineers.Count is 0)
             {
-                _logger.LogWarning("No active aerodynamic engineers found");
-                return NotFound("No active aerodynamic engineers found");
+                _logger.LogWarning("No aerodynamic engineers found");
+                return NotFound("No aerodynamic engineers found");
             }
 
             return Ok(aerodynamicEngineers);

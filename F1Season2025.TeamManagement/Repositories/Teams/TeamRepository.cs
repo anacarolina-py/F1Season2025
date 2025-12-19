@@ -27,7 +27,7 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
             try
             {
                 _logger.LogInformation("Creating a new team: {TeamName}", team.Name);
-                await _connection.ExecuteAsync(sqlInsertTeam, new { Name = team.Name , Status = "Inativo" });
+                await _connection.ExecuteAsync(sqlInsertTeam, new { Name = team.Name , Status = team.Status });
             }
             catch(SqlException sqlEx)
             {

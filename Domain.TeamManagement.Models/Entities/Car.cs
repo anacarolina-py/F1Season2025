@@ -20,6 +20,6 @@ public class Car
         this.AerodynamicCoefficient = (decimal)(new Random().Next(10000)) / (decimal)1000.00;
         this.PowerCoefficient = (decimal)(new Random().Next(10000)) / (decimal)1000.00;
         this.Weight = weight;
-        this.Status = "Inativo";
+        this.Status = "Ativo";
     }
 }

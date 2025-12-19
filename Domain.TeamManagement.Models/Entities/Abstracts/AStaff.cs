@@ -20,6 +20,6 @@ public abstract class AStaff
         this.LastName = lastName;
         this.Age = age;
         this.Experience = (decimal)( new Random().Next(1000,5000)) / (decimal)(1000);
-        this.Status = "Inativo";
+        this.Status = "Ativo";
     }
 }

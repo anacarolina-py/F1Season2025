@@ -2,7 +2,7 @@
 
 public class AerodynamicEngineerResponseDTO
 {
-    public int PowerEngineerId { get; init; }
+    public int AerodynamicEngineerId { get; init; }
 
     public int EngineerId { get; init; }
 

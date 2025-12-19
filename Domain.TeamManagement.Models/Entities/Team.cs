@@ -12,6 +12,6 @@ public class Team
     public Team(string Name)
     {
         this.Name = Name;
-        this.Status = "Inactive";
+        this.Status = "Em Preparo";
     }
 }

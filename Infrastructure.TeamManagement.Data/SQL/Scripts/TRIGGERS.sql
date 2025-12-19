@@ -19,73 +19,79 @@ BEGIN
     END
 
     IF EXISTS (SELECT 1 
-               FROM inserted 
-               WHERE [Status] = 'Ativo')
+               FROM inserted i 
+               JOIN deleted d ON i.TeamId = d.TeamId 
+               WHERE i.[Status] = 'Ativo' AND 
+                     d.[Status] <> 'Ativo')
     BEGIN
-        
         IF (SELECT COUNT(*)
-            FROM Teams
+            FROM Teams 
             WHERE [Status] = 'Ativo') > 11
         BEGIN
             RAISERROR ('Failure: Limit of 11 active teams exceeded.', 16, 1);
-            ROLLBACK TRANSACTION; 
+            ROLLBACK TRANSACTION;
             RETURN;
         END
+    END
 
-        IF EXISTS (SELECT 1 
-                   FROM inserted t
-                   WHERE ((SELECT COUNT(*) 
-                           FROM TeamsCars tc 
-                           JOIN Cars c ON tc.CarId = c.CarId 
-                           WHERE tc.TeamId = t.TeamId AND 
-                                 tc.[Status] = 'Ativo' AND 
-                                 c.[Status] = 'Ativo') != 2 OR
+    IF EXISTS (SELECT 1 FROM inserted WHERE [Status] = 'Ativo')
+    BEGIN
+        DECLARE @TeamId INT;
+        SELECT @TeamId = TeamId FROM inserted;
 
-                  (SELECT COUNT(*) 
-                   FROM TeamBosses tb 
-                   JOIN Staffs s ON (SELECT StaffId 
-                                     FROM Bosses 
-                                     WHERE BossId = tb.BossId) = s.StaffId
-                   WHERE tb.TeamId = t.TeamId AND 
-                         tb.[Status] = 'Ativo' AND
-                         s.[Status] = 'Ativo') != 2 OR
+        DECLARE @Cars INT = (SELECT COUNT(*) 
+                             FROM TeamsCars tc 
+                             JOIN Cars c ON tc.CarId = c.CarId 
+                             WHERE tc.TeamId = @TeamId AND 
+                                   tc.[Status] = 'Ativo' AND
+                                   c.[Status] = 'Ativo');
 
-                  (SELECT COUNT(*) 
-                   FROM TeamsDrivers td 
-                   JOIN Staffs s ON (SELECT StaffId 
-                                     FROM Drivers 
-                                     WHERE DriverId = td.DriverId) = s.StaffId
-                   WHERE td.TeamId = t.TeamId AND 
-                         td.[Status] = 'Ativo' AND 
-                         s.[Status] = 'Ativo') != 2 OR
+        DECLARE @Bosses INT = (SELECT COUNT(*)
+                               FROM TeamBosses tb 
+                               JOIN Staffs s ON EXISTS(SELECT 1 
+                                                       FROM Bosses b 
+                                                       WHERE b.BossId = tb.BossId AND 
+                                                             b.StaffId = s.StaffId) 
+                               WHERE tb.TeamId = @TeamId AND 
+                                     tb.[Status] = 'Ativo' AND
+                                     s.[Status] = 'Ativo');
 
-                  (SELECT COUNT(*) 
-                   FROM TeamsAerodynamic ta 
-                   JOIN Staffs s ON (SELECT StaffId 
-                                     FROM Engineers
-                                     WHERE EngineerId = (SELECT EngineerId 
-                                                         FROM AerodynamicEngineers
-                                                         WHERE AerodynamicEngineerId = ta.AerodynamicEngineerId)) = s.StaffId
-                   WHERE ta.TeamId = t.TeamId AND 
-                         ta.[Status] = 'Ativo' AND 
-                         s.[Status] = 'Ativo') != 2 OR
+        DECLARE @Drivers INT = (SELECT COUNT(*) 
+                                FROM TeamsDrivers td 
+                                JOIN Staffs s ON EXISTS(SELECT 1 
+                                                        FROM Drivers d 
+                                                        WHERE d.DriverId = td.DriverId AND 
+                                                              d.StaffId = s.StaffId) 
+                                WHERE td.TeamId = @TeamId AND 
+                                      td.[Status] = 'Ativo' AND 
+                                      s.[Status] = 'Ativo');
+                                      
+        DECLARE @Aero INT = (SELECT COUNT(*) 
+                             FROM TeamsAerodynamic ta 
+                             JOIN Staffs s ON EXISTS(SELECT 1 
+                                                     FROM AerodynamicEngineers ae 
+                                                     JOIN Engineers e ON ae.EngineerId = e.EngineerId 
+                                                     WHERE ae.AerodynamicEngineerId = ta.AerodynamicEngineerId AND 
+                                                           e.StaffId = s.StaffId) 
+                             WHERE ta.TeamId = @TeamId AND
+                                   ta.[Status] = 'Ativo' AND 
+                                   s.[Status] = 'Ativo');
 
-                  (SELECT COUNT(*) 
-                   FROM TeamsPower tp 
-                   JOIN Staffs s ON (SELECT StaffId 
-                                     FROM Engineers 
-                                     WHERE EngineerId = (SELECT EngineerId 
-                                                         FROM PowerEngineers
-                                                         WHERE PowerEngineerId = tp.PowerEngineerId)) = s.StaffId
-                   WHERE tp.TeamId = t.TeamId AND 
-                         tp.[Status] = 'Ativo' AND 
-                         s.[Status] = 'Ativo') != 2
-            )
-        )
+        DECLARE @Power INT = (SELECT COUNT(*) 
+                              FROM TeamsPower tp 
+                              JOIN Staffs s ON EXISTS(SELECT 1 
+                                                      FROM PowerEngineers pe 
+                                                      JOIN Engineers e ON pe.EngineerId = e.EngineerId 
+                                                      WHERE pe.PowerEngineerId = tp.PowerEngineerId AND 
+                                                            e.StaffId = s.StaffId) 
+                              WHERE tp.TeamId = @TeamId AND 
+                                    tp.[Status] = 'Ativo' AND 
+                                    s.[Status] = 'Ativo');
+
+        IF (@Cars != 2 OR @Bosses != 2 OR @Drivers != 2 OR @Aero != 2 OR @Power != 2)
         BEGIN
-            RAISERROR ('Failure: Team can only be Active if it has 10 active records (2 per category) in both relational and main tables.', 16, 1);
-            ROLLBACK TRANSACTION; 
-            RETURN;
+            RAISERROR ('Failure: Team requires exactly 2 active records in each of the 5 categories to be Active.', 16, 1);
+            ROLLBACK TRANSACTION; RETURN;
         END
     END
 END;
@@ -430,7 +436,7 @@ BEGIN
                WHERE (SELECT COUNT(*) 
                       FROM TeamsAerodynamic 
                       WHERE TeamId = i.TeamId AND 
-                            [Status] = 'ATIVO') > 2)
+                            [Status] = 'Ativo') > 2)
     BEGIN
         RAISERROR ('Failure: Each team can have a maximum of 2 active aerodynamic engineers.', 16, 1);
         ROLLBACK TRANSACTION;
@@ -476,6 +482,105 @@ BEGIN
         RAISERROR ('Failure: Driver and Car must belong to the same team.', 16, 1);
         ROLLBACK TRANSACTION; 
         RETURN;
+    END
+END;
+GO
+
+CREATE OR ALTER TRIGGER TR_MonitorTeamsDriversStatus
+ON TeamsDrivers
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 
+               FROM inserted i 
+               JOIN Teams t ON i.TeamId = t.TeamId 
+               WHERE i.[Status] <> 'Ativo' AND 
+                     t.[Status] = 'Ativo')
+    BEGIN
+        UPDATE Teams 
+        SET [Status] = 'Em Preparo'
+        WHERE TeamId IN (SELECT TeamId 
+                         FROM inserted 
+                         WHERE [Status] <> 'Ativo');
+    END
+END;
+GO
+
+
+CREATE OR ALTER TRIGGER TR_MonitorTeamBossesStatus
+ON TeamBosses 
+AFTER UPDATE AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 
+               FROM inserted i
+               JOIN Teams t ON i.TeamId = t.TeamId 
+               WHERE i.[Status] <> 'Ativo' AND
+                     t.[Status] = 'Ativo')
+    BEGIN
+        UPDATE Teams SET [Status] = 'Em Preparo'
+        WHERE TeamId IN (SELECT TeamId 
+                         FROM inserted 
+                         WHERE [Status] <> 'Ativo');
+    END
+END;
+GO
+
+CREATE OR ALTER TRIGGER TR_MonitorTeamsAerodynamicStatus
+ON TeamsAerodynamic 
+AFTER UPDATE AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 
+               FROM inserted i 
+               JOIN Teams t ON i.TeamId = t.TeamId 
+               WHERE i.[Status] <> 'Ativo' AND
+                     t.[Status] = 'Ativo')
+    BEGIN
+        UPDATE Teams SET [Status] = 'Em Preparo'
+        WHERE TeamId IN (SELECT TeamId 
+                         FROM inserted 
+                         WHERE [Status] <> 'Ativo');
+    END
+END;
+GO
+
+CREATE OR ALTER TRIGGER TR_MonitorTeamsPowerStatus
+ON TeamsPower 
+AFTER UPDATE AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 
+               FROM inserted i
+               JOIN Teams t ON i.TeamId = t.TeamId 
+               WHERE i.[Status] <> 'Ativo' AND
+                     t.[Status] = 'Ativo')
+    BEGIN
+        UPDATE Teams SET [Status] = 'Em Preparo'
+        WHERE TeamId IN (SELECT TeamId
+                         FROM inserted 
+                         WHERE [Status] <> 'Ativo');
+    END
+END;
+GO
+
+CREATE OR ALTER TRIGGER TR_MonitorTeamsCarsStatus
+ON TeamsCars 
+AFTER UPDATE AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 
+               FROM inserted i 
+               JOIN Teams t ON i.TeamId = t.TeamId 
+               WHERE i.[Status] <> 'Ativo' AND
+                     t.[Status] = 'Ativo')
+    BEGIN
+        UPDATE Teams SET [Status] = 'Em Preparo'
+        WHERE TeamId IN (SELECT TeamId 
+                         FROM inserted 
+                         WHERE [Status] <> 'Ativo');
     END
 END;
 GO

@@ -7,7 +7,7 @@ GO
 CREATE TABLE [Teams] (
 	[TeamId] INTEGER NOT NULL PRIMARY KEY IDENTITY(1,1),
 	[Name] NVARCHAR(50) NOT NULL UNIQUE,
-	[Status] NVARCHAR(7) NOT NULL DEFAULT 'Inativo'
+	[Status] NVARCHAR(10) NOT NULL DEFAULT 'Em Preparo'
 );
 GO
 
@@ -17,7 +17,7 @@ CREATE TABLE [Cars] (
 	[AerodynamicCoefficient] DECIMAL(5,3) NOT NULL DEFAULT 5.0,
 	[PowerCoefficient] DECIMAL(5,3) NOT NULL DEFAULT 5.0,
 	[Weight] DECIMAL(5,2) NOT NULL DEFAULT 700.00,
-	[Status] NVARCHAR(7) NOT NULL DEFAULT 'Inativo'
+	[Status] NVARCHAR(7) NOT NULL DEFAULT 'Ativo'
 );
 GO
 
@@ -27,7 +27,7 @@ CREATE TABLE [Staffs] (
 	[LastName] NVARCHAR(255) NOT NULL,
 	[Age] INTEGER NOT NULL,
 	[Experience] DECIMAL(4,3) NOT NULL DEFAULT 1.0,
-	[Status] NVARCHAR(7) NOT NULL DEFAULT 'Inativo'
+	[Status] NVARCHAR(7) NOT NULL DEFAULT 'Ativo'
 );
 GO
 
@@ -148,3 +148,4 @@ CREATE TABLE [TeamsPower] (
 	PRIMARY KEY([TeamId], [PowerEngineerId])
 );
 GO
+
