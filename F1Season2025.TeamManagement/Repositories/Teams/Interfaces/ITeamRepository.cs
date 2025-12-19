@@ -13,6 +13,8 @@ namespace F1Season2025.TeamManagement.Repositories.Teams.Interfaces
 
         Task<List<TeamResponseDTO>> GetActiveTeamsAsync();
 
+        Task<List<TeamPerformanceResponseDTO>> GetActivePerformanceTeamsAsync();
+
         Task<List<TeamResponseDTO>> GetInactiveTeamsAsync();
 
         Task<List<TeamResponseDTO>> GetAllTeamsAsync();

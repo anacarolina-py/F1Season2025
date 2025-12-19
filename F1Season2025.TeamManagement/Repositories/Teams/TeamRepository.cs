@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Domain.TeamManagement.Models.DTOs.Cars;
 using Domain.TeamManagement.Models.DTOs.Teams;
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Teams.Interfaces;
@@ -152,6 +153,89 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
                 throw;
             }
             
+        }
+
+        public async Task<List<TeamPerformanceResponseDTO>> GetActivePerformanceTeamsAsync()
+        {
+            #region SQLQuery
+            var sqlSelectAcrivePerformanceTeam = @"SELECT 
+                            t.TeamId,
+                            bt.BossId,
+                            c.CarId,
+                            c.AerodynamicCoefficient,
+                            c.PowerCoefficient,
+                            d.DriverId,
+                            d.Handicap,
+                            s_d.Experience AS DriverExperience,
+                            d.PerformancePoints AS Pd,
+                            ae.AerodynamicEngineerId,
+                            pe.PowerEngineerId,
+                            s_ae.Experience AS AeroExperience,
+                            s_pe.Experience AS PowerExperience
+                        FROM Teams t
+                        JOIN TeamBosses bt ON t.TeamId = bt.TeamId
+                        JOIN TeamsCars tc ON t.TeamId = tc.TeamId
+                        JOIN Cars c ON tc.CarId = c.CarId
+                        JOIN CarsDrivers cd ON c.CarId = cd.CarId
+                        JOIN Drivers d ON cd.DriverId = d.DriverId
+                        JOIN Staffs s_d ON d.StaffId = s_d.StaffId
+                        JOIN CarsAerodynamic cae ON c.CarId = cae.CarId
+                        JOIN AerodynamicEngineers ae ON cae.AerodynamicEngineerId = ae.AerodynamicEngineerId
+                        JOIN Engineers e_ae ON ae.EngineerId = e_ae.EngineerId
+                        JOIN Staffs s_ae ON e_ae.StaffId = s_ae.StaffId
+                        JOIN CarsPower cpe ON c.CarId = cpe.CarId
+                        JOIN PowerEngineers pe ON cpe.PowerEngineerId = pe.PowerEngineerId
+                        JOIN Engineers e_pe ON pe.EngineerId = e_pe.EngineerId
+                        JOIN Staffs s_pe ON e_pe.StaffId = s_pe.StaffId
+                        WHERE t.[Status] = 'Ativo' AND
+                              bt.[Status] = 'Ativo'  AND 
+                              tc.[Status] = 'Ativo' AND 
+                              cd.[Status] = 'Ativo';";
+
+            #endregion
+            var teamDictionary = new Dictionary<int, TeamPerformanceResponseDTO>();
+
+            try
+            {
+                var rawData = await _connection.QueryAsync<dynamic>(sqlSelectAcrivePerformanceTeam);
+                var rows = rawData.ToList();
+
+                var result = rows.GroupBy(r => (int)r.TeamId)
+                                 .Select(teamGroup => new TeamPerformanceResponseDTO
+                                  {
+                                      TeamId = teamGroup.Key,
+                                      BossIds = teamGroup
+                                          .Select(r => (int)r.BossId)
+                                          .Distinct()
+                                          .ToList(),
+                                      Cars = teamGroup
+                                          .GroupBy(r => (int)r.CarId)
+                                          .Select(carGroup => {
+                                              var first = carGroup.First();
+                                              return new CarPerformanceDTO
+                                              {
+                                                  CarId = carGroup.Key,
+                                                  AerodynamicCoefficient = (decimal)first.AerodynamicCoefficient,
+                                                  PowerCoefficient = (decimal)first.PowerCoefficient,
+                                                  DriverId = (int)first.DriverId,
+                                                  Handicap = (decimal)first.Handicap,
+                                                  DriverExperience = (decimal)first.DriverExperience,
+                                                  Pd = (decimal)first.Pd,
+                                                  AerodynamicEngineerId = (int)first.AerodynamicEngineerId,
+                                                  PowerEngineerId = (int)first.PowerEngineerId,
+                                                  AeroExperience = (decimal)first.AeroExperience,
+                                                  PowerExperience = (decimal)first.PowerExperience
+                                              };
+                                          }).ToList()
+                                  }).ToList();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching active teams with Dapper grouping");
+                throw;
+            }
         }
     }
 }

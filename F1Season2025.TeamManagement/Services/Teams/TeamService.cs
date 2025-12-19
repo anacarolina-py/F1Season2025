@@ -132,5 +132,19 @@ namespace F1Season2025.TeamManagement.Services.Teams
                 throw;
             }
         }
+
+        public async Task<List<TeamPerformanceResponseDTO>> GetActivePerformanceTeamsAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Searching for active performance teams.");
+                return await _teamRepository.GetActivePerformanceTeamsAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while searching for active performance teams.");
+                throw;
+            }
+        }
     }
 }

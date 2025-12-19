@@ -1,5 +1,4 @@
 ﻿using Domain.TeamManagement.Models.DTOs.Staffs.Engineers.PowerEngineers;
-using Domain.TeamManagement.Models.Entities.Abstracts;
 using F1Season2025.TeamManagement.Services.Staffs.Engineers.PowerEngineers.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;

@@ -148,5 +148,25 @@ public class TeamController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    [HttpGet("activeperformances")]
+    public async Task<ActionResult<List<TeamPerformanceResponseDTO>>> GetActivePerformanceTeamsAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Searching for active performance teams");
+            var teams = await _teamService.GetActivePerformanceTeamsAsync();
+
+            if (teams.Count is 0)
+                return NotFound("There are not active performance teams.");
+
+            return Ok(teams);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error searching for teams: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }
 
