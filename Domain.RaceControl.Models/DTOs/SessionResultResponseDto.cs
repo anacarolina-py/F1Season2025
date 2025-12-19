@@ -7,8 +7,8 @@ public class SessionResultResponseDto
 {
 
     [JsonPropertyName("drivers")]
-    public List<DriverChampionshipResponseDto> Drivers { get; init; }
+    public List<DriverChampionshipResponseDto> Drivers { get; init; } = [];
 
     [JsonPropertyName("teams")]
-    public List<ConstructorChampionshipResponseDto> Teams { get; init; }
+    public List<ConstructorChampionshipResponseDto> Teams { get; init; } = [];
 }

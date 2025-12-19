@@ -25,7 +25,7 @@ public class RaceController : ControllerBase
             _logger.LogInformation("Get all races...");
 
             var races = await _raceService.GetAllRacesSeasonAsync();
-            if(races.Count < 1)
+            if (races.Count < 1)
             {
                 _logger.LogInformation("Not found races");
                 return NotFound("Register not found");
@@ -83,7 +83,7 @@ public class RaceController : ControllerBase
         }
     }
 
-    [HttpPost("{idCircuit}/simulate/fp/{number}")]
+    [HttpPost("{idCircuit}/simulate/fp/{number}/start")]
     public async Task<ActionResult<RaceControlResponseDto>> StartFreePracticeAsync(string idCircuit, int number)
     {
         try
@@ -91,7 +91,7 @@ public class RaceController : ControllerBase
             var race = await _raceService.StartFreePracticeAsync(idCircuit, number);
 
             if (race is null)
-                return NotFound("Register not found");
+                return BadRequest("Free practice not found");
 
             return Ok(race);
         }

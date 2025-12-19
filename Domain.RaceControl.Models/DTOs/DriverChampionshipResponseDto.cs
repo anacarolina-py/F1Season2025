@@ -5,23 +5,23 @@ namespace Domain.RaceControl.Models.DTOs;
 public class DriverChampionshipResponseDto
 {
     [JsonPropertyName("name_driver")]
-    public string NameDriver { get; private set; }
+    public string NameDriver { get; init; }
 
     [JsonPropertyName("number")]
-    public int Number { get; private set; }
+    public int Number { get; init; }
 
     [JsonPropertyName("name_team")]
-    public string NameTeam { get; private set; }
+    public string NameTeam { get; init; }
 
     [JsonPropertyName("points")]
-    public int Points { get; private set; }
+    public int Points { get; init; }
 
     [JsonPropertyName("placing")]
-    public int Placing { get; private set; }
+    public int Placing { get; init; }
 
     [JsonPropertyName("wins")]
-    public int Wins { get; private set; }
+    public int Wins { get; init; }
 
     [JsonPropertyName("grid_position")]
-    public int GridPosition { get; private set; }
+    public int GridPosition { get; init; }
 }

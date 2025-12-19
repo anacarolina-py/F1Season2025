@@ -11,9 +11,6 @@ public class SessionResponseDto
     [JsonPropertyName("type")]
     public string Type { get; init; }
 
-    [JsonPropertyName("order")]
-    public int Order { get; init; }
-
     [JsonPropertyName("status")]
     public string Status { get; init; }
 }

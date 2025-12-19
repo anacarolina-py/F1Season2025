@@ -10,24 +10,23 @@ public class RaceGrandPix
     [BsonId]
     public ObjectId Id { get; init; }
 
+    [BsonElement("circuit")]
     public Circuit Circuit { get; private set; }
 
+    [BsonElement("season")]
     public Season Season { get; private set; }
 
-    [BsonElement("Session")]
-    private readonly List<Session> _session;
-
-    [BsonIgnore]
-    public IReadOnlyCollection<Session> Session => _session;
+    [BsonElement("session")]
+    public List<Session> Session { get; private set; }
 
     [BsonConstructor]
-    public RaceGrandPix(Circuit circuit, Season season)
+    public RaceGrandPix(Circuit circuit, Season season, List<Session> session)
     {
         Id = ObjectId.GenerateNewId();
         Circuit = circuit;
         Season = season;
 
-        _session = new List<Session> {
+        Session = session ?? new List<Session> {
             new (EType.FreePractice1, 1),
             new (EType.FreePractice2, 2),
             new (EType.FreePractice3, 3),
@@ -36,29 +35,18 @@ public class RaceGrandPix
         };
     }
 
-    
-    protected RaceGrandPix(ObjectId id, Circuit circuit, Season season, List<Session> session)
-    {
-        Id = id;
-        Circuit = circuit;
-        Season = season;
-        _session = session;
-    }
-
-
-
     public void SetSession(List<Session> session)
     {
-        _session.AddRange(session);
+        Session.AddRange(session);
     }
 
     public void StartSession(EType type)
     {
-        var session = _session.FirstOrDefault(s => s.Type == type);
+        var session = Session.FirstOrDefault(s => s.Type == type);
         if (session is null)
             throw new ArgumentNullException("Sessão não existe.");
 
-        var existSession = _session.Any(s => s.Order < session.Order
+        var existSession = Session.Any(s => s.Order < session.Order
                                 && s.Status != EStatus.Finished);
 
         if (session.Status == EStatus.Finished)
@@ -72,12 +60,12 @@ public class RaceGrandPix
 
     public void UpdateResultsSession(EType type, SessionResult result)
     {
-        var session = _session.FirstOrDefault(s => s.Type == type);
+        var session = Session.FirstOrDefault(s => s.Type == type);
 
         if (session is null)
             throw new ArgumentNullException("Incorrect type session");
 
-        var existSession = _session.Any(s => s.Order < session.Order
+        var existSession = Session.Any(s => s.Order < session.Order
                                 && s.Status != EStatus.Finished);
 
         if (existSession)

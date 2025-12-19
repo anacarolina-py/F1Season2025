@@ -11,5 +11,5 @@ public class RaceControlResponseDto
     public SeasonResponseDto Season { get; init; }
 
     [JsonPropertyName("sessions")]
-    public IReadOnlyCollection<SessionResponseDto> Session { get; init; } = [];
+    public List<SessionResponseDto> Session { get; init; } = [];
 }

@@ -29,6 +29,9 @@ public class Session
         Order = order;
     }
 
+    [BsonConstructor]
+    private Session() { }
+
     public void Start()
         => Status = EStatus.Live;
 

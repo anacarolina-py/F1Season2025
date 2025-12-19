@@ -20,4 +20,7 @@ public class SessionResult
         Drivers = drivers;
         Teams = teams;
     }
+
+    [BsonConstructor]
+    private SessionResult() { }
 }

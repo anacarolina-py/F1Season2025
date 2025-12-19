@@ -4,6 +4,7 @@ using Domain.RaceControl.Models.Entities.Enums;
 using Domain.RaceControl.Models.Extensions;
 using F1Season2025.RaceControl.Repositories.Interfaces;
 using F1Season2025.RaceControl.Services.Intefaces;
+using System.Diagnostics;
 
 namespace F1Season2025.RaceControl.Services;
 
@@ -30,9 +31,51 @@ public class RaceService : IRaceService
 
             var circuit = new Circuit(idCircuit, "Interlagos", "Brasil", 57);
             var season = new Season(Guid.NewGuid().ToString(), "F1 Temporada 2025");
-            var raceGrandPix = new RaceGrandPix(circuit, season);
+            var raceGrandPix = new RaceGrandPix(circuit, season, null);
 
             return await _raceRepository.CreateRace(raceGrandPix);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public async Task<RaceControlResponseDto> FinishFreePracticeAsync(string idCircuit, int number)
+    {
+        try
+        {
+            var race = await GetRaceSeasonByIdCircuitAsync(idCircuit);
+
+            if (race is null)
+                throw new Exception("Circuit not found or not implemented");
+
+            var raceDto = number switch
+            {
+                1 => await FinishFreePractice1(race),
+                2 => await FinishFreePractice2(race),
+                3 => await FinishFreePractice3(race),
+                _ => null
+            };
+
+            _logger.LogInformation("Get all teams");
+            var constructors = new List<ConstructorChampionship>
+            {
+                new(1, "Ferrari"),
+                new(2, "Red Bull"),
+                new(3, "Mercedes Benz"),
+            };
+
+            _logger.LogInformation("Get all drivers");
+            var drivers = new List<DriverChampionship>
+            {
+                new(1, "Hamilton", 22, 1, "Ferrari"),
+                new(2, "Verstappen", 33, 2, "Red Bull"),
+                new(3, "Norris", 44, 3, "Mercedes Benz")
+            };
+
+            _logger.LogInformation("Update data");
+            race.UpdateResultsSession(EType.FreePractice2, sessionResult);
         }
         catch (Exception ex)
         {
@@ -56,7 +99,8 @@ public class RaceService : IRaceService
     {
         try
         {
-            return await _raceRepository.GetRaceSeasonByIdCircuitAsync(idCircuit);
+            var race = await _raceRepository.GetRaceSeasonByIdCircuitAsync(idCircuit);
+            return race.ToDto();
         }
         catch (Exception ex)
         {
@@ -68,41 +112,20 @@ public class RaceService : IRaceService
     {
         try
         {
-            var raceGrandPix = await GetRaceSeasonByIdCircuitAsync(idCircuit);
+            var race = await _raceRepository.GetRaceSeasonByIdCircuitAsync(idCircuit);
 
-            if (raceGrandPix is null)
+            if (race is null)
                 throw new Exception("Circuit not found or not implemented");
-
-            var race = raceGrandPix.ToEntity();
 
             var raceDto = number switch
             {
                 1 => await StartFreePractice1(race),
                 2 => await StartFreePractice2(race),
-                3 => await StartFreePractice3(race)
+                3 => await StartFreePractice3(race),
+                _ => null
             };
 
-            var constructors = new List<ConstructorChampionship>
-            {
-                new(1, "Ferrari"),
-                new(2, "Red Bull"),
-                new(3, "Mercedes Benz"),
-            };
-
-            var drivers = new List<DriverChampionship>
-            {
-                new(1, "Hamilton", 22, 1, "Ferrari"),
-                new(2, "Verstappen", 33, 2, "Red Bull"),
-                new(3, "Norris", 44, 3, "Mercedes Benz")
-            };
-
-            var sessionResult = new SessionResult(drivers, constructors);
-
-
-            race.StartSession(EType.FreePractice1);
-            race.UpdateResultsSession(EType.FreePractice1, sessionResult);
-
-            return await _raceRepository.StartFreePractice1(race);
+            return raceDto;
         }
         catch (Exception ex)
         {
@@ -114,31 +137,17 @@ public class RaceService : IRaceService
     {
         try
         {
-            _logger.LogInformation("Get all teams");
-            var constructors = new List<ConstructorChampionship>
-            {
-                new(1, "Ferrari"),
-                new(2, "Red Bull"),
-                new(3, "Mercedes Benz"),
-            };
+            var session = race.Session.Where(s => s.Type == EType.FreePractice1).FirstOrDefault();
 
-            _logger.LogInformation("Get all drivers");
-            var drivers = new List<DriverChampionship>
-            {
-                new(1, "Hamilton", 22, 1, "Ferrari"),
-                new(2, "Verstappen", 33, 2, "Red Bull"),
-                new(3, "Norris", 44, 3, "Mercedes Benz")
-            };
-
-            var sessionResult = new SessionResult(drivers, constructors);
+            if (session.Status == EStatus.Live)
+                throw new Exception("Cannot start the session because it is already live.");
 
             _logger.LogInformation("Start free practice");
             race.StartSession(EType.FreePractice1);
 
             _logger.LogInformation("Update data");
-            race.UpdateResultsSession(EType.FreePractice1, sessionResult);
 
-            return await _raceRepository.StartFreePractice1(race);
+            return await _raceRepository.StartFreePractice(race);
         }
         catch (Exception ex)
         {
@@ -150,32 +159,15 @@ public class RaceService : IRaceService
     {
         try
         {
+            var session = race.Session.Where(s => s.Type == EType.FreePractice1).FirstOrDefault();
 
-            _logger.LogInformation("Get all teams");
-            var constructors = new List<ConstructorChampionship>
-            {
-                new(1, "Ferrari"),
-                new(2, "Red Bull"),
-                new(3, "Mercedes Benz"),
-            };
-
-            _logger.LogInformation("Get all drivers");
-            var drivers = new List<DriverChampionship>
-            {
-                new(1, "Hamilton", 22, 1, "Ferrari"),
-                new(2, "Verstappen", 33, 2, "Red Bull"),
-                new(3, "Norris", 44, 3, "Mercedes Benz")
-            };
-
-            var sessionResult = new SessionResult(drivers, constructors);
+            if (session.Status == EStatus.Live)
+                throw new Exception("Cannot start the session because it is already live.");
 
             _logger.LogInformation("Start free practice");
             race.StartSession(EType.FreePractice2);
 
-            _logger.LogInformation("Update data");
-            race.UpdateResultsSession(EType.FreePractice2, sessionResult);
-
-            return await _raceRepository.StartFreePractice1(race);
+            return await _raceRepository.StartFreePractice(race);
         }
         catch (Exception ex)
         {
@@ -187,32 +179,15 @@ public class RaceService : IRaceService
     {
         try
         {
+            var session = race.Session.Where(s => s.Type == EType.FreePractice1).FirstOrDefault();
 
-            _logger.LogInformation("Get all teams");
-            var constructors = new List<ConstructorChampionship>
-            {
-                new(1, "Ferrari"),
-                new(2, "Red Bull"),
-                new(3, "Mercedes Benz"),
-            };
+            if (session.Status == EStatus.Live)
+                throw new Exception("Cannot start the session because it is already live.");
 
-            _logger.LogInformation("Get all drivers");
-            var drivers = new List<DriverChampionship>
-            {
-                new(1, "Hamilton", 22, 1, "Ferrari"),
-                new(2, "Verstappen", 33, 2, "Red Bull"),
-                new(3, "Norris", 44, 3, "Mercedes Benz")
-            };
+            _logger.LogInformation("Start free practice");
+            race.StartSession(EType.FreePractice2);
 
-            var sessionResult = new SessionResult(drivers, constructors);
-
-            _logger.LogInformation("Start free practice 3");
-            race.StartSession(EType.FreePractice3);
-
-            _logger.LogInformation("Update data free practice 3");
-            race.UpdateResultsSession(EType.FreePractice3, sessionResult);
-
-            return await _raceRepository.StartFreePractice1(race);
+            return await _raceRepository.StartFreePractice(race);
         }
         catch (Exception ex)
         {
@@ -220,4 +195,6 @@ public class RaceService : IRaceService
             throw new Exception(ex.Message);
         }
     }
+
+
 }

@@ -62,10 +62,11 @@ public class RaceRepository : IRaceRepository
         }
     }
 
-    public async Task<RaceControlResponseDto?> GetRaceSeasonByIdCircuitAsync(string idCircuit)
+    public async Task<RaceGrandPix?> GetRaceSeasonByIdCircuitAsync(string idCircuit)
     {
         try
         {
+            _logger.LogInformation("Find race by id circuit");
             var race = await _mongoRaceControl
                 .Find(r => r.Circuit.IdCircuit == idCircuit)
                 .FirstOrDefaultAsync();
@@ -73,7 +74,7 @@ public class RaceRepository : IRaceRepository
             if (race is null)
                 return null;
 
-            return race.ToDto();
+            return race;
         }
         catch (MongoException mongoEx)
         {
@@ -87,7 +88,7 @@ public class RaceRepository : IRaceRepository
         }
     }
 
-    public async Task<RaceControlResponseDto> StartFreePractice1(RaceGrandPix raceGrandPix)
+    public async Task<RaceControlResponseDto> StartFreePractice(RaceGrandPix raceGrandPix)
     {
         try
         {
@@ -119,4 +120,5 @@ public class RaceRepository : IRaceRepository
             throw new Exception(ex.Message);
         }
     }
+
 }

@@ -7,6 +7,6 @@ public interface IRaceRepository
 {
     Task<List<RaceControlResponseDto>> GetAllRacesSeasonAsync();
     Task<RaceControlResponseDto> CreateRace(RaceGrandPix race);
-    Task<RaceControlResponseDto> GetRaceSeasonByIdCircuitAsync(string idCircuit);
-    Task<RaceControlResponseDto> StartFreePractice1(RaceGrandPix raceGrandPix);
+    Task<RaceGrandPix?> GetRaceSeasonByIdCircuitAsync(string idCircuit);
+    Task<RaceControlResponseDto> StartFreePractice(RaceGrandPix raceGrandPix);
 }
