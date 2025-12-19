@@ -6,11 +6,20 @@ namespace Domain.RaceControl.Models.Entities;
 
 public class Session
 {
+
     [BsonId]
     public ObjectId Id { get; private set; }
-    public SessionResult _results { get; private set; }
-    public int Order { get; private set; }
+
+    [BsonElement("session_result")]
+    public SessionResult SessionResult { get; private set; }
+
+    [BsonElement("type")]
     public EType Type { get; private set; }
+
+    [BsonElement("order")]
+    public int Order { get; private set; }
+
+    [BsonElement("status")]
     public EStatus Status { get; private set; } = EStatus.Schedule;
 
     public Session(EType type, int order)
@@ -20,7 +29,7 @@ public class Session
         Order = order;
     }
 
-    public void Start() 
+    public void Start()
         => Status = EStatus.Live;
 
     public void Finished()
@@ -32,6 +41,6 @@ public class Session
             throw new ArgumentNullException("The list can't be empty");
 
         var results = new SessionResult(sessionResults.Drivers, sessionResults.Teams);
-        _results = results;
+        SessionResult = results;
     }
 }

@@ -6,8 +6,12 @@ namespace Domain.RaceControl.Models.Entities;
 public class SessionResult
 {
     [BsonId]
-    public ObjectId Id { get; init; } 
+    public ObjectId Id { get; init; }
+
+    [BsonElement("drivers")]
     public List<DriverChampionship> Drivers { get; private set; }
+
+    [BsonElement("teams")]
     public List<ConstructorChampionship> Teams { get; private set; }
 
     public SessionResult(List<DriverChampionship> drivers, List<ConstructorChampionship> teams)

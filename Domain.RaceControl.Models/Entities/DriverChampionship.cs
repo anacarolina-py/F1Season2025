@@ -6,21 +6,34 @@ namespace Domain.RaceControl.Models.Entities;
 public class DriverChampionship
 {
     [BsonElement("id_driver")]
-    public Guid IdDriver { get; init; }
+    public int IdDriver { get; init; }
+
     [BsonElement("name_driver")]
     public string NameDriver { get; private set; }
 
     [Range(1, 99)]
+    [BsonElement("number")]
     public int Number { get; private set; }
+
+    [BsonElement("id_team")]
     public int IdTeam { get; private set; }
+
+    [BsonElement("name_team")]
     public string NameTeam { get; private set; }
+
+    [BsonElement("points")]
     public int Points { get; private set; }
+
+    [BsonElement("placing")]
     public int Placing { get; private set; }
+
+    [BsonElement("wins")]
     public int Wins { get; private set; }
+
     [BsonElement("grid_position")]
     public int GridPosition { get; private set; }
 
-    public DriverChampionship(Guid idPilot, string namePilot, int number, int idTeam, string nameTeam)
+    public DriverChampionship(int idPilot, string namePilot, int number, int idTeam, string nameTeam)
     {
         IdDriver = idPilot;
         NameDriver = namePilot;

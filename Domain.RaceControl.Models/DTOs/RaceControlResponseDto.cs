@@ -1,10 +1,15 @@
-﻿using Domain.RaceControl.Models.Entities;
+﻿using System.Text.Json.Serialization;
 
 namespace Domain.RaceControl.Models.DTOs;
 
 public class RaceControlResponseDto
 {
-    public Circuit Circuit { get; init; }
-    public Season Season { get; init; }
-    public IReadOnlyCollection<Session> Session { get; init; } = [];
+    [JsonPropertyName("circuit")]
+    public CircuitResponseDto Circuit { get; init; }
+
+    [JsonPropertyName("season")]
+    public SeasonResponseDto Season { get; init; }
+
+    [JsonPropertyName("sessions")]
+    public IReadOnlyCollection<SessionResponseDto> Session { get; init; } = [];
 }

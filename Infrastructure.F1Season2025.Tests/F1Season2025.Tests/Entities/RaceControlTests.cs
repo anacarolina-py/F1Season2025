@@ -75,7 +75,7 @@ public class RaceControlTests
 
         var raceControl = new RaceGrandPix(circuit, season);
 
-        //Assert.Throws<Exception>(() => raceControl.StartSession(typeSession));
+        Assert.Throws<Exception>(() => raceControl.StartSession(typeSession));
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public class RaceControlTests
 
             constructors.Add(new ConstructorChampionship(expectedIdTeam, expectedNameTeam));
 
-            var expectedIdDriver = _faker.Random.Guid();
+            var expectedIdDriver = _faker.Random.Number(1, 99);
             var expectedNameDriver = _faker.Name.FirstName();
             var expectedNumber = _faker.Random.Number(1, 99);
 
@@ -117,6 +117,7 @@ public class RaceControlTests
             driver.SetPoints(_faker.Random.Number(1, 25));
 
             var constructor = constructors.FirstOrDefault(c => c.IdTeam == driver.IdTeam);
+
             if (constructor is not null)
                 constructor.SetTotalPoints(driver.Points);
         }

@@ -8,7 +8,9 @@ public class Circuit
     public string IdCircuit { get; private set; }
     [BsonElement("name_circuit")]
     public string NameCircuit { get; private set; }
+    [BsonElement("country")]
     public string Country { get; private set; }
+    [BsonElement("laps")]
     public int Laps { get; private set; }
 
     public Circuit(string idCircuit, string nameCircuit, string country, int laps)

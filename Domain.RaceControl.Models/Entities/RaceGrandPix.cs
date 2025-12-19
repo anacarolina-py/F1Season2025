@@ -1,5 +1,6 @@
 ﻿using Domain.RaceControl.Models.Entities.Enums;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Domain.RaceControl.Models.Entities;
@@ -8,22 +9,47 @@ public class RaceGrandPix
 {
     [BsonId]
     public ObjectId Id { get; init; }
+
     public Circuit Circuit { get; private set; }
+
     public Season Season { get; private set; }
-    private readonly List<Session> _session = new();
+
+    [BsonElement("Session")]
+    private readonly List<Session> _session;
+
+    [BsonIgnore]
     public IReadOnlyCollection<Session> Session => _session;
 
+    [BsonConstructor]
     public RaceGrandPix(Circuit circuit, Season season)
     {
         Id = ObjectId.GenerateNewId();
         Circuit = circuit;
         Season = season;
 
-        _session.Add(new Session(EType.FreePractice1, 1));
-        _session.Add(new Session(EType.FreePractice2, 2));
-        _session.Add(new Session(EType.FreePractice3, 3));
-        _session.Add(new Session(EType.Qualifying, 4));
-        _session.Add(new Session(EType.MainRace, 5));
+        _session = new List<Session> {
+            new (EType.FreePractice1, 1),
+            new (EType.FreePractice2, 2),
+            new (EType.FreePractice3, 3),
+            new (EType.Qualifying, 4),
+            new (EType.MainRace, 5)
+        };
+    }
+
+    
+    protected RaceGrandPix(ObjectId id, Circuit circuit, Season season, List<Session> session)
+    {
+        Id = id;
+        Circuit = circuit;
+        Season = season;
+        _session = session;
+    }
+
+
+
+    public void SetSession(List<Session> session)
+    {
+        _session.AddRange(session);
     }
 
     public void StartSession(EType type)
@@ -32,7 +58,7 @@ public class RaceGrandPix
         if (session is null)
             throw new ArgumentNullException("Sessão não existe.");
 
-        var existSession = _session.Any(s => s.Order < session.Order 
+        var existSession = _session.Any(s => s.Order < session.Order
                                 && s.Status != EStatus.Finished);
 
         if (session.Status == EStatus.Finished)

@@ -1,5 +1,4 @@
-﻿using Domain.RaceControl.Models.Entities.Enums;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
 
 namespace Domain.RaceControl.Models.Entities;
 
