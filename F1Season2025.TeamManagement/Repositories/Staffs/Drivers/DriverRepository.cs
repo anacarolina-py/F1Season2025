@@ -186,4 +186,84 @@ public class DriverRepository : IDriverRepository
             throw;
         }
     }
+
+    //Relacionamento piloto com o time
+
+    public async Task<DriverTeamResponseDTO?> GetDriverTeamRelationshipAsync(int driverId, int teamId)
+    {
+        var sql = @"SELECT DriverId, TeamId, Status
+                  FROM DriversTeams
+                  WHERE DriverId = @DriverId
+                  AND TeamId = @TeamId;";
+
+        try
+        {
+            _logger.LogInformation("Retrieving driver-team relationship (DriverId: {DriverId}, TeamId: {TeamId}).",driverId,teamId);
+
+            return await _connection.QueryFirstOrDefaultAsync<DriverTeamResponseDTO>(sql,new { DriverId = driverId, TeamId = teamId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error retrieving driver-team relationship.");
+            throw;
+        }
+    }
+
+    public async Task<int> GetActiveDriversCountByTeamIdAsync(int teamId)
+    {
+        var sql = @"SELECT COUNT(*)
+                  FROM DriversTeams
+                  WHERE TeamId = @TeamId
+                  AND Status = 'Ativo';";
+
+        try
+        {
+            _logger.LogInformation("Counting active drivers for TeamId {TeamId}.",teamId);
+
+            return await _connection.ExecuteScalarAsync<int>(sql,new { TeamId = teamId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error counting active drivers by team.");
+            throw;
+        }
+    }
+
+    public async Task ReactivateDriverTeamRelationshipAsync(int driverId, int teamId)
+    {
+        var sql = @"UPDATE DriversTeams
+                  SET Status = 'Ativo'
+                  WHERE DriverId = @DriverId
+                  AND TeamId = @TeamId;";
+
+        try
+        {
+            _logger.LogInformation("Reactivating driver-team relationship (DriverId: {DriverId}, TeamId: {TeamId}).",driverId,teamId);
+
+            await _connection.ExecuteAsync(sql,new { DriverId = driverId, TeamId = teamId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error reactivating driver-team relationship.");
+            throw;
+        }
+    }
+
+    public async Task AssignDriverToTeamAsync(int driverId, int teamId)
+    {
+        var sql = @"INSERT INTO DriversTeams (DriverId, TeamId, Status)
+                  VALUES (@DriverId, @TeamId, 'Ativo');";
+
+        try
+        {
+            _logger.LogInformation("Assigning driver {DriverId} to team {TeamId}.",driverId,teamId);
+
+            await _connection.ExecuteAsync(sql,new { DriverId = driverId, TeamId = teamId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error assigning driver to team.");
+            throw;
+        }
+    }
 }

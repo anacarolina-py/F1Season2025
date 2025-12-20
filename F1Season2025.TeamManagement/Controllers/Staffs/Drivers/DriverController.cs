@@ -185,4 +185,46 @@ public class DriverController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    //Relacionamento piloto com o time
+    [HttpPost("driverids/{driverId}/teamids/{teamId}")]
+    public async Task<ActionResult> AssignDriverToTeamAsync(int driverId, int teamId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning driver with DriverId {DriverId} to team with TeamId {TeamId}.", driverId,teamId);
+
+            await _driverService.AssignDriverToTeamAsync(driverId, teamId);
+
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(
+                $"Database error assigning driver to team: {ex.Message}"
+            );
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(
+                $"Error assigning driver to team: {ex.Message}"
+            );
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(
+                $"Error assigning driver to team: {ex.Message}"
+            );
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                $"Unexpected error assigning driver to team: {ex.Message}"
+            );
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }
