@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/1- Presentation/">
     <Project Path="F1Season2025.Competition/F1Season2025.Competition.csproj" Id="317cd49f-02c5-4b9a-8cfe-69fca592ef32" />
-    <Project Path="F1Season2025.Engeneering/F1Season2025.Engeneering.csproj" Id="3856214e-4a0e-4a2e-af70-9b055c18ab46" />
+    <Project Path="F1Season2025.Engeneering/F1Season2025.Engineering.csproj" Id="3856214e-4a0e-4a2e-af70-9b055c18ab46" />
     <Project Path="F1Season2025.RaceControl/F1Season2025.RaceControl.csproj" Id="d335a764-c955-4726-ae12-146bbd5da319" />
     <Project Path="F1Season2025.TeamManagement/F1Season2025.TeamManagement.csproj" Id="6b654789-109b-40c5-a2f9-14a53a1a74f7" />
   </Folder>
