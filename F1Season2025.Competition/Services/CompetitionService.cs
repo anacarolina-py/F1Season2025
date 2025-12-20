@@ -103,7 +103,7 @@ namespace F1Season2025.Competition.Services
                 throw new InvalidOperationException($"This race cannot be started because the current status is {competition.Status}.");
             }
             if (round > 1)
-            {  
+            {
                 var previusRace = await _competitions.GetCompetitionByRoundAsync(round - 1);
                 if (previusRace is null)
                 {
@@ -115,8 +115,8 @@ namespace F1Season2025.Competition.Services
                 }
 
             }
-                competition.StartCompetition();
-                await _competitions.UpdateStatusRaceAsync(competition);
+            competition.StartCompetition();
+            await _competitions.UpdateStatusRaceAsync(competition);
 
         }
         public async Task<CompetitionResponseDto?> CompleteSimulationAsync(int round)
@@ -172,6 +172,19 @@ namespace F1Season2025.Competition.Services
                 throw new InvalidOperationException("Is not possible to change the status of a ride that has already been completed.");
             }
             await _competitions.UpdateActiveStatusAsync(objectId, isActive);
+        }
+
+    public async Task StartSeasonAsync()
+        {
+            var races = await _competitions.GetAllCompetitionsAsync();
+
+            //valido qntd de corridas? 24? Calendario
+
+            //valido se todas as corridas estao ativas?
+
+            var teamValidation = await _teamClient.ValidateSeasonAsync();
+    
+            //validaria os times se estão ativos?
         }
 
     }

@@ -243,5 +243,20 @@ namespace F1Season2025.Competition.Controllers
 
             }
         }
+
+        [HttpPost("season/start")]
+        public async Task<IActionResult> StartSeasonAsync()
+        {
+            try
+            {
+                await _competitionService.StartSeasonAsync();
+
+                return Ok(new {Message = "Season started successfully"});
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new {error = ex.Message});
+            }
+        }
     }
 }
