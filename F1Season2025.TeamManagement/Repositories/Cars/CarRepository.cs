@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Domain.TeamManagement.Models.DTOs.Cars;
+using Domain.TeamManagement.Models.DTOs.Cars.Relashionships;
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Cars.Interfaces;
 using Infrastructure.TeamManagement.Data.SQL.Connection;
@@ -102,7 +103,7 @@ public class CarRepository : ICarRepository
         try
         {
             _logger.LogInformation("Retrieving car by Id from the database.");
-            return await _connection.QueryFirstOrDefaultAsync<CarResponseDTO>(sqlSelectCarbyId, new {CarId = carId});
+            return await _connection.QueryFirstOrDefaultAsync<CarResponseDTO>(sqlSelectCarbyId, new { CarId = carId });
         }
         catch (SqlException sqlEx)
         {
@@ -187,4 +188,110 @@ public class CarRepository : ICarRepository
         }
     }
 
+    public async Task<CarPowerEngineerResponseDTO?> GetPowerEngineerCarRelationshipAsync(int carId, int powerEngineerId)
+    {
+        var sqlSelectPowerEngineerCarRelashionship = @"SELECT PowerEngineerId,CarId,Status
+                                                      FROM CarsPower
+                                                      WHERE CarId = @CarId AND 
+                                                            PowerEngineerId = @PowerEngineerId";
+        try
+        {
+            _logger.LogInformation("Retrieving power engineer and car relationship from the database.");
+            return await _connection.QueryFirstOrDefaultAsync<CarPowerEngineerResponseDTO>(sqlSelectPowerEngineerCarRelashionship, new
+            {
+                CarId = carId,
+                PowerEngineerId = powerEngineerId
+            });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while retrieving power engineer and car relationship.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while retrieving power engineer and car relationship.");
+            throw;
+        }
+    }
+
+    public async Task<int> GetPowerEngineerCarCountAsync(int carId)
+    {
+        var sqlCountPowerEngineerCar = @"SELECT COUNT(*)
+                                         FROM CarsPower
+                                         WHERE Status = 'Ativo' AND 
+                                               CarId = @CarId";
+
+        try
+        {
+            _logger.LogInformation("Counting active power engineers assigned to car with Id: {CarId}", carId);
+            return await _connection.ExecuteScalarAsync<int>(sqlCountPowerEngineerCar, new { CarId = carId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while counting power engineers for car.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while counting power engineers for car.");
+            throw;
+        }
+    }
+
+    public async Task ReactivatePowerEngineerCarRelationshipAsync(int carId, int powerEngineerId)
+    {
+        var sqlReactivatePowerEngineerCarRelashionship = @"UPDATE CarsPower
+                                                          SET Status = 'Ativo'
+                                                          WHERE CarId = @CarId AND 
+                                                                PowerEngineerId = @PowerEngineerId";
+
+        try
+        {
+            _logger.LogInformation("Reactivating power engineer and car relationship in the database.");
+            await _connection.ExecuteAsync(sqlReactivatePowerEngineerCarRelashionship, new
+            {
+                CarId = carId,
+                PowerEngineerId = powerEngineerId
+            });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while reactivating power engineer and car relationship.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while reactivating power engineer and car relationship.");
+            throw;
+        }
+    }
+
+    public async Task AssignPowerEngineerToCarAsync(int carId, int powerEngineerId)
+    {
+        var sqlInsertPowerEngineerCarRelashionship = @"INSERT INTO CarsPower(CarId, PowerEngineerId, Status)
+                                                       VALUES(@CarId, @PowerEngineerId, @Status)";
+
+        try
+        {
+            _logger.LogInformation("Assigning power engineer to car in the database.");
+            await _connection.ExecuteAsync(sqlInsertPowerEngineerCarRelashionship, new
+            {
+                CarId = carId,
+                PowerEngineerId = powerEngineerId,
+                Status = "Ativo"
+            });
+
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while assigning power engineer to car.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while assigning power engineer to car.");
+            throw;
+        }
+    }
 }

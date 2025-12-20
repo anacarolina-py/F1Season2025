@@ -169,13 +169,65 @@ public class TeamController : ControllerBase
         }
     }
 
-    [HttpPut("ids/{teamId}")]
-    public async Task<ActionResult> ChangeTeamStatusByTeamIdAsync(int teamId)
+    [HttpPut("preparing/ids/{teamId}")]
+    public async Task<ActionResult> PrepareTeamByTeamIdAsync(int teamId)
     {
         try
         {
             _logger.LogInformation("Changing team status");
-            await _teamService.ChangeTeamStatusByTeamIdAsync(teamId);
+            await _teamService.PrepareTeamByTeamIdAsync(teamId);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error changing team status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error changing team status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error changing team status: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPut("turnon/ids/{teamId}")]
+    public async Task<ActionResult> TurnOnTeamByTeamIdAsync(int teamId)
+    {
+        try
+        {
+            _logger.LogInformation("Changing team status");
+            await _teamService.TurnOnTeamByTeamIdAsync(teamId);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error changing team status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error changing team status: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error changing team status: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPut("turnoff/ids/{teamId}")]
+    public async Task<ActionResult> TurnOffTeamByTeamIdAsync(int teamId)
+    {
+        try
+        {
+            _logger.LogInformation("Changing team status");
+            await _teamService.TurnOffTeamByTeamIdAsync(teamId);
             return NoContent();
         }
         catch (ArgumentException ex)

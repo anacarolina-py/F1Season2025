@@ -358,67 +358,55 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE sp_ChangeTeamStatus
-    @TeamId INT,
-    @NewStatus VARCHAR(10)
+CREATE PROCEDURE sp_TurnOffTeam
+    @TeamId INT
 AS
 BEGIN
     SET NOCOUNT ON;
     
     BEGIN TRY
         BEGIN TRANSACTION;
-
-        IF @NewStatus = 'Inativo'
-        BEGIN
             UPDATE TeamsBosses 
-            SET [Status] = @NewStatus 
+            SET [Status] = 'Inativo' 
             WHERE TeamId = @TeamId;
 
             UPDATE TeamsCars 
-            SET [Status] = @NewStatus 
+            SET [Status] = 'Inativo' 
             WHERE TeamId = @TeamId;
 
             UPDATE CarsAerodynamic 
-            SET [Status] = @NewStatus 
+            SET [Status] = 'Inativo' 
             WHERE CarId IN (SELECT CarId 
                             FROM TeamsCars 
                             WHERE TeamId = @TeamId);
 
             UPDATE CarsPower 
-            SET [Status] = @NewStatus 
+            SET [Status] = 'Inativo' 
             WHERE CarId IN (SELECT CarId 
                             FROM TeamsCars
                             WHERE TeamId = @TeamId);
 
             UPDATE CarsDrivers 
-            SET [Status] = @NewStatus 
+            SET [Status] = 'Inativo' 
             WHERE CarId IN (SELECT CarId 
                             FROM TeamsCars 
                             WHERE TeamId = @TeamId);
 
             UPDATE TeamsDrivers
-            SET [Status] = @NewStatus 
+            SET [Status] = 'Inativo' 
             WHERE TeamId = @TeamId;
 
             UPDATE TeamsAerodynamic
-            SET [Status] = @NewStatus 
+            SET [Status] = 'Inativo' 
             WHERE TeamId = @TeamId;
 
             UPDATE TeamsPower 
-            SET [Status] = @NewStatus 
+            SET [Status] = 'Inativo' 
             WHERE TeamId = @TeamId;
 
             UPDATE Teams
-            SET [Status] = @NewStatus
+            SET [Status] = 'Inativo'
             WHERE TeamId = @TeamId;
-        END
-        ELSE IF @NewStatus = 'Ativo'
-        BEGIN
-            UPDATE Teams
-            SET [Status] = 'Em Preparo'
-            WHERE TeamId = @TeamId;
-        END
-
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH

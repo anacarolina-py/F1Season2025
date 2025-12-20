@@ -237,13 +237,16 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
             }
         }
 
-        public async Task ChangeTeamStatusByTeamIdAsync(int teamId, string newStatus)
+        public async Task PrepareTeamByTeamIdAsync(int teamId)
         {
             try
             { 
-                var sqlUpdateTeamStatus = "EXEC sp_ChangeTeamStatus @TeamId,@NewStatus";
-                _logger.LogInformation("Changing status of team with TeamId: {TeamId} to {Status}", teamId, newStatus);
-                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new { NewStatus = newStatus, TeamId = teamId });
+                var sqlUpdateTeamStatus = @"UPDATE Teams
+                                            SET [Status] = 'Em Preparo'
+                                            WHERE TeamId = @TeamId";
+
+                _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Em Preparo'", teamId);
+                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new {TeamId = teamId });
             }
             catch (SqlException sqlEx)
             {
@@ -256,5 +259,47 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
                 throw;
             }
         }
+
+        public async Task TurnOnTeamByTeamIdAsync(int teamId)
+        {
+            try { 
+                var sqlUpdateTeamStatus = @"UPDATE Teams
+                                            SET [Status] = 'Ativo'
+                                            WHERE TeamId = @TeamId";
+
+                _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Ativo'", teamId);
+                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new { TeamId = teamId });
+            }
+            catch (SqlException sqlEx)
+            {
+                _logger.LogError(sqlEx, "SQL Error changing team status");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing team status");
+                throw;
+            }
+        }
+
+        public async Task TurnOffTeamByTeamIdAsync(int teamId)
+        {
+            try { 
+                var sqlUpdateTeamStatus = @"EXEC sp_TurnOffTeam @TeamId";
+                _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Inativo'", teamId);
+                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new { TeamId = teamId });
+            }
+            catch (SqlException sqlEx)
+            {
+                _logger.LogError(sqlEx, "SQL Error changing team status");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing team status");
+                throw;
+            }
+        }
+
     }
 }

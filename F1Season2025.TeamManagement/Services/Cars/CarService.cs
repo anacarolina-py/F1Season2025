@@ -181,4 +181,47 @@ public class CarService : ICarService
             throw;
         }
     }
+
+    public async Task AssignPowerEngineerToCarAsync(int carId, int powerEngineerId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning Power Engineer with ID: {PowerEngineerId} to Car with ID: {CarId}", powerEngineerId, carId);
+
+            var relashionship = await _carRepository.GetPowerEngineerCarRelationshipAsync(carId, powerEngineerId);
+            if (relashionship is not null)
+            {
+
+                if (await _carRepository.GetPowerEngineerCarCountAsync(carId) > 0)
+                {
+                    _logger.LogInformation("Car with ID: {CarId} already has an assigned Power Engineer.", carId);
+                    throw new InvalidOperationException($"Car with ID: {carId} already has an assigned Power Engineer.");
+                }
+
+                if (relashionship.Status is "Ativo")
+                {
+                    _logger.LogInformation("Power Engineer with ID: {PowerEngineerId} is already assigned to Car with ID: {CarId}", powerEngineerId, carId);
+                    throw new InvalidOperationException($"Power Engineer with ID: {powerEngineerId} is already assigned to Car with ID: {carId}");
+                }
+
+                await _carRepository.ReactivatePowerEngineerCarRelationshipAsync(carId, powerEngineerId);
+
+            }
+            else 
+            { 
+                await _carRepository.AssignPowerEngineerToCarAsync(carId, powerEngineerId);
+            }
+                
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "Error occurred while assigning Power Engineer with ID: {PowerEngineerId} to Car with ID: {CarId}", powerEngineerId, carId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while assigning Power Engineer with ID: {PowerEngineerId} to Car with ID: {CarId}", powerEngineerId, carId);
+            throw;
+        }
+    }
 }

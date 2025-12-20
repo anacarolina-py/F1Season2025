@@ -252,4 +252,36 @@ public class CarController : ControllerBase
         }
     }
 
+    [HttpPost("carids/{carId}/pengineerids/{pengineerId}")]
+    public async Task<ActionResult> AssignPowerEngineerToCarAsync(int carId, int pengineerId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning power engineer to car");
+
+            await _carService.AssignPowerEngineerToCarAsync(carId, pengineerId);
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Error assigning power engineer to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error assigning power engineer to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error assigning power engineer to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error assigning power engineer to car: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
 }
