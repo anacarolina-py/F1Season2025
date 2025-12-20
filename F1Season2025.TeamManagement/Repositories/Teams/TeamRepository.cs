@@ -4,7 +4,6 @@ using Domain.TeamManagement.Models.DTOs.Teams;
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Teams.Interfaces;
 using Infrastructure.TeamManagement.Data.SQL.Connection;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
 namespace F1Season2025.TeamManagement.Repositories.Teams
@@ -173,7 +172,7 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
                             s_ae.Experience AS AeroExperience,
                             s_pe.Experience AS PowerExperience
                         FROM Teams t
-                        JOIN TeamBosses bt ON t.TeamId = bt.TeamId
+                        JOIN TeamsBosses bt ON t.TeamId = bt.TeamId
                         JOIN TeamsCars tc ON t.TeamId = tc.TeamId
                         JOIN Cars c ON tc.CarId = c.CarId
                         JOIN CarsDrivers cd ON c.CarId = cd.CarId
@@ -237,5 +236,70 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
                 throw;
             }
         }
+
+        public async Task PrepareTeamByTeamIdAsync(int teamId)
+        {
+            try
+            { 
+                var sqlUpdateTeamStatus = @"UPDATE Teams
+                                            SET [Status] = 'Em Preparo'
+                                            WHERE TeamId = @TeamId";
+
+                _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Em Preparo'", teamId);
+                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new {TeamId = teamId });
+            }
+            catch (SqlException sqlEx)
+            {
+                _logger.LogError(sqlEx, "SQL Error changing team status");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing team status");
+                throw;
+            }
+        }
+
+        public async Task TurnOnTeamByTeamIdAsync(int teamId)
+        {
+            try { 
+                var sqlUpdateTeamStatus = @"UPDATE Teams
+                                            SET [Status] = 'Ativo'
+                                            WHERE TeamId = @TeamId";
+
+                _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Ativo'", teamId);
+                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new { TeamId = teamId });
+            }
+            catch (SqlException sqlEx)
+            {
+                _logger.LogError(sqlEx, "SQL Error changing team status");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing team status");
+                throw;
+            }
+        }
+
+        public async Task TurnOffTeamByTeamIdAsync(int teamId)
+        {
+            try { 
+                var sqlUpdateTeamStatus = @"EXEC sp_TurnOffTeam @TeamId";
+                _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Inativo'", teamId);
+                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new { TeamId = teamId });
+            }
+            catch (SqlException sqlEx)
+            {
+                _logger.LogError(sqlEx, "SQL Error changing team status");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing team status");
+                throw;
+            }
+        }
+
     }
 }

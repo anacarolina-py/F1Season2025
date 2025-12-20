@@ -146,5 +146,90 @@ namespace F1Season2025.TeamManagement.Services.Teams
                 throw;
             }
         }
+
+
+        public async Task PrepareTeamByTeamIdAsync(int teamId)
+        {
+            try
+            {
+                _logger.LogInformation("Changing team status by Id in the database.");
+
+                var team = await _teamRepository.GetTeamByIdAsync(teamId);
+                if (team is null)
+                {
+                    _logger.LogWarning("Team with Id {TeamId} not found.", teamId);
+                    throw new KeyNotFoundException($"Team with Id {teamId} not found.");
+                }
+
+                if(team.Status is "Em Preparo") { 
+                    _logger.LogWarning("Attempted to prepare an already prepared team with Id: {TeamId}", teamId);
+                    throw new InvalidOperationException($"Cannot prepare an already prepared team with Id {teamId}.");
+                }
+
+                await _teamRepository.PrepareTeamByTeamIdAsync(teamId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while changing team status by Id.");
+                throw;
+            }
+        }
+
+        public async Task TurnOnTeamByTeamIdAsync(int teamId)
+        {
+            try
+            {
+                _logger.LogInformation("Turning on team by Id in the database.");
+                var team = await _teamRepository.GetTeamByIdAsync(teamId);
+
+                if (team is null)
+                {
+                    _logger.LogWarning("Team with Id {TeamId} not found.", teamId);
+                    throw new KeyNotFoundException($"Team with Id {teamId} not found.");
+                }
+
+                if(team.Status is "Inativo") { 
+                    _logger.LogWarning("Attempted to turn on an inactive team with Id: {TeamId}", teamId);
+                    throw new InvalidOperationException($"Cannot turn on an inactive team with Id {teamId}.");
+                }
+                if (team.Status is "Ativo") { 
+                    _logger.LogWarning("Attempted to turn on an already active team with Id: {TeamId}", teamId);
+                    throw new InvalidOperationException($"Cannot turn on an already active team with Id {teamId}.");
+                }
+
+                await _teamRepository.TurnOnTeamByTeamIdAsync(teamId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while turning on team by Id.");
+                throw;
+            }
+        }
+
+        public async Task TurnOffTeamByTeamIdAsync(int teamId)
+        {
+            try
+            {
+                _logger.LogInformation("Turning off team by Id in the database.");
+                var team = await _teamRepository.GetTeamByIdAsync(teamId);
+
+                if (team is null)
+                {
+                    _logger.LogWarning("Team with Id {TeamId} not found.", teamId);
+                    throw new KeyNotFoundException($"Team with Id {teamId} not found.");
+                }
+                if(team.Status is "Inativo") { 
+                    _logger.LogWarning("Attempted to turn off an already inactive team with Id: {TeamId}", teamId);
+                    throw new InvalidOperationException($"Cannot turn off an already inactive team with Id {teamId}.");
+                }
+
+                await _teamRepository.TurnOffTeamByTeamIdAsync(teamId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while turning off team by Id.");
+                throw;
+            }
+        }
     }
 }

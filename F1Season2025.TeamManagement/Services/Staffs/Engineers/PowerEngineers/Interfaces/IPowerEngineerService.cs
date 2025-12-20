@@ -11,4 +11,6 @@ public interface IPowerEngineerService
     Task<List<PowerEngineerResponseDTO>> GetAllPowerEngineersAsync();
     Task<List<PowerEngineerResponseDTO>> GetActivePowerEngineersAsync();
     Task<List<PowerEngineerResponseDTO>> GetInactivePowerEngineersAsync();
+
+    Task ChangePowerEngineerStatusByPowerEngineerIdAsync(int powerEngineerId);
 }

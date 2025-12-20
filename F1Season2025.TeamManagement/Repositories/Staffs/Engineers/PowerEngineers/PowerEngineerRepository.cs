@@ -198,4 +198,24 @@ public class PowerEngineerRepository : IPowerEngineerRepository
             throw;
         }
     }
+
+    public async Task ChangePowerEngineerStatusByPowerEngineerIdAsync(int powerEngineerId, string newStatus)
+    {
+        try 
+        { 
+            var sqlUpdatePowerEngineerStatus = "EXEC sp_ChangePowerEngineerStatus @PowerEngineerId,@NewStatus";
+            _logger.LogInformation("Changing status of power engineer with PowerEngineerId: {PowerEngineerId} to {Status}", powerEngineerId, newStatus);
+            await _connection.ExecuteAsync(sqlUpdatePowerEngineerStatus, new { NewStatus = newStatus, PowerEngineerId = powerEngineerId });
+        }
+        catch (SqlException sqlEx)
+        {
+            _logger.LogError(sqlEx, "SQL Error changing power engineer status");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error changing power engineer status");
+            throw;
+        }
+    }
 }

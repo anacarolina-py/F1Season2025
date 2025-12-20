@@ -12,4 +12,6 @@ public interface IAerodynamicEngineerRepository
     Task<List<AerodynamicEngineerResponseDTO>> GetAllAerodynamicEngineersAsync();
     Task<List<AerodynamicEngineerResponseDTO>> GetActiveAerodynamicEngineersAsync();
     Task<List<AerodynamicEngineerResponseDTO>> GetInactiveAerodynamicEngineersAsync();
+
+    Task ChangeAerodynamicEngineerStatusByAerodynamicEngineerIdAsync(int aerodynamicEngineerId, string newStatus);
 }

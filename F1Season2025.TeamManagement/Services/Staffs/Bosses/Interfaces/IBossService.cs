@@ -16,4 +16,6 @@ public interface IBossService
     Task<List<BossResponseDTO>> GetActiveBossesAsync();
 
     Task<List<BossResponseDTO>> GetInactiveBossesAsync();
+
+    Task ChangeBossStatusByBossIdAsync(int bossId);
 }
