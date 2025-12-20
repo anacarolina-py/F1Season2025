@@ -88,7 +88,7 @@ public class RaceRepository : IRaceRepository
         }
     }
 
-    public async Task<RaceControlResponseDto> StartFreePractice(RaceGrandPix raceGrandPix)
+    public async Task<RaceControlResponseDto> UpdateSessionAsync(RaceGrandPix raceGrandPix)
     {
         try
         {

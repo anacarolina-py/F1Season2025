@@ -65,6 +65,9 @@ public class RaceGrandPix
         if (session is null)
             throw new ArgumentNullException("Incorrect type session");
 
+        if (session.Status != EStatus.Live)
+            throw new Exception("You must start this session");
+
         var existSession = Session.Any(s => s.Order < session.Order
                                 && s.Status != EStatus.Finished);
 

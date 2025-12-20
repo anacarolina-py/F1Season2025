@@ -101,4 +101,42 @@ public class RaceController : ControllerBase
             return Problem(ex.Message);
         }
     }
+
+    [HttpPost("{idCircuit}/simulate/fp/{number}/finish")]
+    public async Task<ActionResult<RaceControlResponseDto>> FinishFreePracticeAsync(string idCircuit, int number)
+    {
+        try
+        {
+            var race = await _raceService.FinishFreePracticeAsync(idCircuit, number);
+
+            if (race is null)
+                return BadRequest("Free practice not found");
+
+            return Ok(race);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error at finish first free practice");
+            return Problem(ex.Message);
+        }
+    }
+
+    [HttpPost("{idCircuit}/simulate/qualifying/start")]
+    public async Task<ActionResult<RaceControlResponseDto>> StartQualifyingAsync(string idCircuit)
+    {
+        try
+        {
+            var race = await _raceService.StartQualifyingAsync(idCircuit);
+
+            if (race is null)
+                return BadRequest();
+
+            return Ok(race);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error at finish first free practice");
+            return Problem(ex.Message);
+        }
+    }
 }
