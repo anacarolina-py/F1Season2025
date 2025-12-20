@@ -15,5 +15,6 @@ namespace F1Season2025.Competition.Services.Interfaces
         Task<IEnumerable<CircuitResponseDto>> GetAllCircuitsAsync();
         Task<IEnumerable<CompetitionResponseDto>> GetSeasonAsync();
         Task UpdateRaceStatusAsync(string id, bool isActive);
+        Task StartSeasonAsync();
     }
 }

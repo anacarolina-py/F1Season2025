@@ -1,3 +1,4 @@
+using F1Season2025.Competition.Clients;
 using F1Season2025.Competition.Data;
 using F1Season2025.Competition.Repository;
 using F1Season2025.Competition.Repository.Interfaces;
@@ -19,6 +20,9 @@ builder.Services.AddSingleton<ICircuitRepository, CircuitRepository>();
 builder.Services.AddSingleton<ICompetitionRepository, CompetitionRepository>();
 
 builder.Services.AddSingleton<ICompetitionService, CompetitionService>();
+
+//builder.Services.AddHttpClient<ITeamServiceClient, TeamServiceClient>(client =>{client.BaseAddress = new Uri("http://team-api");});
+
 
 var app = builder.Build();
 

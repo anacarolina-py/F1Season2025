@@ -13,11 +13,13 @@ namespace F1Season2025.Competition.Services
     {
         private readonly ICircuitRepository _circuits;
         private readonly ICompetitionRepository _competitions;
+        private readonly ITeamServiceClient _teamServiceClient;
 
-        public CompetitionService(ICircuitRepository circuits, ICompetitionRepository competitions)
+        public CompetitionService(ICircuitRepository circuits, ICompetitionRepository competitions, ITeamServiceClient teamServiceClient)
         {
             _circuits = circuits;
             _competitions = competitions;
+            _teamServiceClient = teamServiceClient;
         }
         public async Task<Circuit> RegisterCircuitAsync(string nameCircuit, string country, int laps)
         {
@@ -93,6 +95,26 @@ namespace F1Season2025.Competition.Services
 
         public async Task StartSimulationAsync(int round)
         {
+            //temporada precisa ter iniciado
+            var competitions = await _competitions.GetAllCompetitionsAsync();
+
+            bool seasonStarted = false;
+
+            foreach (var item in competitions)
+            {
+                if (item.Status == CompetitionStatus.InProgress || item.Status == CompetitionStatus.Finished)
+                {
+                    seasonStarted = true;
+                    break;
+                }
+            }
+
+            if (!seasonStarted)
+            {
+                throw new InvalidOperationException(
+                    "The season has not started yet. You must start the season before simulating races.");
+            }
+
             var competition = await _competitions.GetCompetitionByRoundAsync(round);
             if (competition is null)
             {
@@ -158,6 +180,25 @@ namespace F1Season2025.Competition.Services
         }
         public async Task UpdateRaceStatusAsync(string id, bool isActive)
         {
+            //temporada precisa ter iniciado
+            var competitions = await _competitions.GetAllCompetitionsAsync();
+
+            bool seasonStarted = false;
+
+            foreach (var item in competitions)
+            {
+                if (item.Status == CompetitionStatus.InProgress || item.Status == CompetitionStatus.Finished)
+                {
+                    seasonStarted = true;
+                    break;
+                }
+            }
+
+            if (!seasonStarted)
+            {
+                throw new InvalidOperationException("Cannot change race status before the season starts.");
+            }
+
             if (!ObjectId.TryParse(id, out var objectId))
             {
                 throw new ArgumentException($"Invalid CompetitionId format. {id}");
@@ -174,18 +215,32 @@ namespace F1Season2025.Competition.Services
             await _competitions.UpdateActiveStatusAsync(objectId, isActive);
         }
 
-    public async Task StartSeasonAsync()
+        public async Task StartSeasonAsync()
         {
-            var races = await _competitions.GetAllCompetitionsAsync();
+            //busco as corridas na temporada
+            var competitions = (await _competitions.GetAllCompetitionsAsync()).ToList();
 
-            //valido qntd de corridas? 24? Calendario
+            //verifico se tem 24
+            if (competitions.Count != 24)
+            {
+                throw new InvalidOperationException("The season must have exactly 24 races to start.");
+            }
 
-            //valido se todas as corridas estao ativas?
+            //verifico se a temporada ja começou
+            foreach (var competition in competitions)
+            {
+                if (competition.Status == CompetitionStatus.InProgress || competition.Status == CompetitionStatus.Finished)
+                {
+                    throw new InvalidOperationException("Season has already started.");
+                }
 
-            var teamValidation = await _teamClient.ValidateSeasonAsync();
-    
-            //validaria os times se estão ativos?
+                var canStart = await _teamServiceClient.ValidateSeasonAsync();
+
+                if (!canStart)
+                {
+                    throw new InvalidOperationException("Teams are not ready to start the season.");
+                }
+            }
         }
-
     }
 }
