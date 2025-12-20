@@ -294,4 +294,110 @@ public class CarRepository : ICarRepository
             throw;
         }
     }
+    public async Task<CarAerodynamicEngineerResponseDTO?> GetAerodynamicEngineerCarRelationshipAsync(int carId, int aerodynamicEngineerId)
+    {
+        var sqlSelectAerodynamicEngineerCarRelashionship = @"SELECT AerodynamicEngineerId, CarId, Status
+                                                      FROM CarsAerodynamic
+                                                      WHERE CarId = @CarId AND 
+                                                            AerodynamicEngineerId = @AerodynamicEngineerId";
+        try
+        {
+            _logger.LogInformation("Retrieving aerodynamic engineer and car relationship from the database.");
+            return await _connection.QueryFirstOrDefaultAsync<CarAerodynamicEngineerResponseDTO>(sqlSelectAerodynamicEngineerCarRelashionship, new
+            {
+                CarId = carId,
+                AerodynamicEngineerId = aerodynamicEngineerId
+            });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while retrieving aerodynamic engineer and car relationship.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while retrieving aerodynamic engineer and car relationship.");
+            throw;
+        }
+    }
+
+    public async Task<int> GetAerodynamicEngineerCarCountAsync(int carId)
+    {
+        var sqlCountAerodynamicEngineerCar = @"SELECT COUNT(*)
+                                         FROM CarsAerodynamic
+                                         WHERE Status = 'Ativo' AND 
+                                               CarId = @CarId";
+
+        try
+        {
+            _logger.LogInformation("Counting active aerodynamic engineers assigned to car with Id: {CarId}", carId);
+            return await _connection.ExecuteScalarAsync<int>(sqlCountAerodynamicEngineerCar, new { CarId = carId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while counting aerodynamic engineers for car.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while counting aerodynamic engineers for car.");
+            throw;
+        }
+    }
+
+    public async Task ReactivateAerodynamicEngineerCarRelationshipAsync(int carId, int aerodynamicEngineerId)
+    {
+        var sqlReactivateAerodynamicEngineerCarRelashionship = @"UPDATE CarsAerodynamic
+                                                          SET Status = 'Ativo'
+                                                          WHERE CarId = @CarId AND 
+                                                                AerodynamicEngineerId = @AerodynamicEngineerId";
+
+        try
+        {
+            _logger.LogInformation("Reactivating aerodynamic engineer and car relationship in the database.");
+            await _connection.ExecuteAsync(sqlReactivateAerodynamicEngineerCarRelashionship, new
+            {
+                CarId = carId,
+                AerodynamicEngineerId = aerodynamicEngineerId
+            });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while reactivating aerodynamic engineer and car relationship.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while reactivating aerodynamic engineer and car relationship.");
+            throw;
+        }
+    }
+
+    public async Task AssignAerodynamicEngineerToCarAsync(int carId, int aerodynamicEngineerId)
+    {
+        var sqlInsertAerodynamicEngineerCarRelashionship = @"INSERT INTO CarsAerodynamic(CarId, AerodynamicEngineerId, Status)
+                                                       VALUES(@CarId, @AerodynamicEngineerId, @Status)";
+
+        try
+        {
+            _logger.LogInformation("Assigning aerodynamic engineer to car in the database.");
+            await _connection.ExecuteAsync(sqlInsertAerodynamicEngineerCarRelashionship, new
+            {
+                CarId = carId,
+                AerodynamicEngineerId = aerodynamicEngineerId,
+                Status = "Ativo"
+            });
+
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while assigning aerodynamic engineer to car.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while assigning aerodynamic engineer to car.");
+            throw;
+        }
+    }
 }
