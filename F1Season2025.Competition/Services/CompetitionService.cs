@@ -111,8 +111,7 @@ namespace F1Season2025.Competition.Services
 
             if (!seasonStarted)
             {
-                throw new InvalidOperationException(
-                    "The season has not started yet. You must start the season before simulating races.");
+                throw new InvalidOperationException("The season has not started yet. You must start the season before simulating races.");
             }
 
             var competition = await _competitions.GetCompetitionByRoundAsync(round);
