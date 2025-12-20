@@ -33,7 +33,7 @@ namespace F1Season2025.Engineering.Services
                     return;
                 }
 
-                EvolveCar(data);
+                await EvolveCar(data);
             }
             catch (Exception ex)
             {
@@ -51,14 +51,14 @@ namespace F1Season2025.Engineering.Services
                     return;
                 }
 
-                EvolveCar(data);
+                await EvolveCar(data);
 
                 decimal pd = CalculatePd(
                     data.AerodynamicCoefficient,
                     data.PowerCoefficient,
                     data.DriverHandicap);
 
-                _engineeringRepository.UpdateQualifyingPD(
+                await _engineeringRepository.UpdateQualifyingPD(
                     data.DriverId,
                     pd);
 
@@ -79,15 +79,15 @@ namespace F1Season2025.Engineering.Services
                     return;
                 }
 
-                EvolveCar(data);
-                EvolveDriverHandicap(data);
+                await EvolveCar(data);
+                await EvolveDriverHandicap(data);
 
                 decimal pd = CalculatePd(
                     data.AerodynamicCoefficient,
                     data.PowerCoefficient,
                     data.DriverHandicap);
 
-                _engineeringRepository.UpdateRacePD(
+                await _engineeringRepository.UpdateRacePD(
                     data.DriverId,
                     pd);
 
@@ -149,7 +149,7 @@ namespace F1Season2025.Engineering.Services
                         }
                     }
                    
-                    _engineeringRepository.UpdateCar(
+                   await  _engineeringRepository.UpdateCar(
                         data.CarId,
                         Math.Round(ca, 3),
                         Math.Round(cp, 3)
@@ -161,7 +161,7 @@ namespace F1Season2025.Engineering.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error ocurred while updating car" + ex.Message);
+                _logger.LogError("An error occurred while updating car" + ex.Message);
             }
         }
 
@@ -175,7 +175,7 @@ namespace F1Season2025.Engineering.Services
                 if (newHandicap < 0.000m)
                     newHandicap = 0.000m;
 
-                _engineeringRepository.UpdateHandicap(
+                await _engineeringRepository.UpdateHandicap(
                     data.DriverId,
                     newHandicap);
 
@@ -184,7 +184,7 @@ namespace F1Season2025.Engineering.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error ocurred while updating handicap" + ex.Message);
+                _logger.LogError("An error occurred while updating handicap" + ex.Message);
             }
         }
 
