@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Domain.TeamManagement.Models.DTOs.Cars;
 using Domain.TeamManagement.Models.DTOs.Teams;
+using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Teams.Interfaces;
 using Infrastructure.TeamManagement.Data.SQL.Connection;
@@ -301,5 +302,30 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
             }
         }
 
+        public async Task<int> ValidateTeamsAsync()
+        {
+            var sqlValidateTeams = @"SELECT COUNT(*) AS CanStart
+                                     FROM Teams
+                                     WHERE [Status] = 'Ativo'";
+
+            try
+            {
+                _logger.LogInformation("Validating if there are enough active teams to start the season");
+                return await _connection.ExecuteScalarAsync<int>(sqlValidateTeams);
+            }
+            catch(SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Error validating teams");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating teams");
+                throw;
+            }
+
+        }
+
     }
+
 }

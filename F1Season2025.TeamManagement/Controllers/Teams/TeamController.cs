@@ -1,4 +1,5 @@
 ﻿using Domain.TeamManagement.Models.DTOs.Teams;
+using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
 using F1Season2025.TeamManagement.Services.Teams.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -243,6 +244,22 @@ public class TeamController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError($"Error changing team status: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpGet("validate")]
+    public async Task<ActionResult<TeamsValidateResponseDTO>> ValidateTeamsAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Validating teams");
+            var isValid =  await _teamService.ValidateTeamsAsync();
+            return Ok(isValid);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error validating teams: {ex.Message}");
             return StatusCode(500, "Internal server error");
         }
     }

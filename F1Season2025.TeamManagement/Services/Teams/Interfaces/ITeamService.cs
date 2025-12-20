@@ -1,4 +1,5 @@
 ﻿using Domain.TeamManagement.Models.DTOs.Teams;
+using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
 using Domain.TeamManagement.Models.Entities;
 
 namespace F1Season2025.TeamManagement.Services.Teams.Interfaces
@@ -24,5 +25,7 @@ namespace F1Season2025.TeamManagement.Services.Teams.Interfaces
         Task TurnOnTeamByTeamIdAsync(int teamId);
 
         Task TurnOffTeamByTeamIdAsync(int teamId);
+
+        Task<TeamsValidateResponseDTO> ValidateTeamsAsync();
     }
 }
