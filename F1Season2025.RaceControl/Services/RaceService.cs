@@ -1,10 +1,10 @@
-﻿using Domain.RaceControl.Models.DTOs;
+﻿using Domain.Competition.Models.Entities;
+using Domain.RaceControl.Models.DTOs;
 using Domain.RaceControl.Models.Entities;
 using Domain.RaceControl.Models.Entities.Enums;
 using Domain.RaceControl.Models.Extensions;
 using F1Season2025.RaceControl.Repositories.Interfaces;
 using F1Season2025.RaceControl.Services.Intefaces;
-using Microsoft.AspNetCore.Components.Server.Circuits;
 
 namespace F1Season2025.RaceControl.Services;
 
@@ -12,26 +12,40 @@ public class RaceService : IRaceService
 {
     private readonly ILogger<RaceService> _logger;
     private readonly IRaceRepository _raceRepository;
+    private readonly IHttpClientFactory _factory;
 
 
-    public RaceService(ILogger<RaceService> logger, IRaceRepository raceRepository)
+    public RaceService(ILogger<RaceService> logger, IRaceRepository raceRepository, IHttpClientFactory factory)
     {
         _logger = logger;
         _raceRepository = raceRepository;
+        _factory = factory;
     }
 
     public async Task<RaceControlResponseDto> CreateRaceAsync(string idCircuit)
     {
         try
         {
+            var client = _factory.CreateClient("CompetitionClient");
+
             var existCircuit = await GetRaceSeasonByIdCircuitAsync(idCircuit);
 
             if (existCircuit is not null)
                 throw new Exception("Race created on this circuit");
 
-            var circuit = new Circuit(idCircuit, "Interlagos", "Brasil", 57);
+            var circuit = await client.GetFromJsonAsync<Circuit>($"api/competition/circuit/{idCircuit}");
+
+            if (circuit is null)
+                throw new ArgumentNullException("Circuit not exists");
+
+            if (circuit.IsActive == false)
+                throw new Exception("Circuit is not active");
+
+            var circuitRace = new CircuitRace(circuit.Id.ToString(), circuit.NameCircuit, circuit.Country, circuit.Laps);
+
             var season = new Season(Guid.NewGuid().ToString(), "F1 Temporada 2025");
-            var raceGrandPix = new RaceGrandPix(circuit, season, null);
+
+            var raceGrandPix = new RaceGrandPix(circuitRace, season);
 
             return await _raceRepository.CreateRace(raceGrandPix);
         }
@@ -348,7 +362,7 @@ public class RaceService : IRaceService
             
 
             _logger.LogInformation("Update data");
-            race.UpdateResultsSession(EType.FreePractice3, sessionResult);
+            //race.UpdateResultsSession(EType.FreePractice3, sessionResult);
 
             return await _raceRepository.UpdateSessionAsync(race);
         }

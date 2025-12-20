@@ -4,7 +4,6 @@ using F1Season2025.RaceControl.Services;
 using F1Season2025.RaceControl.Services.Intefaces;
 using Infrastructure.RaceControl.Data.Mongo;
 using Infrastructure.RaceControl.Data.Mongo.Settings;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +22,22 @@ builder.Services.AddSingleton<MongoContext>();
 
 builder.Services.AddScoped<IRaceRepository, RaceRepository>();
 builder.Services.AddScoped<IRaceService, RaceService>();
+
+builder.Services.AddHttpClient("TeamManagementClient", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:5001/");
+});
+
+builder.Services.AddHttpClient("CompetitionClient", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:6001/");
+});
+
+builder.Services.AddHttpClient("EngineeringClient", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:8001/");
+});
+
 
 var app = builder.Build();
 

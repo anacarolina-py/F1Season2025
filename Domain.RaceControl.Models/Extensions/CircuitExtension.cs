@@ -5,12 +5,12 @@ namespace Domain.RaceControl.Models.Extensions;
 
 public static class CircuitExtension
 {
-    public static Circuit ToEntity(this CircuitResponseDto circuitResponseDto)
+    public static CircuitRace ToEntity(this CircuitResponseDto circuitResponseDto)
     {
         if (circuitResponseDto is null)
             throw new ArgumentNullException("Circuit can't be null");
 
-        return new Circuit(
+        return new CircuitRace(
             circuitResponseDto.IdCircuit,
             circuitResponseDto.NameCircuit,
             circuitResponseDto.Country,
@@ -18,7 +18,7 @@ public static class CircuitExtension
             );
     }
 
-    public static CircuitResponseDto ToDto(this Circuit circuit)
+    public static CircuitResponseDto ToDto(this CircuitRace circuit)
     {
         return new CircuitResponseDto
         {

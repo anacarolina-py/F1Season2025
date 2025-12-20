@@ -11,7 +11,7 @@ public class RaceGrandPix
     public ObjectId Id { get; init; }
 
     [BsonElement("circuit")]
-    public Circuit Circuit { get; private set; }
+    public CircuitRace Circuit { get; private set; }
 
     [BsonElement("season")]
     public Season Season { get; private set; }
@@ -19,20 +19,26 @@ public class RaceGrandPix
     [BsonElement("session")]
     public List<Session> Session { get; private set; }
 
-    [BsonConstructor]
-    public RaceGrandPix(Circuit circuit, Season season, List<Session> session)
+    public RaceGrandPix(CircuitRace circuit, Season season)
     {
         Id = ObjectId.GenerateNewId();
         Circuit = circuit;
         Season = season;
 
-        Session = session ?? new List<Session> {
+        Session = new List<Session> {
             new (EType.FreePractice1, 1),
             new (EType.FreePractice2, 2),
             new (EType.FreePractice3, 3),
             new (EType.Qualifying, 4),
             new (EType.MainRace, 5)
         };
+    }
+
+    [BsonConstructor]
+    private RaceGrandPix(CircuitRace circuit, Season season, List<Session> session, ObjectId id) : this (circuit, season)
+    {
+        Session = session;
+        Id = id;
     }
 
     public void SetSession(List<Session> session)

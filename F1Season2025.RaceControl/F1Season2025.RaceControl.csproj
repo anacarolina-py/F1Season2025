@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain.RaceControl.Models\Domain.RaceControl.Models.csproj" />
     <ProjectReference Include="..\Infrastructure.RaceControl.Data\Infrastructure.RaceControl.Data.csproj" />
+    <ProjectReference Include="..\Models\Domain.Competition.Models.csproj" />
   </ItemGroup>
 
 </Project>

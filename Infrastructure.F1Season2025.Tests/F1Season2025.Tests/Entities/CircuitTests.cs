@@ -16,7 +16,7 @@ public class CircuitTests
         var expectedCountry = _faker.Address.Country();
         var expectedLaps = _faker.Random.Number(44, 77);
 
-        var circuit = new Circuit(expectedIdCircuit, expectedNameCircuit, expectedCountry, expectedLaps);
+        var circuit = new CircuitRace(expectedIdCircuit, expectedNameCircuit, expectedCountry, expectedLaps);
 
         circuit.IdCircuit.Should().Be(expectedIdCircuit);
         circuit.NameCircuit.Should().Be(expectedNameCircuit);

@@ -2,7 +2,7 @@
 
 namespace Domain.RaceControl.Models.Entities;
 
-public class Circuit
+public class CircuitRace
 {
     [BsonElement("id_circuit")]
     public string IdCircuit { get; private set; }
@@ -13,7 +13,7 @@ public class Circuit
     [BsonElement("laps")]
     public int Laps { get; private set; }
 
-    public Circuit(string idCircuit, string nameCircuit, string country, int laps)
+    public CircuitRace(string idCircuit, string nameCircuit, string country, int laps)
     {
         IdCircuit = idCircuit;
         NameCircuit = nameCircuit;

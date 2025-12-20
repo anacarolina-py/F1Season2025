@@ -17,7 +17,7 @@ public class RaceControlTests
         var expectedCountry = _faker.Address.Country();
         var expectedLaps = _faker.Random.Number(44, 77);
 
-        var circuit = new Circuit(expectedIdCircuit, expectedNameCircuit, expectedCountry, expectedLaps);
+        var circuit = new CircuitRace(expectedIdCircuit, expectedNameCircuit, expectedCountry, expectedLaps);
 
         var expectedId = _faker.Random.Guid().ToString();
         var expectedTitle = _faker.Name.JobTitle();
@@ -38,7 +38,7 @@ public class RaceControlTests
         var expectedCountry = _faker.Address.Country();
         var expectedLaps = _faker.Random.Number(44, 77);
 
-        var circuit = new Circuit(expectedIdCircuit, expectedNameCircuit, expectedCountry, expectedLaps);
+        var circuit = new CircuitRace(expectedIdCircuit, expectedNameCircuit, expectedCountry, expectedLaps);
 
         var expectedId = _faker.Random.Guid().ToString();
         var expectedTitle = _faker.Name.JobTitle();
@@ -66,7 +66,7 @@ public class RaceControlTests
         var expectedCountry = _faker.Address.Country();
         var expectedLaps = _faker.Random.Number(44, 77);
 
-        var circuit = new Circuit(expectedIdCircuit, expectedNameCircuit, expectedCountry, expectedLaps);
+        var circuit = new CircuitRace(expectedIdCircuit, expectedNameCircuit, expectedCountry, expectedLaps);
 
         var expectedId = _faker.Random.Guid().ToString();
         var expectedTitle = _faker.Name.JobTitle();
@@ -86,7 +86,7 @@ public class RaceControlTests
         var expectedCountry = _faker.Address.Country();
         var expectedLaps = _faker.Random.Number(44, 77);
 
-        var circuit = new Circuit(expectedIdCircuit, expectedNameCircuit, expectedCountry, expectedLaps);
+        var circuit = new CircuitRace(expectedIdCircuit, expectedNameCircuit, expectedCountry, expectedLaps);
 
         var expectedId = _faker.Random.Guid().ToString();
         var expectedTitle = _faker.Name.JobTitle();
