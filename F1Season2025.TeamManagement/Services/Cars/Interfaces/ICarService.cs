@@ -19,4 +19,5 @@ public interface ICarService
     Task ChangeCarStatusByCarIdAsync(int carId);
 
     Task AssignPowerEngineerToCarAsync(int carId, int powerEngineerId);
+    Task AssignAerodynamicEngineerToCarAsync(int carId, int aerodynamicEngineerId);
 }
