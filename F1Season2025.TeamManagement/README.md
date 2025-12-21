@@ -15,7 +15,7 @@ O Team Management representa o **backoffice das equipes**, com as seguintes resp
 - Associação correta de **2 carros por time**.
 - Garantia de integridade de vínculos (pilotos, engenheiros e carros do mesmo time).
 - Validação completa de um time antes de torná-lo **Ativo**.
-- Publicação de eventos de times prontos via **RabbitMQ**.
+- Publicação de eventos de times via **RabbitMQ**.
 
 ---
 
