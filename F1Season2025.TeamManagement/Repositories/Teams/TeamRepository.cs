@@ -28,14 +28,14 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
             try
             {
                 _logger.LogInformation("Creating a new team: {TeamName}", team.Name);
-                await _connection.ExecuteAsync(sqlInsertTeam, new { Name = team.Name , Status = team.Status });
+                await _connection.ExecuteAsync(sqlInsertTeam, new { Name = team.Name, Status = team.Status });
             }
-            catch(SqlException sqlEx)
+            catch (SqlException sqlEx)
             {
                 _logger.LogError(sqlEx, "SQL Error creating team: {TeamName}", team.Name);
                 throw;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating team: {TeamName}", team.Name);
                 throw;
@@ -152,7 +152,7 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
                 _logger.LogError(ex, "Error retrieving team by name: {TeamName}", teamName);
                 throw;
             }
-            
+
         }
 
         public async Task<List<TeamPerformanceResponseDTO>> GetActivePerformanceTeamsAsync()
@@ -202,15 +202,16 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
 
                 var result = rows.GroupBy(r => (int)r.TeamId)
                                  .Select(teamGroup => new TeamPerformanceResponseDTO
-                                  {
-                                      TeamId = teamGroup.Key,
-                                      BossIds = teamGroup
+                                 {
+                                     TeamId = teamGroup.Key,
+                                     BossIds = teamGroup
                                           .Select(r => (int)r.BossId)
                                           .Distinct()
                                           .ToList(),
-                                      Cars = teamGroup
+                                     Cars = teamGroup
                                           .GroupBy(r => (int)r.CarId)
-                                          .Select(carGroup => {
+                                          .Select(carGroup =>
+                                          {
                                               var first = carGroup.First();
                                               return new CarPerformanceDTO
                                               {
@@ -227,7 +228,7 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
                                                   PowerExperience = (decimal)first.PowerExperience
                                               };
                                           }).ToList()
-                                  }).ToList();
+                                 }).ToList();
 
                 return result;
             }
@@ -241,13 +242,13 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
         public async Task PrepareTeamByTeamIdAsync(int teamId)
         {
             try
-            { 
+            {
                 var sqlUpdateTeamStatus = @"UPDATE Teams
                                             SET [Status] = 'Em Preparo'
                                             WHERE TeamId = @TeamId";
 
                 _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Em Preparo'", teamId);
-                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new {TeamId = teamId });
+                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new { TeamId = teamId });
             }
             catch (SqlException sqlEx)
             {
@@ -263,7 +264,8 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
 
         public async Task TurnOnTeamByTeamIdAsync(int teamId)
         {
-            try { 
+            try
+            {
                 var sqlUpdateTeamStatus = @"UPDATE Teams
                                             SET [Status] = 'Ativo'
                                             WHERE TeamId = @TeamId";
@@ -285,7 +287,8 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
 
         public async Task TurnOffTeamByTeamIdAsync(int teamId)
         {
-            try { 
+            try
+            {
                 var sqlUpdateTeamStatus = @"EXEC sp_TurnOffTeam @TeamId";
                 _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Inativo'", teamId);
                 await _connection.ExecuteAsync(sqlUpdateTeamStatus, new { TeamId = teamId });
@@ -313,7 +316,7 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
                 _logger.LogInformation("Validating if there are enough active teams to start the season");
                 return await _connection.ExecuteScalarAsync<int>(sqlValidateTeams);
             }
-            catch(SqlException ex)
+            catch (SqlException ex)
             {
                 _logger.LogError(ex, "SQL Error validating teams");
                 throw;
@@ -380,6 +383,82 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
             }
         }
 
-    }
+        public async Task<TeamDriverResponseDTO?> GetDriverTeamRelationshipAsync(int teamId, int driverId)
+        {
+            var sql = @"SELECT DriverId, TeamId, Status
+                  FROM TeamsDrivers
+                  WHERE DriverId = @DriverId
+                  AND TeamId = @TeamId;";
 
+            try
+            {
+                _logger.LogInformation("Retrieving driver-team relationship (DriverId: {DriverId}, TeamId: {TeamId}).", driverId, teamId);
+
+                return await _connection.QueryFirstOrDefaultAsync<TeamDriverResponseDTO>(sql, new { DriverId = driverId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error retrieving driver-team relationship.");
+                throw;
+            }
+        }
+
+        public async Task<int> GetActiveDriversCountByTeamIdAsync(int teamId)
+        {
+            var sql = @"SELECT COUNT(*)
+                  FROM TeamsDrivers
+                  WHERE TeamId = @TeamId
+                  AND Status = 'Ativo';";
+
+            try
+            {
+                _logger.LogInformation("Counting active drivers for TeamId {TeamId}.", teamId);
+
+                return await _connection.ExecuteScalarAsync<int>(sql, new { TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error counting active drivers by team.");
+                throw;
+            }
+        }
+
+        public async Task ReactivateDriverTeamRelationshipAsync(int teamId, int driverId)
+        {
+            var sql = @"UPDATE TeamsDrivers
+                  SET Status = 'Ativo'
+                  WHERE DriverId = @DriverId
+                  AND TeamId = @TeamId;";
+
+            try
+            {
+                _logger.LogInformation("Reactivating driver-team relationship (DriverId: {DriverId}, TeamId: {TeamId}).", driverId, teamId);
+
+                await _connection.ExecuteAsync(sql, new { DriverId = driverId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error reactivating driver-team relationship.");
+                throw;
+            }
+        }
+
+        public async Task AssignDriverToTeamAsync(int teamId, int driverId)
+        {
+            var sql = @"INSERT INTO TeamsDrivers (DriverId, TeamId, Status)
+                  VALUES (@DriverId, @TeamId, 'Ativo');";
+
+            try
+            {
+                _logger.LogInformation("Assigning driver {DriverId} to team {TeamId}.", driverId, teamId);
+
+                await _connection.ExecuteAsync(sql, new { DriverId = driverId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error assigning driver to team.");
+                throw;
+            }
+        }
+    }
 }

@@ -2,6 +2,7 @@
 using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
 using F1Season2025.TeamManagement.Services.Teams.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace F1Season2025.TeamManagement.Controllers.Teams;
 
@@ -289,5 +290,45 @@ public class TeamController : ControllerBase
         }
     }
 
+    [HttpPost("teamids/{teamId}/driverids/{driverId}/")]
+    public async Task<ActionResult> AssignDriverToTeamAsync(int teamId,int driverId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning driver with DriverId {DriverId} to team with TeamId {TeamId}.", driverId, teamId);
+
+            await _teamService.AssignDriverToTeamAsync(teamId, driverId);
+
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(
+                $"Database error assigning driver to team: {ex.Message}"
+            );
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(
+                $"Error assigning driver to team: {ex.Message}"
+            );
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(
+                $"Error assigning driver to team: {ex.Message}"
+            );
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                $"Unexpected error assigning driver to team: {ex.Message}"
+            );
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }
 
