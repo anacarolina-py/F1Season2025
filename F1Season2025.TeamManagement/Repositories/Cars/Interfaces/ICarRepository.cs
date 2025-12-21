@@ -26,6 +26,7 @@ public interface ICarRepository
     Task ReactivatePowerEngineerCarRelationshipAsync(int carId, int powerEngineerId);
 
     Task AssignPowerEngineerToCarAsync(int carId, int powerEngineerId);
+
     Task<CarAerodynamicEngineerResponseDTO?> GetAerodynamicEngineerCarRelationshipAsync(int carId, int aerodynamicEngineerId);
 
     Task<int> GetAerodynamicEngineerCarCountAsync(int carId);
@@ -33,4 +34,14 @@ public interface ICarRepository
     Task ReactivateAerodynamicEngineerCarRelationshipAsync(int carId, int aerodynamicEngineerId);
 
     Task AssignAerodynamicEngineerToCarAsync(int carId, int aerodynamicEngineerId);
+
+
+    Task<CarDriverResponseDTO?> GetDriverCarRelationshipAsync(int carId, int driverId);
+
+    Task<int> GetDriverCarCountAsync(int carId);
+
+    Task ReactivateDriverCarRelationshipAsync(int carId, int driverId);
+
+    Task AssignDriverToCarAsync(int carId, int driverId);
+
 }

@@ -24,5 +24,10 @@ namespace F1Season2025.TeamManagement.Repositories.Teams.Interfaces
         Task TurnOffTeamByTeamIdAsync(int teamId);
         Task<int> ValidateTeamsAsync();
         Task<IEnumerable<EngineeringInfoDTO>> GetEngineeringInfo(int teamId);
+
+        Task<TeamDriverResponseDTO?> GetDriverTeamRelationshipAsync(int teamId, int driverId);
+        Task<int> GetActiveDriversCountByTeamIdAsync(int teamId);
+        Task ReactivateDriverTeamRelationshipAsync(int teamId, int driverId);
+        Task AssignDriverToTeamAsync(int teamId, int driverId);
     }
 }
