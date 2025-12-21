@@ -274,9 +274,9 @@ public class TeamController : ControllerBase
             var result = await _teamService.GetEngineeringInfo(teamId);
 
             if (result == null || !result.Any())
-                return NoContent(); 
+                return NoContent();
 
-            return Ok(result); 
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -285,8 +285,7 @@ public class TeamController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new
             {
                 message = "Internal server error",
-                stackTrace = ex.StackTrace
-            }); 
+            });
         }
     }
 
