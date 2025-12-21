@@ -1,10 +1,7 @@
 ﻿using Domain.Engeneering.Models.DTOs;
 using F1Season2025.Engineering.Repositories;
-using Infrastructure.Engeneering.Data.Client;
-using System;
-using Dapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using F1Season2025.Engineering.Services.Interfaces;
+using Infrastructure.Engeneering.Data.Client;
 
 namespace F1Season2025.Engineering.Services
 {
@@ -45,7 +42,7 @@ namespace F1Season2025.Engineering.Services
             {
                 var cars = await _teamClient.GetEngineeringInfo(teamId)
                     ?? Enumerable.Empty<EngineeringInfoDTO>();
-
+     
                 foreach (var data in cars)
                 {
                     await EvolveCar(data);
@@ -140,9 +137,9 @@ namespace F1Season2025.Engineering.Services
                         {
                             cp = 0.000m;
                         }
-                        if (ca > 10.000m)
+                        if (cp > 10.000m)
                         {
-                            ca = 10.000m;
+                            cp = 10.000m;
                         }
                     }
 
@@ -166,8 +163,8 @@ namespace F1Season2025.Engineering.Services
         {
             try
             {
-                decimal newHandicap = Math.Round(data.DriverHandicap -
-                    (data.DriverExperience * 0.5m), 3, MidpointRounding.AwayFromZero);
+                decimal newHandicap = Math.Round((data.DriverHandicap -
+                    (data.DriverExperience * 0.5m)), 3, MidpointRounding.AwayFromZero);
 
                 if (newHandicap < 0.000m)
                     newHandicap = 0.000m;
