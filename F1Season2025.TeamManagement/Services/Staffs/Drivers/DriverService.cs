@@ -2,6 +2,7 @@
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Staffs.Drivers.Interfaces;
 using F1Season2025.TeamManagement.Services.Staffs.Drivers.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
 namespace F1Season2025.TeamManagement.Services.Staffs.Drivers;
@@ -15,6 +16,36 @@ public class DriverService : IDriverService
     {
         _driverRepository = driverRepository;
         _logger = logger;
+    }
+
+    public async Task ChangeDriverStatusByDriverIdAsync(int driverId)
+    {
+        try 
+        { 
+            _logger.LogInformation("Changing status for driver with DriverId: {DriverId}.", driverId);
+
+            var driver = await _driverRepository.GetDriverByDriverIdAsync(driverId);
+
+            if(driver is null)
+            {
+                _logger.LogWarning("No driver found with DriverId {DriverId}. Status change aborted.", driverId);
+                throw new InvalidOperationException($"No driver found with DriverId {driverId}.");
+            }
+
+            var newStatus = driver.Status is "Ativo" ? "Inativo" : "Ativo";
+
+            await _driverRepository.ChangeDriverStatusByDriverIdAsync(driverId,newStatus);
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while changing status for driver with DriverId {DriverId}: {Message}", driverId, ex.Message);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while changing status for driver with DriverId {DriverId}: {Message}", driverId, ex.Message);
+            throw;
+        }
     }
 
     public async Task CreateDriverAsync(DriverRequestDTO driverDTO)
@@ -166,6 +197,72 @@ public class DriverService : IDriverService
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while retrieving inactive drivers: {Message}", ex.Message);
+            throw;
+        }
+    }
+
+    //Relacionamento piloto com o time
+    public async Task AssignDriverToTeamAsync(int driverId, int teamId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning driver with DriverId {DriverId} to team with TeamId {TeamId}.",driverId,teamId);
+
+            var driver = await _driverRepository.GetDriverByDriverIdAsync(driverId);
+            if (driver is null)
+            {
+                _logger.LogWarning("Driver with DriverId {DriverId} not found.", driverId);
+
+                throw new ArgumentException($"Driver with DriverId {driverId} not found.");
+            }
+
+            var relationship = await _driverRepository.GetDriverTeamRelationshipAsync(driverId, teamId);
+
+            if (relationship is not null)
+            {
+                if (relationship.Status is "Ativo")
+                {
+                    _logger.LogInformation("Driver {DriverId} is already assigned to team {TeamId}.",driverId,teamId);
+
+                    throw new InvalidOperationException($"Driver {driverId} is already assigned to team {teamId}.");
+                }
+
+                _logger.LogInformation("Reactivating driver {DriverId} for team {TeamId}.",driverId,teamId);
+
+                await _driverRepository.ReactivateDriverTeamRelationshipAsync(driverId, teamId);
+
+                return;
+            }
+
+            var activeDriversCount = await _driverRepository.GetActiveDriversCountByTeamIdAsync(teamId);
+
+            if (activeDriversCount >= 2)
+            {
+                _logger.LogWarning("Team {TeamId} already has the maximum number of active drivers.",teamId);
+
+                throw new InvalidOperationException($"Team {teamId} already has 2 active drivers.");
+            }
+
+            await _driverRepository.AssignDriverToTeamAsync(driverId, teamId);
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(
+                ex,
+                "SQL error occurred while assigning driver {DriverId} to team {TeamId}.",
+                driverId,
+                teamId
+            );
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "An error occurred while assigning driver {DriverId} to team {TeamId}.",
+                driverId,
+                teamId
+            );
             throw;
         }
     }

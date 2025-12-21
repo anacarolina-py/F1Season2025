@@ -20,6 +20,26 @@ public class DriverRepository : IDriverRepository
         _logger = logger;
     }
 
+    public async Task ChangeDriverStatusByDriverIdAsync(int driverId, string newStatus)
+    {
+        try 
+        { 
+            var sqlUpdateDriverStatus = @"EXEC sp_ChangeDriverStatus @DriverId,@NewStatus;";
+            _logger.LogInformation("Changing status of driver with DriverId: {DriverId} to {Status}", driverId, newStatus);
+            await _connection.ExecuteAsync(sqlUpdateDriverStatus, new { NewStatus = newStatus, DriverId = driverId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL Error occurred while changing driver status.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while changing driver status.");
+            throw;
+        }
+    }
+
     public async Task CreateDriverAsync(Driver driver)
     {
         var sqlInsertDriver = @"EXEC sp_InsertDriver @FirstName,@LastName,@Age,@Experience,@Status,@DriverId,@PerformancePoints,@Handicap;";
@@ -163,6 +183,86 @@ public class DriverRepository : IDriverRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while retrieving inactive drivers.");
+            throw;
+        }
+    }
+
+    //Relacionamento piloto com o time
+
+    public async Task<DriverTeamResponseDTO?> GetDriverTeamRelationshipAsync(int driverId, int teamId)
+    {
+        var sql = @"SELECT DriverId, TeamId, Status
+                  FROM DriversTeams
+                  WHERE DriverId = @DriverId
+                  AND TeamId = @TeamId;";
+
+        try
+        {
+            _logger.LogInformation("Retrieving driver-team relationship (DriverId: {DriverId}, TeamId: {TeamId}).",driverId,teamId);
+
+            return await _connection.QueryFirstOrDefaultAsync<DriverTeamResponseDTO>(sql,new { DriverId = driverId, TeamId = teamId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error retrieving driver-team relationship.");
+            throw;
+        }
+    }
+
+    public async Task<int> GetActiveDriversCountByTeamIdAsync(int teamId)
+    {
+        var sql = @"SELECT COUNT(*)
+                  FROM DriversTeams
+                  WHERE TeamId = @TeamId
+                  AND Status = 'Ativo';";
+
+        try
+        {
+            _logger.LogInformation("Counting active drivers for TeamId {TeamId}.",teamId);
+
+            return await _connection.ExecuteScalarAsync<int>(sql,new { TeamId = teamId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error counting active drivers by team.");
+            throw;
+        }
+    }
+
+    public async Task ReactivateDriverTeamRelationshipAsync(int driverId, int teamId)
+    {
+        var sql = @"UPDATE DriversTeams
+                  SET Status = 'Ativo'
+                  WHERE DriverId = @DriverId
+                  AND TeamId = @TeamId;";
+
+        try
+        {
+            _logger.LogInformation("Reactivating driver-team relationship (DriverId: {DriverId}, TeamId: {TeamId}).",driverId,teamId);
+
+            await _connection.ExecuteAsync(sql,new { DriverId = driverId, TeamId = teamId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error reactivating driver-team relationship.");
+            throw;
+        }
+    }
+
+    public async Task AssignDriverToTeamAsync(int driverId, int teamId)
+    {
+        var sql = @"INSERT INTO DriversTeams (DriverId, TeamId, Status)
+                  VALUES (@DriverId, @TeamId, 'Ativo');";
+
+        try
+        {
+            _logger.LogInformation("Assigning driver {DriverId} to team {TeamId}.",driverId,teamId);
+
+            await _connection.ExecuteAsync(sql,new { DriverId = driverId, TeamId = teamId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error assigning driver to team.");
             throw;
         }
     }

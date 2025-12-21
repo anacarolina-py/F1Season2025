@@ -18,4 +18,6 @@ public interface IAerodynamicEngineerService
     Task<List<AerodynamicEngineerResponseDTO>> GetActiveAerodynamicEngineersAsync();
 
     Task<List<AerodynamicEngineerResponseDTO>> GetInactiveAerodynamicEngineersAsync();
+
+    Task ChangeAerodynamicEngineerStatusByAerodynamicEngineerIdAsync(int aerodynamicEngineerId);
 }

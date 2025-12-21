@@ -3,6 +3,7 @@ using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Cars.Interfaces;
 using F1Season2025.TeamManagement.Services.Cars.Interfaces;
 using Microsoft.Data.SqlClient;
+using System.Data.Common;
 
 namespace F1Season2025.TeamManagement.Services.Cars;
 
@@ -153,6 +154,116 @@ public class CarService : ICarService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while retrieving all inactive cars.");
+            throw;
+        }
+    }
+
+    public async Task ChangeCarStatusByCarIdAsync(int carId)
+    {
+        try
+        {
+            _logger.LogInformation("Changing car status by Id in the database.");
+            var car = await GetCarByIdAsync(carId);
+
+            if (car is null)
+            {
+                _logger.LogWarning("Car with Id {CarId} not found.", carId);
+                throw new KeyNotFoundException($"Car with Id {carId} not found.");
+            }
+
+            var newStatus = car.Status is "Ativo" ? "Inativo" : "Ativo";
+
+            await _carRepository.ChangeCarStatusByCarIdAsync(carId, newStatus);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while changing car status by Id.");
+            throw;
+        }
+    }
+
+    public async Task AssignPowerEngineerToCarAsync(int carId, int powerEngineerId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning Power Engineer with ID: {PowerEngineerId} to Car with ID: {CarId}", powerEngineerId, carId);
+
+            var relashionship = await _carRepository.GetPowerEngineerCarRelationshipAsync(carId, powerEngineerId);
+            if (relashionship is not null)
+            {
+
+                if (await _carRepository.GetPowerEngineerCarCountAsync(carId) > 0)
+                {
+                    _logger.LogInformation("Car with ID: {CarId} already has an assigned Power Engineer.", carId);
+                    throw new InvalidOperationException($"Car with ID: {carId} already has an assigned Power Engineer.");
+                }
+
+                if (relashionship.Status is "Ativo")
+                {
+                    _logger.LogInformation("Power Engineer with ID: {PowerEngineerId} is already assigned to Car with ID: {CarId}", powerEngineerId, carId);
+                    throw new InvalidOperationException($"Power Engineer with ID: {powerEngineerId} is already assigned to Car with ID: {carId}");
+                }
+
+                await _carRepository.ReactivatePowerEngineerCarRelationshipAsync(carId, powerEngineerId);
+
+            }
+            else
+            {
+                await _carRepository.AssignPowerEngineerToCarAsync(carId, powerEngineerId);
+            }
+
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "Error occurred while assigning Power Engineer with ID: {PowerEngineerId} to Car with ID: {CarId}", powerEngineerId, carId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while assigning Power Engineer with ID: {PowerEngineerId} to Car with ID: {CarId}", powerEngineerId, carId);
+            throw;
+        }
+    }
+
+    public async Task AssignAerodynamicEngineerToCarAsync(int carId, int aerodynamicEngineerId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning Aerodynamic Engineer with ID: {AerodynamicEngineerId} to Car with ID: {CarId}", aerodynamicEngineerId, carId);
+
+            var relashionship = await _carRepository.GetAerodynamicEngineerCarRelationshipAsync(carId, aerodynamicEngineerId);
+            if (relashionship is not null)
+            {
+
+                if (await _carRepository.GetAerodynamicEngineerCarCountAsync(carId) > 0)
+                {
+                    _logger.LogInformation("Car with ID: {CarId} already has an assigned Aerodynamic Engineer.", carId);
+                    throw new InvalidOperationException($"Car with ID: {carId} already has an assigned Aerodynamic Engineer.");
+                }
+
+                if (relashionship.Status is "Ativo")
+                {
+                    _logger.LogInformation("Aerodynamic Engineer with ID: {AerodynamicEngineerId} is already assigned to Car with ID: {CarId}", aerodynamicEngineerId, carId);
+                    throw new InvalidOperationException($"Aerodynamic Engineer with ID: {aerodynamicEngineerId} is already assigned to Car with ID: {carId}");
+                }
+
+                await _carRepository.ReactivateAerodynamicEngineerCarRelationshipAsync(carId, aerodynamicEngineerId);
+
+            }
+            else 
+            { 
+                await _carRepository.AssignAerodynamicEngineerToCarAsync(carId, aerodynamicEngineerId);
+            }
+                
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "Error occurred while assigning Aerodynamic Engineer with ID: {AerodynamicEngineerId} to Car with ID: {CarId}", aerodynamicEngineerId, carId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while assigning Aerodynamic Engineer with ID: {AerodynamicEngineerId} to Car with ID: {CarId}", aerodynamicEngineerId, carId);
             throw;
         }
     }

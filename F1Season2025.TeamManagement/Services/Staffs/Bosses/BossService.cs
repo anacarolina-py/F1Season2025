@@ -17,6 +17,29 @@ public class BossService : IBossService
         _logger = logger;
     }
 
+    public async Task ChangeBossStatusByBossIdAsync(int bossId)
+    {
+        try
+        {
+            _logger.LogInformation("Changing boss status by Id in the database.");
+            var boss = await GetBossByBossIdAsync(bossId);
+
+            if (boss is null)
+            {
+                _logger.LogWarning("Boss with Id {BossId} not found.", bossId);
+                throw new KeyNotFoundException($"Boss with Id {bossId} not found.");
+            }
+            var newStatus = boss.Status is "Ativo" ? "Inativo" : "Ativo";
+
+            await _bossRepository.ChangeBossStatusByBossIdAsync(bossId, newStatus);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while changing boss status by Id.");
+            throw;
+        }
+    }
+
     public async Task CreateBossAsync(BossRequestDTO bossDTO)
     {
         #region Validation

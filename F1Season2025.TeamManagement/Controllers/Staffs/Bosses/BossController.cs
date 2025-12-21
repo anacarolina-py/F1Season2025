@@ -157,5 +157,31 @@ namespace F1Season2025.TeamManagement.Controllers.Staffs.Bosses
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpPut("ids/{bossId}")]
+        public async Task<ActionResult> ChangeBossStatusByBossIdAsync(int bossId)
+        {
+            try
+            {
+                _logger.LogInformation("Changing boss status");
+                await _bossService.ChangeBossStatusByBossIdAsync(bossId);
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogError($"Error changing boss status: {ex.Message}");
+                return BadRequest($"{ex.Message}");
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError($"Error changing boss status: {ex.Message}");
+                return BadRequest($"{ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error changing boss status: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }

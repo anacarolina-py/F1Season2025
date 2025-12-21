@@ -1,4 +1,5 @@
 ﻿using Domain.TeamManagement.Models.DTOs.Teams;
+using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
 using Domain.TeamManagement.Models.Entities;
 
 namespace F1Season2025.TeamManagement.Repositories.Teams.Interfaces
@@ -18,5 +19,10 @@ namespace F1Season2025.TeamManagement.Repositories.Teams.Interfaces
         Task<List<TeamResponseDTO>> GetInactiveTeamsAsync();
 
         Task<List<TeamResponseDTO>> GetAllTeamsAsync();
+        Task PrepareTeamByTeamIdAsync(int teamId);
+        Task TurnOnTeamByTeamIdAsync(int teamId);
+        Task TurnOffTeamByTeamIdAsync(int teamId);
+        Task<int> ValidateTeamsAsync();
+        Task<IEnumerable<EngineeringInfoDTO>> GetEngineeringInfo(int teamId);
     }
 }

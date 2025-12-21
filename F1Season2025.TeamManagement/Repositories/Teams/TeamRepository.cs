@@ -1,10 +1,10 @@
 ﻿using Dapper;
 using Domain.TeamManagement.Models.DTOs.Cars;
 using Domain.TeamManagement.Models.DTOs.Teams;
+using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Teams.Interfaces;
 using Infrastructure.TeamManagement.Data.SQL.Connection;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
 namespace F1Season2025.TeamManagement.Repositories.Teams
@@ -173,7 +173,7 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
                             s_ae.Experience AS AeroExperience,
                             s_pe.Experience AS PowerExperience
                         FROM Teams t
-                        JOIN TeamBosses bt ON t.TeamId = bt.TeamId
+                        JOIN TeamsBosses bt ON t.TeamId = bt.TeamId
                         JOIN TeamsCars tc ON t.TeamId = tc.TeamId
                         JOIN Cars c ON tc.CarId = c.CarId
                         JOIN CarsDrivers cd ON c.CarId = cd.CarId
@@ -237,5 +237,142 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
                 throw;
             }
         }
+
+        public async Task PrepareTeamByTeamIdAsync(int teamId)
+        {
+            try
+            { 
+                var sqlUpdateTeamStatus = @"UPDATE Teams
+                                            SET [Status] = 'Em Preparo'
+                                            WHERE TeamId = @TeamId";
+
+                _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Em Preparo'", teamId);
+                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new {TeamId = teamId });
+            }
+            catch (SqlException sqlEx)
+            {
+                _logger.LogError(sqlEx, "SQL Error changing team status");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing team status");
+                throw;
+            }
+        }
+
+        public async Task TurnOnTeamByTeamIdAsync(int teamId)
+        {
+            try { 
+                var sqlUpdateTeamStatus = @"UPDATE Teams
+                                            SET [Status] = 'Ativo'
+                                            WHERE TeamId = @TeamId";
+
+                _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Ativo'", teamId);
+                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new { TeamId = teamId });
+            }
+            catch (SqlException sqlEx)
+            {
+                _logger.LogError(sqlEx, "SQL Error changing team status");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing team status");
+                throw;
+            }
+        }
+
+        public async Task TurnOffTeamByTeamIdAsync(int teamId)
+        {
+            try { 
+                var sqlUpdateTeamStatus = @"EXEC sp_TurnOffTeam @TeamId";
+                _logger.LogInformation("Changing status of team with TeamId: {TeamId} to 'Inativo'", teamId);
+                await _connection.ExecuteAsync(sqlUpdateTeamStatus, new { TeamId = teamId });
+            }
+            catch (SqlException sqlEx)
+            {
+                _logger.LogError(sqlEx, "SQL Error changing team status");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing team status");
+                throw;
+            }
+        }
+
+        public async Task<int> ValidateTeamsAsync()
+        {
+            var sqlValidateTeams = @"SELECT COUNT(*) AS CanStart
+                                     FROM Teams
+                                     WHERE [Status] = 'Ativo'";
+
+            try
+            {
+                _logger.LogInformation("Validating if there are enough active teams to start the season");
+                return await _connection.ExecuteScalarAsync<int>(sqlValidateTeams);
+            }
+            catch(SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Error validating teams");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating teams");
+                throw;
+            }
+
+        }
+
+        public async Task<IEnumerable<EngineeringInfoDTO>> GetEngineeringInfo(int teamId)
+        {
+            try
+            {
+                var sql = @"
+                        SELECT
+                            c.TeamId,
+                            c.CarId,
+                            c.AerodynamicCoefficient,
+                            c.PowerCoefficient,
+                            d.DriverId,
+                            d.Handicap AS DriverHandicap,
+                            s_drv.Experience AS DriverExperience,
+                            s_aero.Experience AS EngineerExperienceCa,
+                            s_pwr.Experience AS EngineerExperienceCp
+                        FROM Cars c
+                        JOIN Drivers d ON d.DriverId = c.DriverId
+                        JOIN Staffs s_drv ON s_drv.StaffId = d.StaffId
+                        LEFT JOIN AerodynamicEngineer ae ON ae.AerodynamicEngineerId = c.AerodynamicEngineerId
+                        LEFT JOIN Engineers e_aero ON e_aero.EngineerId = ae.EngineerId
+                        LEFT JOIN Staffs s_aero ON s_aero.StaffId = e_aero.StaffId
+                        LEFT JOIN PowerEngineer pe ON pe.PowerEngineerId = c.PowerEngineerId
+                        LEFT JOIN Engineers e_pwr ON e_pwr.EngineerId = pe.EngineerId
+                        LEFT JOIN Staffs s_pwr ON s_pwr.StaffId = e_pwr.StaffId
+                        WHERE c.TeamId = @TeamId
+                          AND c.Status = 'Ativo'";
+
+                var result = await _connection.QueryAsync<EngineeringInfoDTO>(
+                    sql, new
+                    {
+                        TeamId = teamId
+                    });
+
+                return result ?? Enumerable.Empty<EngineeringInfoDTO>();
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Error retrieving teams");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving teams");
+                throw;
+            }
+        }
+
     }
+
 }

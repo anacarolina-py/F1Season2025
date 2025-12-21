@@ -18,6 +18,25 @@ public class BossRepository : IBossRepository
         _logger = logger;
     }
 
+    public async Task ChangeBossStatusByBossIdAsync(int bossId, string newStatus)
+    {
+        try { 
+            var sqlUpdateBossStatus = "EXEC sp_ChangeBossStatus @BossId,@NewStatus";
+            _logger.LogInformation("Changing status of boss with BossId: {BossId} to {Status}", bossId, newStatus);
+            await _connection.ExecuteAsync(sqlUpdateBossStatus, new { NewStatus = newStatus, BossId = bossId });
+        }
+        catch (SqlException sqlEx)
+        {
+            _logger.LogError(sqlEx, "SQL Error changing boss status");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error changing boss status");
+            throw;
+        }
+    }
+
     public async Task CreateBossAsync(Boss boss)
     {
         var sqlInsertBoss = "EXEC sp_InsertBoss @FirstName, @LastName, @Age, @Experience, @Status";
@@ -159,4 +178,6 @@ public class BossRepository : IBossRepository
             throw;
         }
     }
+
+
 }

@@ -47,7 +47,7 @@ BEGIN
                                    c.[Status] = 'Ativo');
 
         DECLARE @Bosses INT = (SELECT COUNT(*)
-                               FROM TeamBosses tb 
+                               FROM TeamsBosses tb 
                                JOIN Staffs s ON EXISTS(SELECT 1 
                                                        FROM Bosses b 
                                                        WHERE b.BossId = tb.BossId AND 
@@ -385,8 +385,8 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER TRIGGER TR_LimitTeamBosses
-ON TeamBosses
+CREATE OR ALTER TRIGGER TR_LimitTeamsBosses
+ON TeamsBosses
 AFTER INSERT, UPDATE
 AS
 BEGIN
@@ -394,7 +394,7 @@ BEGIN
     IF EXISTS ( SELECT 1 
                 FROM inserted i
                 WHERE (SELECT COUNT(*) 
-                       FROM TeamBosses 
+                       FROM TeamsBosses 
                        WHERE TeamId = i.TeamId AND 
                              [Status] = 'Ativo') > 2)
     BEGIN
@@ -509,8 +509,8 @@ END;
 GO
 
 
-CREATE OR ALTER TRIGGER TR_MonitorTeamBossesStatus
-ON TeamBosses 
+CREATE OR ALTER TRIGGER TR_MonitorTeamsBossesStatus
+ON TeamsBosses 
 AFTER UPDATE AS
 BEGIN
     SET NOCOUNT ON;

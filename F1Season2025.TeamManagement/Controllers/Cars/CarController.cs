@@ -1,4 +1,5 @@
 ﻿using Domain.TeamManagement.Models.DTOs.Cars;
+using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Services.Cars.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -218,6 +219,99 @@ public class CarController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError($"Error getting inactive cars: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPut("ids/{carId}")]
+    public async Task<ActionResult> ChangeCarStatusByIdAsync(int carId) { 
+        try
+        {
+            _logger.LogInformation("Changing car status by id");
+            await _carService.ChangeCarStatusByCarIdAsync(carId);
+            return NoContent();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Error changing car status by id: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error changing car status by id: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error changing car status by id: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error changing car status by id: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost("carids/{carId}/pengineerids/{pengineerId}")]
+    public async Task<ActionResult> AssignPowerEngineerToCarAsync(int carId, int pengineerId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning power engineer to car");
+
+            await _carService.AssignPowerEngineerToCarAsync(carId, pengineerId);
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Error assigning power engineer to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error assigning power engineer to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error assigning power engineer to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error assigning power engineer to car: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+    [HttpPost("carids/{carId}/aeroengineerids/{aeroEngineerId}")]
+    public async Task<ActionResult> AssignAerodynamicEngineerToCarAsync(int carId, int aeroEngineerId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning aerodynamic engineer to car");
+
+            await _carService.AssignAerodynamicEngineerToCarAsync(carId, aeroEngineerId);
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Error assigning aerodynamic engineer to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error assigning aerodynamic engineer to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error assigning aerodynamic engineer to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error assigning aerodynamic engineer to car: {ex.Message}");
             return StatusCode(500, "Internal server error");
         }
     }
