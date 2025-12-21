@@ -460,5 +460,326 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
                 throw;
             }
         }
+
+
+        public async Task<TeamCarResponseDTO?> GetCarTeamRelationshipAsync(int teamId, int carId)
+        {
+            var sql = @"SELECT CarId, TeamId, Status
+                  FROM TeamsCars
+                  WHERE CarId = @CarId
+                  AND TeamId = @TeamId;";
+
+            try
+            {
+                _logger.LogInformation("Retrieving car-team relationship (CarId: {CarId}, TeamId: {TeamId}).", carId, teamId);
+
+                return await _connection.QueryFirstOrDefaultAsync<TeamCarResponseDTO>(sql, new { CarId = carId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error retrieving car-team relationship.");
+                throw;
+            }
+        }
+
+        public async Task<int> GetActiveCarsCountByTeamIdAsync(int teamId)
+        {
+            var sql = @"SELECT COUNT(*)
+                  FROM TeamsCars
+                  WHERE TeamId = @TeamId
+                  AND Status = 'Ativo';";
+
+            try
+            {
+                _logger.LogInformation("Counting active cars for TeamId {TeamId}.", teamId);
+
+                return await _connection.ExecuteScalarAsync<int>(sql, new { TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error counting active cars by team.");
+                throw;
+            }
+        }
+
+        public async Task ReactivateCarTeamRelationshipAsync(int teamId, int carId)
+        {
+            var sql = @"UPDATE TeamsCars
+                  SET Status = 'Ativo'
+                  WHERE CarId = @CarId
+                  AND TeamId = @TeamId;";
+
+            try
+            {
+                _logger.LogInformation("Reactivating car-team relationship (CarId: {CarId}, TeamId: {TeamId}).", carId, teamId);
+
+                await _connection.ExecuteAsync(sql, new { CarId = carId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error reactivating car-team relationship.");
+                throw;
+            }
+        }
+
+        public async Task AssignCarToTeamAsync(int teamId, int carId)
+        {
+            var sql = @"INSERT INTO TeamsCars (CarId, TeamId, Status)
+                  VALUES (@CarId, @TeamId, 'Ativo');";
+
+            try
+            {
+                _logger.LogInformation("Assigning car {CarId} to team {TeamId}.", carId, teamId);
+
+                await _connection.ExecuteAsync(sql, new { CarId = carId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error assigning car to team.");
+                throw;
+            }
+        }
+
+
+
+        public async Task<TeamBossResponseDTO?> GetBossTeamRelationshipAsync(int teamId, int bossId)
+        {
+            var sql = @"SELECT BossId, TeamId, Status
+                  FROM TeamsBosses
+                  WHERE BossId = @BossId
+                  AND TeamId = @TeamId;";
+
+            try
+            {
+                _logger.LogInformation("Retrieving boss-team relationship (BossId: {BossId}, TeamId: {TeamId}).", bossId, teamId);
+
+                return await _connection.QueryFirstOrDefaultAsync<TeamBossResponseDTO>(sql, new { BossId = bossId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error retrieving boss-team relationship.");
+                throw;
+            }
+        }
+
+        public async Task<int> GetActiveBossesCountByTeamIdAsync(int teamId)
+        {
+            var sql = @"SELECT COUNT(*)
+                  FROM TeamsBosses
+                  WHERE TeamId = @TeamId
+                  AND Status = 'Ativo';";
+
+            try
+            {
+                _logger.LogInformation("Counting active bosses for TeamId {TeamId}.", teamId);
+
+                return await _connection.ExecuteScalarAsync<int>(sql, new { TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error counting active bosses by team.");
+                throw;
+            }
+        }
+
+        public async Task ReactivateBossTeamRelationshipAsync(int teamId, int bossId)
+        {
+            var sql = @"UPDATE TeamsBosses
+                  SET Status = 'Ativo'
+                  WHERE BossId = @BossId
+                  AND TeamId = @TeamId;";
+
+            try
+            {
+                _logger.LogInformation("Reactivating boss-team relationship (BossId: {BossId}, TeamId: {TeamId}).", bossId, teamId);
+
+                await _connection.ExecuteAsync(sql, new { BossId = bossId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error reactivating boss-team relationship.");
+                throw;
+            }
+        }
+
+        public async Task AssignBossToTeamAsync(int teamId, int bossId)
+        {
+            var sql = @"INSERT INTO TeamsBosses (BossId, TeamId, Status)
+                  VALUES (@BossId, @TeamId, 'Ativo');";
+
+            try
+            {
+                _logger.LogInformation("Assigning boss {BossId} to team {TeamId}.", bossId, teamId);
+
+                await _connection.ExecuteAsync(sql, new { BossId = bossId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error assigning boss to team.");
+                throw;
+            }
+        }
+
+
+        public async Task<TeamAerodynamicResponseDTO?> GetAerodynamicEngineerTeamRelationshipAsync(int teamId, int aerodynamicEngineerId)
+        {
+            var sql = @"SELECT AerodynamicEngineerId, TeamId, Status
+                  FROM TeamsAerodynamic
+                  WHERE AerodynamicEngineerId = @AerodynamicEngineerId
+                  AND TeamId = @TeamId;";
+
+            try
+            {
+                _logger.LogInformation("Retrieving aerodynamic-engineer-team relationship (AerodynamicEngineerId: {AerodynamicEngineerId}, TeamId: {TeamId}).", aerodynamicEngineerId, teamId);
+
+                return await _connection.QueryFirstOrDefaultAsync<TeamAerodynamicResponseDTO>(sql, new { AerodynamicEngineerId = aerodynamicEngineerId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error retrieving aerodynamic-engineer-team relationship.");
+                throw;
+            }
+        }
+
+        public async Task<int> GetActiveAerodynamicEngineersCountByTeamIdAsync(int teamId)
+        {
+            var sql = @"SELECT COUNT(*)
+                  FROM TeamsAerodynamic
+                  WHERE TeamId = @TeamId
+                  AND Status = 'Ativo';";
+
+            try
+            {
+                _logger.LogInformation("Counting active aerodynamic engineers for TeamId {TeamId}.", teamId);
+
+                return await _connection.ExecuteScalarAsync<int>(sql, new { TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error counting active aerodynamic engineers by team.");
+                throw;
+            }
+        }
+
+        public async Task ReactivateAerodynamicEngineerTeamRelationshipAsync(int teamId, int aerodynamicEngineerId)
+        {
+            var sql = @"UPDATE TeamsAerodynamic
+                  SET Status = 'Ativo'
+                  WHERE AerodynamicEngineerId = @AerodynamicEngineerId
+                  AND TeamId = @TeamId;";
+
+            try
+            {
+                _logger.LogInformation("Reactivating aerodynamic-engineer-team relationship (AerodynamicEngineerId: {AerodynamicEngineerId}, TeamId: {TeamId}).", aerodynamicEngineerId, teamId);
+
+                await _connection.ExecuteAsync(sql, new { AerodynamicEngineerId = aerodynamicEngineerId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error reactivating aerodynamic-engineer-team relationship.");
+                throw;
+            }
+        }
+
+        public async Task AssignAerodynamicEngineerToTeamAsync(int teamId, int aerodynamicEngineerId)
+        {
+            var sql = @"INSERT INTO TeamsAerodynamic (AerodynamicEngineerId, TeamId, Status)
+                  VALUES (@AerodynamicEngineerId, @TeamId, 'Ativo');";
+
+            try
+            {
+                _logger.LogInformation("Assigning aerodynamic-engineer {AerodynamicEngineerId} to team {TeamId}.", aerodynamicEngineerId, teamId);
+
+                await _connection.ExecuteAsync(sql, new { AerodynamicEngineerId = aerodynamicEngineerId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error assigning aerodynamic-engineer to team.");
+                throw;
+            }
+        }
+
+
+
+
+        public async Task<TeamPowerResponseDTO?> GetPowerEngineerTeamRelationshipAsync(int teamId, int powerEngineerId)
+        {
+            var sql = @"SELECT PowerEngineerId, TeamId, Status
+                  FROM TeamsPower
+                  WHERE PowerEngineerId = @PowerEngineerId
+                  AND TeamId = @TeamId;";
+
+            try
+            {
+                _logger.LogInformation("Retrieving power-engineer-team relationship (PowerEngineerId: {PowerEngineerId}, TeamId: {TeamId}).", powerEngineerId, teamId);
+
+                return await _connection.QueryFirstOrDefaultAsync<TeamPowerResponseDTO>(sql, new { PowerEngineerId = powerEngineerId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error retrieving power-engineer-team relationship.");
+                throw;
+            }
+        }
+
+        public async Task<int> GetActivePowerEngineersCountByTeamIdAsync(int teamId)
+        {
+            var sql = @"SELECT COUNT(*)
+                  FROM TeamsPower
+                  WHERE TeamId = @TeamId
+                  AND Status = 'Ativo';";
+
+            try
+            {
+                _logger.LogInformation("Counting active power engineers for TeamId {TeamId}.", teamId);
+
+                return await _connection.ExecuteScalarAsync<int>(sql, new { TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error counting active power engineers by team.");
+                throw;
+            }
+        }
+
+        public async Task ReactivatePowerEngineerTeamRelationshipAsync(int teamId, int powerEngineerId)
+        {
+            var sql = @"UPDATE TeamsPower
+                  SET Status = 'Ativo'
+                  WHERE PowerEngineerId = @PowerEngineerId
+                  AND TeamId = @TeamId;";
+
+            try
+            {
+                _logger.LogInformation("Reactivating power-engineer-team relationship (PowerEngineerId: {PowerEngineerId}, TeamId: {TeamId}).", powerEngineerId, teamId);
+
+                await _connection.ExecuteAsync(sql, new { PowerEngineerId = powerEngineerId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error reactivating power-engineer-team relationship.");
+                throw;
+            }
+        }
+
+        public async Task AssignPowerEngineerToTeamAsync(int teamId, int powerEngineerId)
+        {
+            var sql = @"INSERT INTO TeamsPower (PowerEngineerId, TeamId, Status)
+                  VALUES (@PowerEngineerId, @TeamId, 'Ativo');";
+
+            try
+            {
+                _logger.LogInformation("Assigning power-engineer {PowerEngineerId} to team {TeamId}.", powerEngineerId, teamId);
+
+                await _connection.ExecuteAsync(sql, new { PowerEngineerId = powerEngineerId, TeamId = teamId });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error assigning power-engineer to team.");
+                throw;
+            }
+        }
+
+
     }
 }
