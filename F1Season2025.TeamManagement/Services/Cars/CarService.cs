@@ -267,4 +267,48 @@ public class CarService : ICarService
             throw;
         }
     }
+
+
+    public async Task AssignDriverToCarAsync(int carId, int driverId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning Driver with ID: {DriverId} to Car with ID: {CarId}", driverId, carId);
+
+            var relashionship = await _carRepository.GetDriverCarRelationshipAsync(carId, driverId);
+            if (relashionship is not null)
+            {
+
+                if (await _carRepository.GetDriverCarCountAsync(carId) > 0)
+                {
+                    _logger.LogInformation("Car with ID: {CarId} already has an assigned Driver.", carId);
+                    throw new InvalidOperationException($"Car with ID: {carId} already has an assigned Driver.");
+                }
+
+                if (relashionship.Status is "Ativo")
+                {
+                    _logger.LogInformation("Driver with ID: {DriverId} is already assigned to Car with ID: {CarId}", driverId, carId);
+                    throw new InvalidOperationException($"Driver with ID: {driverId} is already assigned to Car with ID: {carId}");
+                }
+
+                await _carRepository.ReactivateDriverCarRelationshipAsync(carId, driverId);
+
+            }
+            else
+            {
+                await _carRepository.AssignDriverToCarAsync(carId, driverId);
+            }
+
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "Error occurred while assigning Driver with ID: {DriverId} to Car with ID: {CarId}", driverId, carId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while assigning Driver with ID: {DriverId} to Car with ID: {CarId}", driverId, carId);
+            throw;
+        }
+    }
 }

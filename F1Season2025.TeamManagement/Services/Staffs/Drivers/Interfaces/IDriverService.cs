@@ -19,6 +19,6 @@ public interface IDriverService
 
     Task ChangeDriverStatusByDriverIdAsync(int driverId);
 
-    Task AssignDriverToTeamAsync(int driverId, int teamId);
+    
 
 }

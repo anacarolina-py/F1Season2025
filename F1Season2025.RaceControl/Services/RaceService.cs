@@ -1,8 +1,11 @@
 ﻿using Domain.Competition.Models.Entities;
+using Domain.Engeneering.Models.DTOs;
 using Domain.RaceControl.Models.DTOs;
 using Domain.RaceControl.Models.Entities;
 using Domain.RaceControl.Models.Entities.Enums;
 using Domain.RaceControl.Models.Extensions;
+using Domain.TeamManagement.Models.DTOs.Staffs.Drivers;
+using Domain.TeamManagement.Models.DTOs.Teams;
 using F1Season2025.RaceControl.Repositories.Interfaces;
 using F1Season2025.RaceControl.Services.Intefaces;
 
@@ -155,7 +158,7 @@ public class RaceService : IRaceService
             if (race is null)
                 throw new Exception("Circuit not found or not implemented");
 
-            var raceDto = await StartQualifyingAsync(race);
+            var raceDto = await FinishQualifyAsync(race);
             return raceDto;
         }
         catch (Exception ex)
@@ -231,23 +234,47 @@ public class RaceService : IRaceService
     {
         try
         {
-            _logger.LogInformation("Get all teams");
-            var constructors = new List<ConstructorChampionship>
-            {
-                new(1, "Ferrari"),
-                new(2, "Red Bull"),
-                new(3, "Mercedes Benz"),
-            };
+            _logger.LogInformation("Create Team management client");
+            var clientTeamManagement = _factory.CreateClient("TeamManagementClient");
 
-            _logger.LogInformation("Get all drivers");
-            var drivers = new List<DriverChampionship>
-            {
-                new(1, "Hamilton", 22, 1, "Ferrari"),
-                new(2, "Verstappen", 33, 2, "Red Bull"),
-                new(3, "Norris", 44, 3, "Mercedes Benz")
-            };
+            _logger.LogInformation("Create Engeneering client");
+            var clientEngeneering = _factory.CreateClient("EngeneeringClient");
 
-            var sessionResult = new SessionResult(drivers, constructors);
+            _logger.LogInformation("Get all active drivers");
+            var driversResponse = await clientTeamManagement.GetFromJsonAsync<List<DriverResponseDTO>>("api/drivers/actives");
+
+            _logger.LogInformation("Get all active teams");
+            var teamsResponse = await clientTeamManagement.GetFromJsonAsync<List<TeamResponseDTO>>("api/teams/actives");
+
+            _logger.LogInformation("Get handicap drivers");
+            var handicapDrivers = await clientEngeneering.GetFromJsonAsync<List<DriverHandicapDTO>>("api/engeneering/driver/handicap");
+
+            if (driversResponse is null)
+                throw new Exception("Drivers not found");
+
+            var drivers = new List<DriverChampionship>();
+            var teams = new List<ConstructorChampionship>();
+
+            foreach (var driver in driversResponse)
+            {
+                var team = teamsResponse.Where(t => t.TeamId == driver.TeamId).FirstOrDefault();
+
+                var handicap = handicapDrivers.Where(d => d.Id == driver.StaffId).FirstOrDefault();
+
+                drivers.Add(new DriverChampionship(driver.StaffId, driver.FirstName, driver.DriverId, driver.TeamId, team.Name, handicap.Handicap));
+            }
+
+            foreach (var team in teamsResponse)
+            {
+                teams.Add(new ConstructorChampionship(team.TeamId, team.Name));
+            }
+
+            foreach (var team in teams)
+            {
+                await clientEngeneering.PostAsJsonAsync($"api/engeneering/practice/", team.IdTeam);
+            }
+
+            var sessionResult = new SessionResult(drivers, teams);
 
             _logger.LogInformation("Update data");
             race.UpdateResultsSession(EType.FreePractice1, sessionResult);
@@ -265,26 +292,34 @@ public class RaceService : IRaceService
     {
         try
         {
-            _logger.LogInformation("Get all teams");
-            var constructors = new List<ConstructorChampionship>
-            {
-                new(1, "Ferrari"),
-                new(2, "Red Bull"),
-                new(3, "Mercedes Benz"),
-            };
 
-            _logger.LogInformation("Get all drivers");
-            var drivers = new List<DriverChampionship>
-            {
-                new(1, "Hamilton", 22, 1, "Ferrari"),
-                new(2, "Verstappen", 33, 2, "Red Bull"),
-                new(3, "Norris", 44, 3, "Mercedes Benz")
-            };
+            _logger.LogInformation("Create Engeneering client");
+            var clientEngeneering = _factory.CreateClient("EngeneeringClient");
 
-            var sessionResult = new SessionResult(drivers, constructors);
+            var sessionResult = race.Session.Select(s => s.SessionResult);
+
+            var drivers = sessionResult.Select(s => s.Drivers).FirstOrDefault();
+            var teams = sessionResult.Select(s => s.Teams).FirstOrDefault();
+
+            _logger.LogInformation("Get handicap drivers");
+            var handicapDrivers = await clientEngeneering.GetFromJsonAsync<List<DriverHandicapDTO>>("api/engeneering/driver/handicap");
+
+            foreach (var driver in drivers)
+            {
+                var handicap = handicapDrivers.Where(d => d.Id == driver.IdDriver).FirstOrDefault();
+
+                driver.SetHandicap(handicap.Handicap);
+            }
+
+            foreach (var team in teams)
+            {
+                await clientEngeneering.PostAsJsonAsync($"api/engeneering/practice/", team.IdTeam);
+            }
+
+            var session = new SessionResult(drivers, teams);
 
             _logger.LogInformation("Update data");
-            race.UpdateResultsSession(EType.FreePractice2, sessionResult);
+            race.UpdateResultsSession(EType.FreePractice2, session);
 
             return await _raceRepository.UpdateSessionAsync(race);
         }
@@ -299,26 +334,33 @@ public class RaceService : IRaceService
     {
         try
         {
-            _logger.LogInformation("Get all teams");
-            var constructors = new List<ConstructorChampionship>
-            {
-                new(1, "Ferrari"),
-                new(2, "Red Bull"),
-                new(3, "Mercedes Benz"),
-            };
+            _logger.LogInformation("Create Engeneering client");
+            var clientEngeneering = _factory.CreateClient("EngeneeringClient");
 
-            _logger.LogInformation("Get all drivers");
-            var drivers = new List<DriverChampionship>
-            {
-                new(1, "Hamilton", 22, 1, "Ferrari"),
-                new(2, "Verstappen", 33, 2, "Red Bull"),
-                new(3, "Norris", 44, 3, "Mercedes Benz")
-            };
+            var sessionResult = race.Session.Select(s => s.SessionResult);
 
-            var sessionResult = new SessionResult(drivers, constructors);
+            var drivers = sessionResult.Select(s => s.Drivers).FirstOrDefault();
+            var teams = sessionResult.Select(s => s.Teams).FirstOrDefault();
+
+            _logger.LogInformation("Get handicap drivers");
+            var handicapDrivers = await clientEngeneering.GetFromJsonAsync<List<DriverHandicapDTO>>("api/engeneering/driver/handicap");
+
+            foreach (var driver in drivers)
+            {
+                var handicap = handicapDrivers.Where(d => d.Id == driver.IdDriver).FirstOrDefault();
+
+                driver.SetHandicap(handicap.Handicap);
+            }
+
+            foreach (var team in teams)
+            {
+                await clientEngeneering.PostAsJsonAsync($"api/engeneering/practice/", team.IdTeam);
+            }
+
+            var session = new SessionResult(drivers, teams);
 
             _logger.LogInformation("Update data");
-            race.UpdateResultsSession(EType.FreePractice3, sessionResult);
+            race.UpdateResultsSession(EType.FreePractice3, session);
 
             return await _raceRepository.UpdateSessionAsync(race);
         }
@@ -354,11 +396,32 @@ public class RaceService : IRaceService
     {
         try
         {
-            var drivers = race.Session.Select(s => s.SessionResult.Drivers);
-            var teams = race.Session.Select(s => s.SessionResult.Teams);
+            _logger.LogInformation("Create Engeneering client");
+            var clientEngeneering = _factory.CreateClient("EngeneeringClient");
 
-            
+            var sessionResult = race.Session.Select(s => s.SessionResult);
 
+            var drivers = sessionResult.Select(s => s.Drivers).FirstOrDefault();
+            var teams = sessionResult.Select(s => s.Teams).FirstOrDefault();
+
+            _logger.LogInformation("Get handicap drivers");
+            var handicapDrivers = await clientEngeneering.GetFromJsonAsync<List<DriverHandicapDTO>>("api/engeneering/driver/handicap");
+
+            foreach (var driver in drivers)
+            {
+                var handicap = handicapDrivers.Where(d => d.Id == driver.IdDriver).FirstOrDefault();
+
+                driver.SetHandicap(handicap.Handicap);
+            }
+
+            foreach (var team in teams)
+            {
+                await clientEngeneering.PostAsJsonAsync($"api/engeneering/qualifying/", team.IdTeam);
+            }
+
+
+
+            var session = new SessionResult(drivers, teams);
             _logger.LogInformation("Update data");
             //race.UpdateResultsSession(EType.FreePractice3, sessionResult);
 

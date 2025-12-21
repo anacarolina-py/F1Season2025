@@ -28,5 +28,7 @@ namespace F1Season2025.TeamManagement.Services.Teams.Interfaces
 
         Task<TeamsValidateResponseDTO> ValidateTeamsAsync();
         Task<IEnumerable<EngineeringInfoDTO>> GetEngineeringInfo(int teamId);
+
+        Task AssignDriverToTeamAsync(int teamId,int driverId);
     }
 }
