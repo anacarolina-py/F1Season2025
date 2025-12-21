@@ -75,9 +75,12 @@ public class DriverRepository : IDriverRepository
 
     public async Task<List<DriverResponseDTO>> GetActiveDriversAsync()
     {
-        var sqlSelectActiveDrivers = @"SELECT d.DriverId, s.StaffId, s.FirstName, s.LastName, s.Age, s.Experience, s.Status
+        var sqlSelectActiveDrivers = @"SELECT d.DriverId, d.Handicap,d.PerformancePoints,
+                                              s.StaffId, s.FirstName, s.LastName, s.Age, s.Experience, s.Status,
+                                              td.TeamId
                                        FROM Drivers d
                                        JOIN Staffs s ON d.StaffId = s.StaffId
+                                       JOIN TeamsDrivers td ON td.DriverId = d.DriverId
                                        WHERE s.Status = 'Ativo';";
 
         try { 
