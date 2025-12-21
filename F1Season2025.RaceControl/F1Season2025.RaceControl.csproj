@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain.RaceControl.Models\Domain.RaceControl.Models.csproj" />
+    <ProjectReference Include="..\Domain.TeamManagement.Models\Domain.TeamManagement.Models.csproj" />
     <ProjectReference Include="..\Infrastructure.RaceControl.Data\Infrastructure.RaceControl.Data.csproj" />
     <ProjectReference Include="..\Models\Domain.Competition.Models.csproj" />
   </ItemGroup>

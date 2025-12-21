@@ -3,6 +3,8 @@ using Domain.RaceControl.Models.DTOs;
 using Domain.RaceControl.Models.Entities;
 using Domain.RaceControl.Models.Entities.Enums;
 using Domain.RaceControl.Models.Extensions;
+using Domain.TeamManagement.Models.DTOs.Staffs.Drivers;
+using Domain.TeamManagement.Models.DTOs.Teams;
 using F1Season2025.RaceControl.Repositories.Interfaces;
 using F1Season2025.RaceControl.Services.Intefaces;
 
@@ -231,21 +233,25 @@ public class RaceService : IRaceService
     {
         try
         {
-            _logger.LogInformation("Get all teams");
-            var constructors = new List<ConstructorChampionship>
-            {
-                new(1, "Ferrari"),
-                new(2, "Red Bull"),
-                new(3, "Mercedes Benz"),
-            };
+            _logger.LogInformation("Create Team management client");
+            var client = _factory.CreateClient("TeamManagementClient");
 
-            _logger.LogInformation("Get all drivers");
-            var drivers = new List<DriverChampionship>
+            _logger.LogInformation("Get all active drivers");
+            var driversResponse = await client.GetFromJsonAsync<List<DriverResponseDTO>>("api/drivers/actives");
+
+            _logger.LogInformation("Get all active teams");
+            var teamsResponse = await client.GetFromJsonAsync<List<TeamResponseDTO>>("api/teams/actives");
+
+            if (driversResponse is null)
+                throw new Exception("Drivers not found");
+
+            var drivers = new List<DriverChampionship>();
+
+            foreach(var driver in driversResponse)
             {
-                new(1, "Hamilton", 22, 1, "Ferrari"),
-                new(2, "Verstappen", 33, 2, "Red Bull"),
-                new(3, "Norris", 44, 3, "Mercedes Benz")
-            };
+                var team = teamsResponse.Where(t => t.TeamId == driver)
+                drivers.Add(new DriverChampionship(driver.StaffId, driver.FirstName, driver.DriverId, driver.))
+            }
 
             var sessionResult = new SessionResult(drivers, constructors);
 
