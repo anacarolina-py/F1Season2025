@@ -80,7 +80,7 @@ public class DriverRepository : IDriverRepository
                                               td.TeamId
                                        FROM Drivers d
                                        JOIN Staffs s ON d.StaffId = s.StaffId
-                                       JOIN TeamsDrivers td ON td.DriverId = d.DriverId
+                                       LEFT JOIN TeamsDrivers td ON td.DriverId = d.DriverId
                                        WHERE s.Status = 'Ativo';";
 
         try { 
@@ -102,9 +102,12 @@ public class DriverRepository : IDriverRepository
 
     public async Task<List<DriverResponseDTO>> GetAllDriversAsync()
     {
-        var sqlSelectAllDrivers = @"SELECT d.DriverId, s.StaffId, s.FirstName, s.LastName, s.Age, s.Experience, s.Status
+        var sqlSelectAllDrivers = @"SELECT d.DriverId,d.Handicap,d.PerformancePoints, 
+                                           s.StaffId, s.FirstName, s.LastName, s.Age, s.Experience, s.Status,
+                                           td.TeamId
                                    FROM Drivers d
-                                   JOIN Staffs s ON d.StaffId = s.StaffId;";
+                                   JOIN Staffs s ON d.StaffId = s.StaffId
+                                   LEFT JOIN TeamsDrivers td ON td.DriverId = d.DriverId;";
 
         try
         {
@@ -125,9 +128,12 @@ public class DriverRepository : IDriverRepository
 
     public async Task<DriverResponseDTO?> GetDriverByDriverIdAsync(int driverId)
     {
-        var sqlSelectDriverById = @"SELECT d.DriverId, s.StaffId, s.FirstName, s.LastName, s.Age, s.Experience, s.Status
+        var sqlSelectDriverById = @"SELECT d.DriverId, d.Handicap,d.PerformancePoints,
+                                           s.StaffId, s.FirstName, s.LastName, s.Age, s.Experience, s.Status,
+                                           td.TeamId
                                    FROM Drivers d
                                    JOIN Staffs s ON d.StaffId = s.StaffId
+                                   LEFT JOIN TeamsDrivers td ON td.DriverId = d.DriverId
                                    WHERE d.DriverId = @DriverId;";
         try { 
             _logger.LogInformation("Retrieving driver with ID: {DriverId}", driverId);
@@ -147,10 +153,13 @@ public class DriverRepository : IDriverRepository
 
     public async Task<DriverResponseDTO?> GetDriverByStaffIdAsync(int staffId)
     {
-        var sqlSelectDriverByStaffId = @"SELECT d.DriverId, s.StaffId, s.FirstName, s.LastName, s.Age, s.Experience, s.Status
-                                   FROM Drivers d
-                                   JOIN Staffs s ON d.StaffId = s.StaffId
-                                   WHERE s.StaffId = @StaffId;";
+        var sqlSelectDriverByStaffId = @"SELECT d.DriverId, d.Handicap,d.PerformancePoints,
+                                                s.StaffId, s.FirstName, s.LastName, s.Age, s.Experience, s.Status,
+                                                td.TeamId
+                                         FROM Drivers d
+                                         JOIN Staffs s ON d.StaffId = s.StaffId
+                                         LEFT JOIN TeamsDrivers td ON td.DriverId = d.DriverId
+                                         WHERE s.StaffId = @StaffId;";
 
         try { 
             _logger.LogInformation("Retrieving driver with Staff ID: {StaffId}", staffId);
@@ -170,9 +179,12 @@ public class DriverRepository : IDriverRepository
 
     public async Task<List<DriverResponseDTO>> GetInactiveDriversAsync()
     {
-        var sqlSelectInactiveDrivers = @"SELECT d.DriverId, s.StaffId, s.FirstName, s.LastName, s.Age, s.Experience, s.Status
+        var sqlSelectInactiveDrivers = @"SELECT d.DriverId, d.Handicap,d.PerformancePoints,
+                                                s.StaffId, s.FirstName, s.LastName, s.Age, s.Experience, s.Status,
+                                                td.TeamId
                                        FROM Drivers d
                                        JOIN Staffs s ON d.StaffId = s.StaffId
+                                       LEFT JOIN TeamsDrivers td ON td.DriverId = d.DriverId
                                        WHERE s.Status = 'Inativo';";
 
         try { 
