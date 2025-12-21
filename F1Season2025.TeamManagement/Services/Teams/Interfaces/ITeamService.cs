@@ -27,5 +27,6 @@ namespace F1Season2025.TeamManagement.Services.Teams.Interfaces
         Task TurnOffTeamByTeamIdAsync(int teamId);
 
         Task<TeamsValidateResponseDTO> ValidateTeamsAsync();
+        Task<IEnumerable<EngineeringInfoDTO>> GetEngineeringInfo(int teamId);
     }
 }

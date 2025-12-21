@@ -25,7 +25,7 @@ public class TeamController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateTeamAsync([FromBody]TeamRequestDTO teamDTO)
+    public async Task<ActionResult> CreateTeamAsync([FromBody] TeamRequestDTO teamDTO)
     {
         try
         {
@@ -33,12 +33,12 @@ public class TeamController : ControllerBase
             await _teamService.CreateTeamAsync(teamDTO);
             return Created();
         }
-        catch(ArgumentException ex)
+        catch (ArgumentException ex)
         {
             _logger.LogError($"Error creating team: {ex.Message}");
             return BadRequest($"{ex.Message}");
         }
-        catch(InvalidOperationException ex)
+        catch (InvalidOperationException ex)
         {
             _logger.LogError($"Error creating team: {ex.Message}");
             return BadRequest($"{ex.Message}");
@@ -58,12 +58,12 @@ public class TeamController : ControllerBase
             _logger.LogInformation("Searching for team");
             var team = await _teamService.GetTeamByIdAsync(teamId);
 
-            if(team is null)
+            if (team is null)
                 return NotFound("Team not found.");
 
             return Ok(team);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError($"Error searching for team: {ex.Message}");
             return StatusCode(500, "Internal server error");
@@ -254,12 +254,28 @@ public class TeamController : ControllerBase
         try
         {
             _logger.LogInformation("Validating teams");
-            var isValid =  await _teamService.ValidateTeamsAsync();
+            var isValid = await _teamService.ValidateTeamsAsync();
             return Ok(isValid);
         }
         catch (Exception ex)
         {
             _logger.LogError($"Error validating teams: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpGet("engineeringinfo/{teamId}")]
+    public async Task<IActionResult> GetEngineeringInfo(int teamId)
+    {
+        try
+        {
+            _logger.LogInformation("Getting information for engineering");
+            var result = await _teamService.GetEngineeringInfo(teamId);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error retrieving teams: {ex.Message}");
             return StatusCode(500, "Internal server error");
         }
     }

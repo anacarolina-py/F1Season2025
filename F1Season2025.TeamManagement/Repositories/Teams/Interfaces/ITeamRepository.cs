@@ -22,7 +22,7 @@ namespace F1Season2025.TeamManagement.Repositories.Teams.Interfaces
         Task PrepareTeamByTeamIdAsync(int teamId);
         Task TurnOnTeamByTeamIdAsync(int teamId);
         Task TurnOffTeamByTeamIdAsync(int teamId);
-
         Task<int> ValidateTeamsAsync();
+        Task<IEnumerable<EngineeringInfoDTO>> GetEngineeringInfo(int teamId);
     }
 }

@@ -258,5 +258,20 @@ namespace F1Season2025.TeamManagement.Services.Teams
                 throw;
             }
         }
+
+         public async Task<IEnumerable<EngineeringInfoDTO>> GetEngineeringInfo(int teamId)
+        {
+            try
+            {
+                _logger.LogInformation("Getting information from teams.");
+                return await _teamRepository.GetEngineeringInfo(teamId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while retrieving information from teams.");
+                throw;
+            }
+
+        }
     }
 }

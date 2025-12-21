@@ -326,6 +326,53 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
 
         }
 
+        public async Task<IEnumerable<EngineeringInfoDTO>> GetEngineeringInfo(int teamId)
+        {
+            try
+            {
+                var sql = @"
+                        SELECT
+                            c.TeamId,
+                            c.CarId,
+                            c.AerodynamicCoefficient,
+                            c.PowerCoefficient,
+                            d.DriverId,
+                            d.Handicap AS DriverHandicap,
+                            s_drv.Experience AS DriverExperience,
+                            s_aero.Experience AS EngineerExperienceCa,
+                            s_pwr.Experience AS EngineerExperienceCp
+                        FROM Cars c
+                        JOIN Drivers d ON d.DriverId = c.DriverId
+                        JOIN Staffs s_drv ON s_drv.StaffId = d.StaffId
+                        LEFT JOIN AerodynamicEngineer ae ON ae.AerodynamicEngineerId = c.AerodynamicEngineerId
+                        LEFT JOIN Engineers e_aero ON e_aero.EngineerId = ae.EngineerId
+                        LEFT JOIN Staffs s_aero ON s_aero.StaffId = e_aero.StaffId
+                        LEFT JOIN PowerEngineer pe ON pe.PowerEngineerId = c.PowerEngineerId
+                        LEFT JOIN Engineers e_pwr ON e_pwr.EngineerId = pe.EngineerId
+                        LEFT JOIN Staffs s_pwr ON s_pwr.StaffId = e_pwr.StaffId
+                        WHERE c.TeamId = @TeamId
+                          AND c.Status = 'Ativo'";
+
+                var result = await _connection.QueryAsync<EngineeringInfoDTO>(
+                    sql, new
+                    {
+                        TeamId = teamId
+                    });
+
+                return result ?? Enumerable.Empty<EngineeringInfoDTO>();
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Error retrieving teams");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving teams");
+                throw;
+            }
+        }
+
     }
 
 }
