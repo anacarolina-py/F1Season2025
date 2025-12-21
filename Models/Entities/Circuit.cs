@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using System.Text.Json.Serialization;
 
 namespace Domain.Competition.Models.Entities;
 
@@ -31,5 +32,11 @@ public class Circuit
         Laps = laps;
         IsActive = true;
     }
-    
+
+    [JsonConstructor]
+    protected Circuit(string nameCircuit, string country, int laps, ObjectId id, bool isActive) : this(nameCircuit, country, laps)
+    {
+        Id = id;
+        IsActive = isActive;
+    }
 }

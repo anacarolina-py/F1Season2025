@@ -1,6 +1,5 @@
 ﻿using Domain.RaceControl.Models.Entities.Enums;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Domain.RaceControl.Models.Entities;
@@ -13,17 +12,13 @@ public class RaceGrandPix
     [BsonElement("circuit")]
     public CircuitRace Circuit { get; private set; }
 
-    [BsonElement("season")]
-    public Season Season { get; private set; }
-
     [BsonElement("session")]
     public List<Session> Session { get; private set; }
 
-    public RaceGrandPix(CircuitRace circuit, Season season)
+    public RaceGrandPix(CircuitRace circuit)
     {
         Id = ObjectId.GenerateNewId();
         Circuit = circuit;
-        Season = season;
 
         Session = new List<Session> {
             new (EType.FreePractice1, 1),
@@ -35,7 +30,7 @@ public class RaceGrandPix
     }
 
     [BsonConstructor]
-    private RaceGrandPix(CircuitRace circuit, Season season, List<Session> session, ObjectId id) : this (circuit, season)
+    private RaceGrandPix(CircuitRace circuit, List<Session> session, ObjectId id) : this (circuit)
     {
         Session = session;
         Id = id;

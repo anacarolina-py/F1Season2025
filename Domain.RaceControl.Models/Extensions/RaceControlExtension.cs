@@ -13,7 +13,6 @@ public static class RaceControlExtension
         return new RaceControlResponseDto
         {
             Circuit = race.Circuit.ToDto(),
-            Season = race.Season.ToDto(),
             Session = [.. race.Session.Select(s => s.ToDto())]
         };
     }

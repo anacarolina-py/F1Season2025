@@ -23,9 +23,8 @@ namespace F1Season2025.Competition.Services
         {
             bool circuitExists = await _circuits.ExistCircuitNameCountryAsync(nameCircuit, country);
             if (circuitExists)
-            {
                 throw new InvalidOperationException($"The circuit {nameCircuit} in {country} is already registered.");
-            }
+
             var circuit = new Circuit(nameCircuit, country, laps);
 
             await _circuits.AddCircuitAsync(circuit);
@@ -103,7 +102,7 @@ namespace F1Season2025.Competition.Services
                 throw new InvalidOperationException($"This race cannot be started because the current status is {competition.Status}.");
             }
             if (round > 1)
-            {  
+            {
                 var previusRace = await _competitions.GetCompetitionByRoundAsync(round - 1);
                 if (previusRace is null)
                 {
@@ -115,8 +114,8 @@ namespace F1Season2025.Competition.Services
                 }
 
             }
-                competition.StartCompetition();
-                await _competitions.UpdateStatusRaceAsync(competition);
+            competition.StartCompetition();
+            await _competitions.UpdateStatusRaceAsync(competition);
 
         }
         public async Task<CompetitionResponseDto?> CompleteSimulationAsync(int round)

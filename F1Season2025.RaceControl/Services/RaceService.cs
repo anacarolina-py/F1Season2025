@@ -41,11 +41,9 @@ public class RaceService : IRaceService
             if (circuit.IsActive == false)
                 throw new Exception("Circuit is not active");
 
-            var circuitRace = new CircuitRace(circuit.Id.ToString(), circuit.NameCircuit, circuit.Country, circuit.Laps);
+            var circuitRace = new CircuitRace(idCircuit, circuit.NameCircuit, circuit.Country, circuit.Laps);
 
-            var season = new Season(Guid.NewGuid().ToString(), "F1 Temporada 2025");
-
-            var raceGrandPix = new RaceGrandPix(circuitRace, season);
+            var raceGrandPix = new RaceGrandPix(circuitRace);
 
             return await _raceRepository.CreateRace(raceGrandPix);
         }
