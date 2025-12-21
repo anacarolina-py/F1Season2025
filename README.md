@@ -30,17 +30,54 @@ Este módulo é responsável pelo **cadastro de circuitos** e pelo **agendamento
 
 ---
 
-## 🛣️ Registrar Novo Traçado
+## 🛣️ Registrar Novo Circuito
 
 Cadastra um novo circuito que poderá ser utilizado no calendário do campeonato.
 
 ### Endpoint
 POST /api/Competition/register-circuit
 
-### Payload
 ```json
 {
   "name": "Silverstone",
   "country": "UK",
   "laps": 52
 }
+```
+### Agendar etapa na temporada
+
+### Endpoint
+
+POST /api/Competition/calendar
+
+```json
+{
+  "circuitId": "658f1d2e...",
+}
+```
+## 🚦 Controle de Temporada
+
+Iniciar Temporada Oficial
+
+### Endpoint
+
+POST /api/Competition/season/start
+
+Valida as 24 corridas e a prontidão das equipes. Bloqueia edições no calendário após sucesso.
+
+## 🏎️ Simulação de Corrida
+
+Validar se a corrida pode começar!
+
+### Endpoint
+
+GET /api/Competition/validate-start/{round}
+
+Path Params | Nome | Tipo | Descrição | | :--- | :--- | :--- | | round | int | O número da rodada a ser verificada |
+
+Iniciar Simulação (Largar)
+PATCH /api/Competition/start/{round}
+
+Altera o status da corrida para InProgress.
+
+Resposta da requisição (200 OK)
