@@ -17,7 +17,7 @@ builder.Services.AddScoped<EngineeringRepository>();
 
 builder.Services.AddHttpClient<TeamManagementClient>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost5001/team/api/");
+    client.BaseAddress = new Uri("https://localhost:5001/api/");
 });
 
 

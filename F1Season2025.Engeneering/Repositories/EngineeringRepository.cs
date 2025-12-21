@@ -33,7 +33,7 @@ namespace F1Season2025.Engineering.Repositories
                                  END";
               
             await connection.ExecuteAsync(sql, new 
-            { Id = carId,
+            { CarId = carId,
               AerodynamicCoefficient = ca,
               PowerCoefficient = cp
             });
@@ -51,7 +51,7 @@ namespace F1Season2025.Engineering.Repositories
 
             await connection.ExecuteAsync(sql, new
             {
-                Id = driverId,
+                DriverId = driverId,
                 Handicap = handicap
             });
         }
@@ -75,8 +75,8 @@ namespace F1Season2025.Engineering.Repositories
 
             await connection.ExecuteAsync(sql, new
             {
-                Id = driverId,
-                Pd = pd
+                DriverId = driverId,
+                QualifyingPd = pd
             });
         }
 
@@ -91,8 +91,8 @@ namespace F1Season2025.Engineering.Repositories
 
             await connection.ExecuteAsync(sql, new
             {
-                Id = driverId,
-                Pd = pd
+                DriverId = driverId,
+                RacePd = pd
             });
         }
 
