@@ -270,13 +270,22 @@ public class TeamController : ControllerBase
         try
         {
             _logger.LogInformation("Getting information for engineering");
+
             var result = await _teamService.GetEngineeringInfo(teamId);
+
+            if (result == null || !result.Any())
+                return NoContent();
+
             return Ok(result);
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error retrieving teams: {ex.Message}");
-            return StatusCode(500, "Internal server error");
+            _logger.LogError(ex, "Error retrieving engineering info");
+
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "Internal server error",
+            });
         }
     }
 }
