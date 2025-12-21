@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Domain.TeamManagement.Models.DTOs.Cars;
 using Domain.TeamManagement.Models.DTOs.Teams;
+using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Teams.Interfaces;
 using Infrastructure.TeamManagement.Data.SQL.Connection;
@@ -301,5 +302,84 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
             }
         }
 
+        public async Task<int> ValidateTeamsAsync()
+        {
+            var sqlValidateTeams = @"SELECT COUNT(*) AS CanStart
+                                     FROM Teams
+                                     WHERE [Status] = 'Ativo'";
+
+            try
+            {
+                _logger.LogInformation("Validating if there are enough active teams to start the season");
+                return await _connection.ExecuteScalarAsync<int>(sqlValidateTeams);
+            }
+            catch(SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Error validating teams");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating teams");
+                throw;
+            }
+
+        }
+
+        public async Task<IEnumerable<EngineeringInfoDTO>> GetEngineeringInfo(int teamId)
+        {
+            try
+            {
+                var sql = @"
+                        SELECT
+                                    t.TeamId,
+                                    c.CarId,
+                                    c.AerodynamicCoefficient,
+                                    c.PowerCoefficient,
+                                    d.DriverId,
+                                    d.Handicap AS DriverHandicap,
+                                    s_d.Experience AS DriverExperience,
+                                    s_ae.Experience AS EngineerExperienceCa,
+                                    s_pe.Experience AS EngineerExperienceCp
+                                FROM Teams t
+                                JOIN TeamsCars tc ON t.TeamId = tc.TeamId
+                                JOIN Cars c ON tc.CarId = c.CarId
+                                JOIN CarsDrivers cd ON c.CarId = cd.CarId
+                                JOIN Drivers d ON cd.DriverId = d.DriverId
+                                JOIN Staffs s_d ON d.StaffId = s_d.StaffId
+                                JOIN CarsAerodynamic cae ON c.CarId = cae.CarId
+                                JOIN AerodynamicEngineers ae ON cae.AerodynamicEngineerId = ae.AerodynamicEngineerId
+                                JOIN Engineers e_ae ON ae.EngineerId = e_ae.EngineerId
+                                JOIN Staffs s_ae ON e_ae.StaffId = s_ae.StaffId
+                                JOIN CarsPower cpe ON c.CarId = cpe.CarId
+                                JOIN PowerEngineers pe ON cpe.PowerEngineerId = pe.PowerEngineerId
+                                JOIN Engineers e_pe ON pe.EngineerId = e_pe.EngineerId
+                                JOIN Staffs s_pe ON e_pe.StaffId = s_pe.StaffId
+                                WHERE t.TeamId = @TeamId
+                                  AND t.[Status] = 'Ativo'
+                                  AND tc.[Status] = 'Ativo'
+                                  AND cd.[Status] = 'Ativo'";
+
+                var result = await _connection.QueryAsync<EngineeringInfoDTO>(
+                    sql, new
+                    {
+                        TeamId = teamId
+                    });
+
+                return result ?? Enumerable.Empty<EngineeringInfoDTO>();
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Error retrieving teams");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving teams");
+                throw;
+            }
+        }
+
     }
+
 }

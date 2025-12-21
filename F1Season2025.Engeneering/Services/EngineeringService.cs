@@ -1,10 +1,7 @@
 ﻿using Domain.Engeneering.Models.DTOs;
 using F1Season2025.Engineering.Repositories;
-using Infrastructure.Engeneering.Data.Client;
-using System;
-using Dapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using F1Season2025.Engineering.Services.Interfaces;
+using Infrastructure.Engeneering.Data.Client;
 
 namespace F1Season2025.Engineering.Services
 {
@@ -26,14 +23,13 @@ namespace F1Season2025.Engineering.Services
         {
             try
             {
-                var data = await _teamClient.GetEngineeringInfo(teamId);
+                var cars = await _teamClient.GetEngineeringInfo(teamId)
+                    ?? Enumerable.Empty<EngineeringInfoDTO>();
 
-                if (data == null)
+                foreach (var data in cars)
                 {
-                    return;
+                    await EvolveCar(data);
                 }
-
-                await EvolveCar(data);
             }
             catch (Exception ex)
             {
@@ -44,24 +40,22 @@ namespace F1Season2025.Engineering.Services
         {
             try
             {
-                var data = await _teamClient.GetEngineeringInfo(teamId);
-
-                if (data == null)
+                var cars = await _teamClient.GetEngineeringInfo(teamId)
+                    ?? Enumerable.Empty<EngineeringInfoDTO>();
+     
+                foreach (var data in cars)
                 {
-                    return;
-                }
+                    await EvolveCar(data);
 
-                await EvolveCar(data);
-
-                decimal pd = CalculatePd(
+                    var pd = CalculatePd(
                     data.AerodynamicCoefficient,
                     data.PowerCoefficient,
                     data.DriverHandicap);
 
-                await _engineeringRepository.UpdateQualifyingPD(
-                    data.DriverId,
-                    pd);
-
+                    await _engineeringRepository.UpdateQualifyingPD(
+                        data.DriverId,
+                        pd);
+                }
             }
             catch (Exception ex)
             {
@@ -72,25 +66,25 @@ namespace F1Season2025.Engineering.Services
         {
             try
             {
-                var data = await _teamClient.GetEngineeringInfo(teamId);
+                var info = await _teamClient.GetEngineeringInfo(teamId)
+                    ?? Enumerable.Empty<EngineeringInfoDTO>();
 
-                if (data == null)
+                foreach (var data in info)
                 {
-                    return;
+
+                    await EvolveCar(data);
+                    await EvolveDriverHandicap(data);
+
+                    var pd = CalculatePd(
+                        data.AerodynamicCoefficient,
+                        data.PowerCoefficient,
+                        data.DriverHandicap);
+
+                    await _engineeringRepository.UpdateRacePD(
+                        data.DriverId,
+                        pd);
+
                 }
-
-                await EvolveCar(data);
-                await EvolveDriverHandicap(data);
-
-                decimal pd = CalculatePd(
-                    data.AerodynamicCoefficient,
-                    data.PowerCoefficient,
-                    data.DriverHandicap);
-
-                await _engineeringRepository.UpdateRacePD(
-                    data.DriverId,
-                    pd);
-
             }
             catch (Exception ex)
             {
@@ -143,17 +137,17 @@ namespace F1Season2025.Engineering.Services
                         {
                             cp = 0.000m;
                         }
-                        if (ca > 10.000m)
+                        if (cp > 10.000m)
                         {
-                            ca = 10.000m;
+                            cp = 10.000m;
                         }
                     }
-                   
-                   await  _engineeringRepository.UpdateCar(
-                        data.CarId,
-                        Math.Round(ca, 3),
-                        Math.Round(cp, 3)
-                        );
+
+                    await _engineeringRepository.UpdateCar(
+                         data.CarId,
+                         Math.Round(ca, 3),
+                         Math.Round(cp, 3)
+                         );
 
                     data.AerodynamicCoefficient = ca;
                     data.PowerCoefficient = cp;
@@ -169,8 +163,8 @@ namespace F1Season2025.Engineering.Services
         {
             try
             {
-                decimal newHandicap = Math.Round(data.DriverHandicap -
-                    (data.DriverExperience * 0.5m), 3, MidpointRounding.AwayFromZero);
+                decimal newHandicap = Math.Round((data.DriverHandicap -
+                    (data.DriverExperience * 0.5m)), 3, MidpointRounding.AwayFromZero);
 
                 if (newHandicap < 0.000m)
                     newHandicap = 0.000m;
@@ -180,7 +174,7 @@ namespace F1Season2025.Engineering.Services
                     newHandicap);
 
                 data.DriverHandicap = newHandicap;
-               
+
             }
             catch (Exception ex)
             {
@@ -192,18 +186,18 @@ namespace F1Season2025.Engineering.Services
         {
             int luck = Random.Shared.Next(1, 11);
 
-            decimal pd = (ca * 0.4m) + (cp *0.4m) - handicap + luck;
+            decimal pd = (ca * 0.4m) + (cp * 0.4m) - handicap + luck;
 
             return Math.Round(pd, 3);
         }
-    
+
         public async Task<IEnumerable<CarStatusDTO>> GetAllCarsWithStatus()
         {
             try
             {
                 _logger.LogInformation("Getting all the cars.");
                 return await _engineeringRepository.GetAllCarsWithStatus();
-                
+
             }
             catch (Exception ex)
             {
@@ -217,7 +211,7 @@ namespace F1Season2025.Engineering.Services
             {
                 _logger.LogInformation("Getting all the drivers.");
                 return await _engineeringRepository.GetAllDriversHandicaps();
-                
+
             }
             catch (Exception ex)
             {
@@ -231,7 +225,7 @@ namespace F1Season2025.Engineering.Services
             {
                 _logger.LogInformation("Getting all the drivers with their qualifications.");
                 return await _engineeringRepository.GetQualificationsPds();
-                
+
             }
             catch (Exception ex)
             {
@@ -245,7 +239,7 @@ namespace F1Season2025.Engineering.Services
             {
                 _logger.LogInformation("Getting all drivers with their pds.");
                 return await _engineeringRepository.GetDriversRacePd();
-                
+
             }
             catch (Exception ex)
             {
