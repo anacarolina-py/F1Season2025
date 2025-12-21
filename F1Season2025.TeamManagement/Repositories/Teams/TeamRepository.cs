@@ -332,29 +332,33 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
             {
                 var sql = @"
                         SELECT
-                                t.TeamId,
-                                c.CarId,
-                                c.AerodynamicCoefficient,
-                                c.PowerCoefficient,
-                                d.DriverId,
-                                d.Handicap AS DriverHandicap,
-                                s_drv.Experience AS DriverExperience,
-                                s_aero.Experience AS EngineerExperienceCa,
-                                s_pwr.Experience AS EngineerExperienceCp
-                            FROM Teams t
-                            JOIN TeamsCars tc ON tc.TeamId = t.TeamId
-                            JOIN Cars c ON c.CarId = tc.CarId
-                            JOIN CarsDrivers cd ON cd.CarId = c.CarId
-                            JOIN Drivers d ON d.DriverId = cd.DriverId
-                            JOIN Staffs s_drv ON s_drv.StaffId = d.StaffId
-                            LEFT JOIN CarsAerodynamic ca ON ca.CarId = c.CarId
-                            LEFT JOIN AerodynamicEngineers ae ON ae.AerodynamicEngineerId = ca.AerodynamicEngineerId
-                            LEFT JOIN Staffs s_aero ON s_aero.StaffId = ae.EngineerId
-                            LEFT JOIN CarsPower cp ON cp.CarId = c.CarId
-                            LEFT JOIN PowerEngineers pe ON pe.PowerEngineerId = cp.PowerEngineerId
-                            LEFT JOIN Staffs s_pwr ON s_pwr.StaffId = pe.EngineerId
-                            WHERE t.TeamId = @TeamId
-                              AND c.Status = 'Ativo'";
+                                    t.TeamId,
+                                    c.CarId,
+                                    c.AerodynamicCoefficient,
+                                    c.PowerCoefficient,
+                                    d.DriverId,
+                                    d.Handicap AS DriverHandicap,
+                                    s_d.Experience AS DriverExperience,
+                                    s_ae.Experience AS EngineerExperienceCa,
+                                    s_pe.Experience AS EngineerExperienceCp
+                                FROM Teams t
+                                JOIN TeamsCars tc ON t.TeamId = tc.TeamId
+                                JOIN Cars c ON tc.CarId = c.CarId
+                                JOIN CarsDrivers cd ON c.CarId = cd.CarId
+                                JOIN Drivers d ON cd.DriverId = d.DriverId
+                                JOIN Staffs s_d ON d.StaffId = s_d.StaffId
+                                JOIN CarsAerodynamic cae ON c.CarId = cae.CarId
+                                JOIN AerodynamicEngineers ae ON cae.AerodynamicEngineerId = ae.AerodynamicEngineerId
+                                JOIN Engineers e_ae ON ae.EngineerId = e_ae.EngineerId
+                                JOIN Staffs s_ae ON e_ae.StaffId = s_ae.StaffId
+                                JOIN CarsPower cpe ON c.CarId = cpe.CarId
+                                JOIN PowerEngineers pe ON cpe.PowerEngineerId = pe.PowerEngineerId
+                                JOIN Engineers e_pe ON pe.EngineerId = e_pe.EngineerId
+                                JOIN Staffs s_pe ON e_pe.StaffId = s_pe.StaffId
+                                WHERE t.TeamId = @TeamId
+                                  AND t.[Status] = 'Ativo'
+                                  AND tc.[Status] = 'Ativo'
+                                  AND cd.[Status] = 'Ativo'";
 
                 var result = await _connection.QueryAsync<EngineeringInfoDTO>(
                     sql, new

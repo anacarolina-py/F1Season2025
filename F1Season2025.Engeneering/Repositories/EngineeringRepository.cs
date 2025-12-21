@@ -34,8 +34,8 @@ namespace F1Season2025.Engineering.Repositories
               
             await connection.ExecuteAsync(sql, new 
             { CarId = carId,
-              AerodynamicCoefficient = ca,
-              PowerCoefficient = cp
+              Ca = ca,
+              Cp = cp
             });
         }
 
@@ -44,9 +44,17 @@ namespace F1Season2025.Engineering.Repositories
             using var connection = _connectionFactory.GetConnection();
             connection.Open();
 
-            var sql = @"UPDATE Drivers
-                        SET Handicap = @Handicap
-                            WHERE Id = @DriverId";
+            var sql = @"IF EXISTS (SELECT 1 FROM Drivers WHERE Id = @DriverId)
+                        BEGIN
+                            UPDATE Drivers
+                            SET Handicap = @Handicap
+                            WHERE Id = @DriverId
+                        END
+                        ELSE
+                        BEGIN
+                        INSERT INTO Drivers (Id, Handicap)
+                        VALUES (@DriverId, @Handicap)
+                        END";
                               
 
             await connection.ExecuteAsync(sql, new
@@ -62,37 +70,46 @@ namespace F1Season2025.Engineering.Repositories
             connection.Open();
 
             var sql = @"IF EXISTS (SELECT 1 FROM Drivers WHERE Id = @DriverId)
-                                 BEGIN
-                                    UPDATE Drivers
-                                    SET QualifyingPd = @Pd,
-                                    WHERE Id = @DriverId
-                                 END
-                                 ELSE
-                                 BEGIN
-                                    INSERT INTO Drivers (Id, QualifyingPd)
-                                    VALUES (@DriverId, @Pd)
-                                 END";
+                        BEGIN
+                            UPDATE Drivers
+                            SET QualifyingPd = @Pd,
+                            WHERE Id = @DriverId
+                        END
+                        ELSE
+                        BEGIN
+                            INSERT INTO Drivers (Id, QualifyingPd)
+                            VALUES (@DriverId, @Pd)
+                        END";
+                                 
 
             await connection.ExecuteAsync(sql, new
             {
                 DriverId = driverId,
-                QualifyingPd = pd
+                Pd = pd
             });
         }
 
-        public async Task UpdateRacePD(int driverId, decimal pd)
+        public async Task UpdateRacePD(int driverId,decimal pd)
         {
             using var connection = _connectionFactory.GetConnection();
             connection.Open();
 
-            var sql = @"UPDATE Drivers
-                        SET RacePd = @Pd
-                        WHERE Id = @DriverId";
+            var sql = @"IF EXISTS (SELECT 1 FROM Drivers WHERE Id = @DriverId)
+                        BEGIN
+                            UPDATE Drivers
+                            SET RacePd = @Pd
+                            WHERE Id = @DriverId
+                        END
+                        ELSE
+                        BEGIN
+                            INSERT INTO Drivers (Id, RacePd)
+                            VALUES (@DriverId, @RacePd)
+                        END";
 
             await connection.ExecuteAsync(sql, new
             {
                 DriverId = driverId,
-                RacePd = pd
+                Pd = pd
             });
         }
 
