@@ -39,20 +39,24 @@ public class DriverChampionship
     [BsonElement("grid_position")]
     public int GridPosition { get; private set; }
 
-    public DriverChampionship(int idPilot, string namePilot, int number, int idTeam, string nameTeam, decimal performancePoints, decimal handicap)
+    public DriverChampionship(int idPilot, string namePilot, int number, int idTeam, string nameTeam, decimal handicap)
     {
         IdDriver = idPilot;
         NameDriver = namePilot;
         Number = number;
         IdTeam = idTeam;
         NameTeam = nameTeam;
-        PerformancePoints = performancePoints;
         Handicap = handicap;
     }
 
     public void SetPoints (int points)
     {
         Points = points;
+    }
+
+    public void SetPerformancePoints(decimal performancePoints)
+    {
+        PerformancePoints = performancePoints;
     }
 
     public void SetPlacing (int placing)
