@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Domain.Engeneering.Models\Domain.Engeneering.Models.csproj" />
     <ProjectReference Include="..\Domain.RaceControl.Models\Domain.RaceControl.Models.csproj" />
     <ProjectReference Include="..\Domain.TeamManagement.Models\Domain.TeamManagement.Models.csproj" />
     <ProjectReference Include="..\Infrastructure.RaceControl.Data\Infrastructure.RaceControl.Data.csproj" />
