@@ -15,8 +15,6 @@ namespace Domain.TeamManagement.Models.DTOs.Teams
         public decimal? EngineerExperienceCp { get; set; }
         public decimal DriverHandicap { get; set; }
         public decimal DriverExperience { get; set; }
-        public decimal? Pd { get; set; }
-
 
     }
 }
