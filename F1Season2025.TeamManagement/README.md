@@ -97,22 +97,17 @@ Fluxo:
 ### 🏁 Times
 
 #### Criar Time
-POST /api/team
+POST /api/Team/producer
+POST /api/Team/consumer
 
 #### Ativar Time
-PUT /api/team/{teamId}/activate
-
----
-
-### 📤 Publicar Time na Fila
-
-POST /api/team/producer
+PUT /api/Team/turnon/ids/{teamId}
 
 ---
 
 ## 🗄️ Persistência de Dados
 
-**Banco:** SQL Server (F1SEASON2025)
+**Banco:** SQL Server (F1Season2025DB)
 
 ### Principais Tabelas
 - Teams
@@ -122,6 +117,7 @@ POST /api/team/producer
 - AerodynamicEngineer
 - PowerEngineer
 - Cars
+- Bosses
 
 Todas as validações críticas são garantidas por **constraints** e **triggers** no banco.
 
