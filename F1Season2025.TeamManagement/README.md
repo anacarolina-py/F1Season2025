@@ -23,6 +23,7 @@ O Team Management representa o **backoffice das equipes**, com as seguintes resp
 
 ### Regras de Time
 - Cada time ativo deve possuir **exatamente**:
+  - 2 chefes
   - 2 pilotos ativos
   - 2 engenheiros de potência
   - 2 engenheiros aerodinâmicos
