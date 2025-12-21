@@ -28,17 +28,14 @@ namespace F1Season2025.Competition.Repository
         {
             _logger.LogInformation($"Searching competition for round {round}");
 
-            return await _collection
-                .Find(c => c.Round == round)
-                .FirstOrDefaultAsync();
+            return await _collection.Find(c => c.Round == round).FirstOrDefaultAsync();
         }
 
         public async Task<int> GetActiveCompetitionsCountAsync()
         {
             _logger.LogInformation("Counting active competitions");
 
-            return (int)await _collection
-                .CountDocumentsAsync(c => c.IsActive);
+            return (int)await _collection.CountDocumentsAsync(c => c.IsActive);
         }
 
         public async Task UpdateStatusRaceAsync(Competitions competition)
@@ -54,9 +51,7 @@ namespace F1Season2025.Competition.Repository
         {
             _logger.LogInformation("Listing all competitions");
 
-            return await _collection
-                .Find(_ => true)
-                .ToListAsync();
+            return await _collection.Find(c => true).ToListAsync();
         }
         public async Task UpdateActiveStatusAsync(ObjectId id, bool isActive)
         {
@@ -72,9 +67,7 @@ namespace F1Season2025.Competition.Repository
         {
             _logger.LogInformation($"Searching competition with id: {id}");
 
-            return await _collection
-                .Find(c => c.Id == id)
-                .FirstOrDefaultAsync();
+            return await _collection.Find(c => c.Id == id).FirstOrDefaultAsync();
         }
         public async Task<bool> CheckCompetitionExistsAsync(string circuitName, string country)
         {
