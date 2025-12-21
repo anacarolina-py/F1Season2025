@@ -24,8 +24,6 @@ Este serviço atua como o "Diretor de Prova" do sistema, com as seguintes atribu
 
 ## 🔗 Rotas da Aplicação
 
-### 🗺️ Gestão de Pistas e Grade
-
 Este módulo é responsável pelo **cadastro de circuitos** e pelo **agendamento das etapas** no calendário da temporada.
 
 ---
@@ -35,8 +33,9 @@ Este módulo é responsável pelo **cadastro de circuitos** e pelo **agendamento
 Cadastra um novo circuito que poderá ser utilizado no calendário do campeonato.
 
 ### Endpoint
-POST /api/Competition/register-circuit
+`POST` **/api/Competition/register-circuit**
 
+**Body**
 ```json
 {
   "name": "Silverstone",
@@ -44,40 +43,107 @@ POST /api/Competition/register-circuit
   "laps": 52
 }
 ```
-### Agendar etapa na temporada
+
+### Agendar Etapa na Temporada
+
+Define qual circuito será utilizado em uma determinada etapa da temporada.
 
 ### Endpoint
+`POST` **/api/Competition/calendar**
 
-POST /api/Competition/calendar
-
+**Body**
 ```json
 {
-  "circuitId": "658f1d2e...",
+  "circuitId": "658f1d2e..."
 }
 ```
+
+---
+
 ## 🚦 Controle de Temporada
 
-Iniciar Temporada Oficial
-
-### Endpoint
-
-POST /api/Competition/season/start
+### Iniciar Temporada Oficial
 
 Valida as 24 corridas e a prontidão das equipes. Bloqueia edições no calendário após sucesso.
 
+### Endpoint
+`POST` **/api/Competition/season/start**
+
+---
+
 ## 🏎️ Simulação de Corrida
 
-Validar se a corrida pode começar!
+### Validar Prontidão de Largada
+
+Verifica se a rodada atual cumpre os pré-requisitos para ser iniciada (ex: rodada anterior finalizada).
 
 ### Endpoint
+`GET` **/api/Competition/validate-start/{round}**
 
-GET /api/Competition/validate-start/{round}
+| Parâmetro | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `round` | `int` | O número da rodada a ser verificada |
 
-Path Params | Nome | Tipo | Descrição | | :--- | :--- | :--- | | round | int | O número da rodada a ser verificada |
+### Iniciar Simulação (Largada)
 
-Iniciar Simulação (Largar)
-PATCH /api/Competition/start/{round}
+Altera o status da corrida para `InProgress`.
 
-Altera o status da corrida para InProgress.
+### Endpoint
+`PATCH` **/api/Competition/start/{round}**
 
-Resposta da requisição (200 OK)
+**Response (200 OK)**
+```json
+{
+  "message": "Simulation for round 1 started successfully."
+}
+```
+
+### Completar Simulação (Bandeirada Final)
+
+Altera o status para `Finished`, calcula resultados e libera a próxima etapa.
+
+### Endpoint
+`PATCH` **/api/Competition/complete/{round}**
+
+**Response (200 OK)**
+```json
+{
+  "message": "Simulation for round 1 completed successfully.",
+  "nextRace": {
+      "round": 2,
+      "circuitName": "Monaco GP",
+      "status": "Scheduled"
+  }
+}
+```
+
+---
+
+## 🛠️ Administrativo
+
+### Forçar Status da Corrida
+
+Permite ativar ou desativar uma corrida manualmente (apenas se a temporada já tiver iniciado).
+
+### Endpoint
+`PUT` **/api/Competition/{id}/status**
+
+> **Nota:** Envia apenas o booleano ou objeto conforme configuração do serializador.
+
+---
+
+## ⚠️ Possíveis Erros
+
+| Status Code | Motivo |
+| :--- | :--- |
+| **400 Bad Request** | Calendário incompleto/cheio, circuito duplicado ou tentativa de pular rounds. |
+| **404 Not Found** | Circuito ou Corrida (Round) não encontrados no banco. |
+| **500 Internal Error** | Erro de conexão com o banco de dados ou falha no TeamService. |
+
+---
+
+## 📌 Observações Finais
+
+* **Persistência:** Utiliza MongoDB com coleções separadas para `circuits` e `competitions`.
+* **Integração:** Comunica-se via HTTP Client com a API de Equipes para validar o grid.
+* **Segurança:** Validações rigorosas de IDs (`ObjectId`) e consistência de dados.
