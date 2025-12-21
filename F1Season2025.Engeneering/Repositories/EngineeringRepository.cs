@@ -72,7 +72,7 @@ namespace F1Season2025.Engineering.Repositories
             var sql = @"IF EXISTS (SELECT 1 FROM Drivers WHERE Id = @DriverId)
                         BEGIN
                             UPDATE Drivers
-                            SET QualifyingPd = @Pd,
+                            SET QualifyingPd = @Pd
                             WHERE Id = @DriverId
                         END
                         ELSE
@@ -103,7 +103,7 @@ namespace F1Season2025.Engineering.Repositories
                         ELSE
                         BEGIN
                             INSERT INTO Drivers (Id, RacePd)
-                            VALUES (@DriverId, @RacePd)
+                            VALUES (@DriverId, @Pd)
                         END";
 
             await connection.ExecuteAsync(sql, new

@@ -131,7 +131,7 @@ namespace F1Season2025.Engineering.Services
                         decimal incrementCp = Math.Round((data.EngineerExperienceCp.Value)
                             * randomCp, 3, MidpointRounding.AwayFromZero);
 
-                        ca += incrementCp;
+                        cp += incrementCp;
 
                         if (cp < 0.000m)
                         {
