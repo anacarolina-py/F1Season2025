@@ -25,14 +25,19 @@ public class TeamController : ControllerBase
         return Ok("Team is Ok");
     }
 
-    [HttpPost]
-    public async Task<ActionResult> CreateTeamAsync([FromBody] TeamRequestDTO teamDTO)
+    [HttpPost("producer")]
+    public async Task<ActionResult> ProduceTeamAsync([FromBody] TeamRequestDTO teamDTO)
     {
         try
         {
             _logger.LogInformation("Creating a new team");
-            await _teamService.CreateTeamAsync(teamDTO);
+            await _teamService.ProduceTeamAsync(teamDTO);
             return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Error creating team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
         }
         catch (ArgumentException ex)
         {
@@ -47,6 +52,32 @@ public class TeamController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError($"Error creating team: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost("consumer")]
+    public async Task<ActionResult> ConsumeTeamAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Reading teams from queue...");
+            await _teamService.ConsumeTeamAsync();
+            return Created();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error reading teams from queue: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error reading teams from queue: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error reading teams from queue: {ex.Message}");
             return StatusCode(500, "Internal server error");
         }
     }

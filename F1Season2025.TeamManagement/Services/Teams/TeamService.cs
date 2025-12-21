@@ -3,7 +3,13 @@ using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
 using Domain.TeamManagement.Models.Entities;
 using F1Season2025.TeamManagement.Repositories.Teams.Interfaces;
 using F1Season2025.TeamManagement.Services.Teams.Interfaces;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.Data.SqlClient;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Net.Sockets;
+using System.Text;
+using System.Text.Json;
 
 namespace F1Season2025.TeamManagement.Services.Teams
 {
@@ -18,8 +24,9 @@ namespace F1Season2025.TeamManagement.Services.Teams
             _logger = logger;
         }
 
-        public async Task CreateTeamAsync(TeamRequestDTO teamDTO)
+        public async Task ProduceTeamAsync(TeamRequestDTO teamDTO)
         {
+
             #region Validation
             if (string.IsNullOrEmpty(teamDTO.Name))
             {
@@ -55,12 +62,86 @@ namespace F1Season2025.TeamManagement.Services.Teams
 
                 var newTeam = new Team(teamDTO.Name);
 
-                await _teamRepository.CreateTeamAsync(newTeam);
+                var factory = new ConnectionFactory { HostName = "localhost" };
+                using var connection = await factory.CreateConnectionAsync();
+                using var channel = await connection.CreateChannelAsync();
+
+                await channel.QueueDeclareAsync
+                    (
+                        queue: "TeamQueue",
+                        durable: false,
+                        exclusive: false,
+                        autoDelete: false,
+                        arguments: null
+                    );
+
+                var teamString = JsonSerializer.Serialize<Team>(newTeam);
+                var teamByteArray = Encoding.UTF8.GetBytes(teamString);
+
+                await channel.BasicPublishAsync
+                    (
+                        exchange: string.Empty,
+                        routingKey: "TeamQueue",
+                        body: teamByteArray
+                    );
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError($"Error creating team: {ex.Message}");
+                throw;
+            }
+            catch(InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "Error creating team:", ex.Message);
+                throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while creating a team.");
-                throw;
+                throw new Exception("Error creating team", ex);
+            }
+        }
+
+
+        public async Task ConsumeTeamAsync()
+        {
+            try
+            {
+                var factory = new ConnectionFactory { HostName = "localhost" };
+                using var connection = await factory.CreateConnectionAsync();
+
+                using var channel = await connection.CreateChannelAsync();
+
+                await channel.QueueDeclareAsync
+                (
+                    queue: "TeamQueue",
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null
+                );
+
+                var consumer = new AsyncEventingBasicConsumer(channel);
+
+                consumer.ReceivedAsync += async (model, ea) =>
+                {
+                    var body = ea.Body.ToArray();
+                    var message = System.Text.Encoding.UTF8.GetString(body);
+                    var team = JsonSerializer.Deserialize<Team>(message);
+
+                    await _teamRepository.CreateTeamAsync(team);
+                };
+
+                await channel.BasicConsumeAsync
+                (
+                    queue: "TeamQueue",
+                    autoAck: true,
+                    consumer: consumer
+                );
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while consuming teams from queue." + ex.Message);
             }
         }
 
