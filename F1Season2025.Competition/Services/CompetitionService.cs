@@ -81,6 +81,7 @@ namespace F1Season2025.Competition.Services
             }
 
             var previusRace = round > 1 ? await _competitions.GetCompetitionByRoundAsync(round - 1) : null;
+            var competitionTask = await targetCompetition;
 
             var (isValid, error) = targetCompetition.Result.ValidateCircuitRace(previusRace);
 
@@ -234,6 +235,55 @@ namespace F1Season2025.Competition.Services
                     throw new InvalidOperationException("Teams are not ready to start the season.");
                 }
             }
+        }
+        public async Task ProcessRaceFinishAsync(CompetitionRaceResultDto raceResults)
+        {
+            var allCompetitions = await _competitions.GetAllCompetitionsAsync();
+
+            var competition = allCompetitions.FirstOrDefault(c => c.Circuit.Id.ToString() == raceResults.CircuitId);
+
+            if (competition is null)
+            {
+                throw new KeyNotFoundException($"Competition for circuit : {raceResults.CircuitId} not found.");
+            }
+            competition.CompleteCompetition();
+            await _competitions.UpdateStatusRaceAsync(competition);
+
+            foreach (var result in raceResults.Results)
+            {
+                DriverStanding standing = await _competitions.GetStandingByDriverIdAsync(result.DriverId);
+                if (standing is null)
+                {
+                    standing = new DriverStanding(result.DriverId);
+                }
+
+                standing.AddResult(result.Points, result.Position);
+
+                await _competitions.UpdateStadingAsync(standing);
+            }
+        }
+        public async Task<IEnumerable<DriverStandingResponseDto>> GetDriverStandingsAsync()
+        {
+            var allStandings = await _competitions.GetAllStandingsAsync();
+            var orderedStandings = allStandings
+                .OrderByDescending(s => s.TotalPoints)
+                .ThenByDescending(s => s.Wins)
+                .ToList();
+
+            var response = new List<DriverStandingResponseDto>();
+            int positionCounter = 1;
+
+            foreach (var item in orderedStandings)
+            {
+                response.Add(new DriverStandingResponseDto
+                {
+                    Position = positionCounter++,
+                    DriverId = item.DriverId,
+                    Points = item.TotalPoints,
+                    Wins = item.Wins
+                });
+            }
+            return response;
         }
     }
 }

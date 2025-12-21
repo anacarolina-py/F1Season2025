@@ -58,6 +58,15 @@ public class RaceGrandPix
 
         session.Start();
     }
+    public void FinishedSession(EType type)
+    {
+        var session = Session.FirstOrDefault(s => s.Type == type);
+
+        if (session is null)
+        {
+            session.Finished();
+        }
+    }
 
     public void UpdateResultsSession(EType type, SessionResult result)
     {

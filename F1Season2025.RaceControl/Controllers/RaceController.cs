@@ -17,7 +17,7 @@ public class RaceController : ControllerBase
         _raceService = raceService;
     }
 
-    [HttpGet]
+    [HttpGet("getall")]
     public async Task<ActionResult<List<RaceControlResponseDto>>> GetAllRacesSeasonAsync()
     {
         try
@@ -64,7 +64,7 @@ public class RaceController : ControllerBase
         }
     }
 
-    [HttpGet("{idCircuit}")]
+    [HttpGet("getbyid/{idCircuit}")]
     public async Task<ActionResult<RaceControlResponseDto>> GetRaceByIdCircuit(string idCircuit)
     {
         try
@@ -136,6 +136,49 @@ public class RaceController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error at finish first free practice");
+            return Problem(ex.Message);
+        }
+    }
+    [HttpPost("{idCircuit}/simulate/qualifying/finish")]
+    public async Task<ActionResult<RaceControlResponseDto>> FinishQualifyingAsync(string idCircuit)
+    {
+        try
+        {
+
+            var race = await _raceService.FinishQualifyingAsync(idCircuit);
+            return Ok(race);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error at finish qualifying");
+            return Problem(ex.Message);
+        }
+    }
+    [HttpPost("{idCircuit}/simulate/race/start")]
+    public async Task<ActionResult<RaceControlResponseDto>> StartMainRaceAsync(string idCircuit)
+    {
+        try
+        {
+            var race = await _raceService.StartMainRaceAsync(idCircuit);
+            return Ok(race);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error at start main race");
+            return Problem(ex.Message);
+        }
+    }
+    [HttpPost("{idCircuit}/simulate/race/finish")]
+    public async Task<ActionResult<RaceControlResponseDto>> FinishMainRaceAsync(string idCircuit)
+    {
+        try
+        {
+            var race = await _raceService.FinishMainRaceAsync(idCircuit);
+            return Ok(race);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error at finish main race");
             return Problem(ex.Message);
         }
     }

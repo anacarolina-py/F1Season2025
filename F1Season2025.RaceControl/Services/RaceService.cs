@@ -131,42 +131,6 @@ public class RaceService : IRaceService
         }
     }
 
-    public async Task<RaceControlResponseDto> StartQualifyingAsync(string idCircuit)
-    {
-        try
-        {
-            var race = await _raceRepository.GetRaceSeasonByIdCircuitAsync(idCircuit);
-
-            if (race is null)
-                throw new Exception("Circuit not found or not implemented");
-
-            var raceDto = await StartQualifyingAsync(race);
-            return raceDto;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
-    }
-
-    public async Task<RaceControlResponseDto> FinishQualifyingAsync(string idCircuit)
-    {
-        try
-        {
-            var race = await _raceRepository.GetRaceSeasonByIdCircuitAsync(idCircuit);
-
-            if (race is null)
-                throw new Exception("Circuit not found or not implemented");
-
-            var raceDto = await FinishQualifyAsync(race);
-            return raceDto;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
-    }
-
     private async Task<RaceControlResponseDto> StartFreePractice1(RaceGrandPix race)
     {
         try
@@ -371,11 +335,17 @@ public class RaceService : IRaceService
         }
     }
 
-    private async Task<RaceControlResponseDto> StartQualifyingAsync(RaceGrandPix race)
+    public async Task<RaceControlResponseDto> StartQualifyingAsync(string idCircuit)
     {
         try
         {
-            var session = race.Session.Where(s => s.Type == EType.Qualifying).FirstOrDefault();
+            var race = await _raceRepository.GetRaceSeasonByIdCircuitAsync(idCircuit);
+            if (race == null)
+            {
+                throw new Exception("Circuit not found or not implemented");
+            }
+
+            var session = race.Session.FirstOrDefault(s => s.Type == EType.Qualifying);
 
             if (session.Status == EStatus.Live)
                 throw new Exception("Cannot start the session because it is already live.");
@@ -392,44 +362,206 @@ public class RaceService : IRaceService
         }
     }
 
-    private async Task<RaceControlResponseDto> FinishQualifyAsync(RaceGrandPix race)
+    public async Task<RaceControlResponseDto> FinishQualifyingAsync(string idCircuit)
     {
         try
         {
+            var race = await _raceRepository.GetRaceSeasonByIdCircuitAsync(idCircuit);
+            if (race == null)
+            {
+                throw new Exception("Circuit not found or not implemented");
+            }
+
             _logger.LogInformation("Create Engeneering client");
             var clientEngeneering = _factory.CreateClient("EngeneeringClient");
 
-            var sessionResult = race.Session.Select(s => s.SessionResult);
+            var carsResponse = await clientEngeneering.GetFromJsonAsync<List<EngineeringCarDto>>("api/engeneering/cars");
+            var handcapResponse = await clientEngeneering.GetFromJsonAsync<List<EngineeringHandicapDto>>("api/engeneering/driver/handicaps");
 
-            var drivers = sessionResult.Select(s => s.Drivers).FirstOrDefault();
-            var teams = sessionResult.Select(s => s.Teams).FirstOrDefault();
+            var qualiSession = race.Session.FirstOrDefault(s => s.Type == EType.Qualifying);
+            var drivers = qualiSession.SessionResult.Drivers;
+            var teams = qualiSession.SessionResult.Teams;
 
-            _logger.LogInformation("Get handicap drivers");
-            var handicapDrivers = await clientEngeneering.GetFromJsonAsync<List<DriverHandicapDTO>>("api/engeneering/driver/handicap");
+            var qualiResults = new List<(DriverChampionship Driver, decimal PD)>();
+            var randomLuck = new Random();
 
             foreach (var driver in drivers)
             {
-                var handicap = handicapDrivers.Where(d => d.Id == driver.IdDriver).FirstOrDefault();
+                var car = carsResponse.FirstOrDefault(c => c.Id == driver.IdTeam);
+                var handicapInfo = handcapResponse.FirstOrDefault(h => h.Id == driver.IdDriver);
+                decimal ca = car?.AerodynamicCoefficient ?? 0;
+                decimal cp = car?.PowerCoefficient ?? 0;
+                decimal h = handicapInfo?.Handicap ?? 0;
+                int luck = randomLuck.Next(1, 11);
 
-                driver.SetHandicap(handicap.Handicap);
+                decimal pd = (ca * 0.4m) + (cp * 0.4m) - h + luck;
+
+                driver.SetHandicap(h);
+                driver.SetPerformancePoints(pd);
+
+                qualiResults.Add((driver, pd));
+            }
+
+            var sortGrid = qualiResults.OrderByDescending(g => g.PD).ToList();
+
+            var finalDriversList = new List<DriverChampionship>();
+            int gridPosition = 1;
+
+            foreach (var item in sortGrid)
+            {
+                item.Driver.SetGridPosition(gridPosition);
+                finalDriversList.Add(item.Driver);
+                gridPosition++;
             }
 
             foreach (var team in teams)
             {
-                await clientEngeneering.PostAsJsonAsync($"api/engeneering/qualifying/", team.IdTeam);
+                await clientEngeneering.PostAsync($"api/engeneering/qualifying/{team.IdTeam}", null);
             }
 
+            var sessionResult = new SessionResult(finalDriversList, teams);
 
+            race.UpdateResultsSession(EType.Qualifying, sessionResult);
+            race.FinishedSession(EType.Qualifying);
 
-            var session = new SessionResult(drivers, teams);
-            _logger.LogInformation("Update data");
-            //race.UpdateResultsSession(EType.FreePractice3, sessionResult);
+            _logger.LogInformation("Qualifying finished. Grid positions updated!");
 
             return await _raceRepository.UpdateSessionAsync(race);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error at finish qualifying");
             throw new Exception(ex.Message);
+        }
+    }
+
+    public async Task<RaceControlResponseDto> StartMainRaceAsync(string idCircuit)
+    {
+        try
+        {
+            var race = await _raceRepository.GetRaceSeasonByIdCircuitAsync(idCircuit);
+            if (race is null)
+            {
+                throw new Exception("Circuit not found or not implemented");
+            }
+            var qualifyingSession = race.Session.FirstOrDefault(s => s.Type == EType.Qualifying);
+            if (qualifyingSession.Status != EStatus.Finished)
+            {
+
+                throw new Exception("Qualifying must be finished before starting the race.");
+            }
+            var raceControl = race.Session.FirstOrDefault(s => s.Type == EType.MainRace);
+            if (raceControl.Status == EStatus.Live)
+            {
+                throw new Exception("Cannot start the session because it is already live.");
+            }
+            _logger.LogInformation($"Green flag waved!! Start your engines, the main race has begun in circuit: {idCircuit}");
+
+            race.StartSession(EType.MainRace);
+
+            return await _raceRepository.UpdateSessionAsync(race);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error at start main race");
+            throw;
+        }
+    }
+    public async Task<RaceControlResponseDto> FinishMainRaceAsync(string idCircuit)
+    {
+        try
+        {
+            var race = await _raceRepository.GetRaceSeasonByIdCircuitAsync(idCircuit);
+            if (race is null)
+            {
+                throw new Exception("Circuit not found or not implemented");
+            }
+
+            var clientEngeneering = _factory.CreateClient("EngeneeringClient");
+            var clientCompetition = _factory.CreateClient("CompetitionClient");
+
+            var carsResponse = await clientEngeneering.GetFromJsonAsync<List<EngineeringCarDto>>("api/engeneering/cars");
+            var handcapResponse = await clientEngeneering.GetFromJsonAsync<List<EngineeringHandicapDto>>("api/engeneering/driver/handicaps");
+
+            var qualiSession = race.Session.FirstOrDefault(s => s.Type == EType.Qualifying);
+            var grindDrivers = qualiSession.SessionResult.Drivers;
+            var teams = qualiSession.SessionResult.Teams;
+
+            var raceResults = new List<(DriverChampionship Driver, decimal PD)>();
+            var randomLuck = new Random();
+
+            foreach (var driver in grindDrivers)
+            {
+                var car = carsResponse.FirstOrDefault(c => c.Id == driver.IdTeam);
+                var handicapInfo = handcapResponse.FirstOrDefault(h => h.Id == driver.IdDriver);
+                decimal ca = car?.AerodynamicCoefficient ?? 0;
+                decimal cp = car?.PowerCoefficient ?? 0;
+                decimal h = handicapInfo?.Handicap ?? 0;
+                int luck = randomLuck.Next(1, 11);
+                decimal pd = (ca * 0.4m) + (cp * 0.4m) - h + luck;
+                driver.SetHandicap(h);
+                driver.SetPerformancePoints(pd);
+                raceResults.Add((driver, pd));
+            }
+
+            var finalOrder = raceResults.OrderByDescending(r => r.PD).ToList();
+            int[] pointsSession = { 25, 18, 15, 12, 10, 8, 6, 4, 2, 1 };
+
+            var finalDriversList = new List<DriverChampionship>();
+            int position = 1;
+
+            foreach (var item in finalOrder)
+            {
+                var driver = item.Driver;
+
+                int pointsEarned = position <= pointsSession.Length ? pointsSession[position - 1] : 0;
+
+                driver.SetPlacing(position);
+                driver.SetPoints(pointsEarned);
+
+                finalDriversList.Add(driver);
+                position++;
+            }
+
+            foreach (var team in teams)
+            {
+                await clientEngeneering.PostAsync($"api/engeneering/race/{team.IdTeam}", null);
+            }
+            var sessionResult = new SessionResult(finalDriversList, teams);
+            race.UpdateResultsSession(EType.MainRace, sessionResult);
+
+            var raceSessionFinished = race.Session.FirstOrDefault(s => s.Type == EType.MainRace);
+            if (raceSessionFinished != null)
+            {
+                raceSessionFinished.Finished();
+            }
+            await _raceRepository.UpdateSessionAsync(race);
+
+            var attCalendar = new CompetitionRaceResultDto
+            {
+                CircuitId = idCircuit,
+                Results = finalDriversList.Select(d => new CompetitionDriverResultDto
+                {
+                    DriverId = d.IdDriver,
+                    Position = d.Placing,
+                    Points = d.Points,
+                    FastestLap = false
+                }).ToList()
+            };
+            try
+            {
+                await clientCompetition.PostAsJsonAsync("api/competition/finishrace", attCalendar);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating competition calendar: {ex.Message}");
+            }
+            return race.ToDto();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error finishing main race");
+            throw;
         }
     }
 }
