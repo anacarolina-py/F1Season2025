@@ -68,6 +68,11 @@ public class DriverChampionship
         }
     }
 
+    public void SetHandicap (decimal handicap)
+    {
+        Handicap = handicap;
+    }
+
     public void SetGridPosition (int gridPosition)
     {
         GridPosition = gridPosition;
