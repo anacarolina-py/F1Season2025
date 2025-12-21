@@ -95,7 +95,6 @@ namespace F1Season2025.Competition.Services
 
         public async Task StartSimulationAsync(int round)
         {
-            //temporada precisa ter iniciado
             var competitions = await _competitions.GetAllCompetitionsAsync();
 
             bool seasonStarted = false;
@@ -179,7 +178,6 @@ namespace F1Season2025.Competition.Services
         }
         public async Task UpdateRaceStatusAsync(string id, bool isActive)
         {
-            //temporada precisa ter iniciado
             var competitions = await _competitions.GetAllCompetitionsAsync();
 
             bool seasonStarted = false;
@@ -216,16 +214,13 @@ namespace F1Season2025.Competition.Services
 
         public async Task StartSeasonAsync()
         {
-            //busco as corridas na temporada
             var competitions = (await _competitions.GetAllCompetitionsAsync()).ToList();
 
-            //verifico se tem 24
             if (competitions.Count != 24)
             {
                 throw new InvalidOperationException("The season must have exactly 24 races to start.");
             }
 
-            //verifico se a temporada ja começou
             foreach (var competition in competitions)
             {
                 if (competition.Status == CompetitionStatus.InProgress || competition.Status == CompetitionStatus.Finished)

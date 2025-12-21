@@ -1,9 +1,9 @@
 ﻿using Domain.Competition.Models.DTOs.Competitions;
-using System.Text.Json;
+using F1Season2025.Competition.Services.Interfaces;
 
 namespace F1Season2025.Competition.Clients
 {
-    public class TeamServiceClient
+    public class TeamServiceClient : ITeamServiceClient
     {
         private readonly HttpClient _httpClient;
 
@@ -14,7 +14,7 @@ namespace F1Season2025.Competition.Clients
 
         public async Task<bool> ValidateSeasonAsync()
         {
-            var result = await _httpClient.GetFromJsonAsync<ValidateTeamsSeasonDto>("/api/teams/validate-season"/*vai vim da API teams*/);
+            var result = await _httpClient.GetFromJsonAsync<ValidateTeamsSeasonDto>("/api/Team/validate");
 
             if (result == null)
             {

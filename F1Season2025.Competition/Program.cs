@@ -21,7 +21,7 @@ builder.Services.AddSingleton<ICompetitionRepository, CompetitionRepository>();
 
 builder.Services.AddSingleton<ICompetitionService, CompetitionService>();
 
-//builder.Services.AddHttpClient<ITeamServiceClient, TeamServiceClient>(client =>{client.BaseAddress = new Uri("http://team-api");});
+builder.Services.AddHttpClient<ITeamServiceClient, TeamServiceClient>(client => {client.BaseAddress = new Uri("http://localhost:5000"); });
 
 
 var app = builder.Build();
