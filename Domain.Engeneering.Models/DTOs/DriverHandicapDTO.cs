@@ -6,7 +6,7 @@ namespace Domain.Engeneering.Models.DTOs
 {
     public class DriverHandicapDTO
     {
-        public int DriverId { get; set; }
+        public int Id { get; set; }
         public decimal Handicap { get; set; }
     }
 }
