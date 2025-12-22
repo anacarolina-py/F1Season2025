@@ -18,5 +18,6 @@ namespace F1Season2025.Competition.Services.Interfaces
         Task StartSeasonAsync();
         Task ProcessRaceFinishAsync(CompetitionRaceResultDto raceResults);
         Task <IEnumerable<DriverStandingResponseDto>> GetDriverStandingsAsync();
+
     }
 }

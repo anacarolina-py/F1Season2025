@@ -255,6 +255,7 @@ namespace F1Season2025.Competition.Controllers
             {
                 await _competitionService.StartSeasonAsync();
 
+
                 return Ok(new { Message = "Season started successfully" });
             }
             catch (InvalidOperationException ex)
@@ -281,6 +282,11 @@ namespace F1Season2025.Competition.Controllers
                 _logger.LogWarning(ex.Message);
                 return NotFound(new { error = ex.Message });
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new {error = ex.Message});
+
+            }
             catch (Exception ex)
             {
                 _logger.LogError("Erro processing race");
@@ -290,21 +296,6 @@ namespace F1Season2025.Competition.Controllers
                     error = "Internal Error",
                     message = ex.Message
                 });
-            }
-        }
-
-        [HttpPost("season/start")]
-        public async Task<IActionResult> StartSeasonAsync()
-        {
-            try
-            {
-                await _competitionService.StartSeasonAsync();
-
-                return Ok(new {Message = "Season started successfully"});
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new {error = ex.Message});
             }
         }
     }

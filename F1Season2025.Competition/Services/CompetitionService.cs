@@ -236,6 +236,7 @@ namespace F1Season2025.Competition.Services
                 }
             }
         }
+
         public async Task ProcessRaceFinishAsync(CompetitionRaceResultDto raceResults)
         {
             var allCompetitions = await _competitions.GetAllCompetitionsAsync();
@@ -285,5 +286,6 @@ namespace F1Season2025.Competition.Services
             }
             return response;
         }
+
     }
 }
