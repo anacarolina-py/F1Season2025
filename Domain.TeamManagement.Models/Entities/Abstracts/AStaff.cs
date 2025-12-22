@@ -1,19 +1,25 @@
-﻿namespace Domain.TeamManagement.Models.Entities.Abstracts
+﻿namespace Domain.TeamManagement.Models.Entities.Abstracts;
+
+public abstract class AStaff
 {
-    public abstract class AStaff
+    public int StaffId { get; private set; }
+
+    public string FirstName { get; private set; }
+
+    public string LastName { get; private set; }
+
+    public int Age { get; private set; }
+
+    public decimal Experience { get; private set; }
+
+    public string Status { get; private set; }
+
+    public AStaff(string firstName, string lastName, int age)
     {
-        public int StaffId { get; private set; }
-
-        public string FirstName { get; private set; }
-
-        public string LastName { get; private set; }
-
-        public int Age { get; private set; }
-
-        public decimal Experience { get; private set; }
-
-        public int TeamId { get; private set; }
-
-        public string Status { get; private set; }
+        this.FirstName = firstName;
+        this.LastName = lastName;
+        this.Age = age;
+        this.Experience = (decimal)( new Random().Next(1000,5000)) / (decimal)(1000);
+        this.Status = "Ativo";
     }
 }

@@ -1,0 +1,20 @@
+CREATE DATABASE EngineeringDB
+GO
+
+USE EngineeringDB
+GO
+
+CREATE TABLE Cars
+(
+Id INT NOT NULL PRIMARY KEY,
+AerodynamicCoefficient DECIMAL(5,3) NOT NULL,
+PowerCoefficient DECIMAL(5,3) NOT NULL);
+GO
+
+CREATE TABLE Drivers
+(
+Id INT NOT NULL PRIMARY KEY,
+Handicap DECIMAL(5,3) NOT NULL,
+QualifyingPd DECIMAL(6,3) NULL,
+RacePd DECIMAL(6,3) NULL
+);
