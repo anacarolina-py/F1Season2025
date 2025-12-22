@@ -17,4 +17,10 @@
     <Project Path="Infrastructure.RaceControl.Data/Infrastructure.RaceControl.Data.csproj" Id="02c0625d-4785-479e-a2bf-cec28eb7a5fe" />
     <Project Path="Infrastructure.TeamManagement.Data/Infrastructure.TeamManagement.Data.csproj" Id="81341837-8490-4725-9adf-d4625e47eecc" />
   </Folder>
+  <Folder Name="/3- Infrastructure/Insomnia/">
+    <File Path="../../../Documents/Insomnia/Competition.yaml" />
+    <File Path="../../../Documents/Insomnia/Engineering.yaml" />
+    <File Path="../../../Documents/Insomnia/Races.yaml" />
+    <File Path="../../../Documents/Insomnia/TeamManagement.yaml" />
+  </Folder>
 </Solution>
