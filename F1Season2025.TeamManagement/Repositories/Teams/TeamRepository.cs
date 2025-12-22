@@ -1,5 +1,10 @@
 ﻿using Dapper;
 using Domain.TeamManagement.Models.DTOs.Cars;
+using Domain.TeamManagement.Models.DTOs.Cars.Relashionships;
+using Domain.TeamManagement.Models.DTOs.Staffs.Bosses;
+using Domain.TeamManagement.Models.DTOs.Staffs.Drivers;
+using Domain.TeamManagement.Models.DTOs.Staffs.Engineers.AerodynamicEngineers;
+using Domain.TeamManagement.Models.DTOs.Staffs.Engineers.PowerEngineers;
 using Domain.TeamManagement.Models.DTOs.Teams;
 using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
 using Domain.TeamManagement.Models.Entities;
@@ -780,6 +785,111 @@ namespace F1Season2025.TeamManagement.Repositories.Teams
             }
         }
 
+        public async Task<IEnumerable<FullInfoTeamResponseDTO>> GetFullInfoTeams()
+        {
+            #region SQLQuery
+            var sqlSelectFullInfoTeam = @"SELECT 
+                                              t.TeamId, t.Name,
+                                              b.BossId, s_b.StaffId, s_b.FirstName, s_b.LastName, s_b.Age, s_b.Experience,
+                                              c.CarId, c.Model, c.AerodynamicCoefficient, c.PowerCoefficient, c.Weight,
+                                              d.DriverId, s_d.StaffId, s_d.FirstName, s_d.LastName, s_d.Age, d.Handicap, d.PerformancePoints, s_d.Experience,
+                                              pe.PowerEngineerId, pe.EngineerId, s_pe.StaffId, s_pe.FirstName, s_pe.LastName, s_pe.Age, s_pe.Experience,
+                                              ae.AerodynamicEngineerId, ae.EngineerId, s_ae.StaffId, s_ae.FirstName, s_ae.LastName, s_ae.Age, s_ae.Experience
+                                          FROM Teams t
+                                          LEFT JOIN TeamsBosses tb ON t.TeamId = tb.TeamId
+                                          LEFT JOIN Bosses b ON tb.BossId = b.BossId
+                                          LEFT JOIN Staffs s_b ON b.StaffId = s_b.StaffId
+                                          LEFT JOIN TeamsCars tc ON t.TeamId = tc.TeamId
+                                          LEFT JOIN Cars c ON tc.CarId = c.CarId
+                                          LEFT JOIN CarsDrivers cd ON c.CarId = cd.CarId
+                                          LEFT JOIN Drivers d ON cd.DriverId = d.DriverId
+                                          LEFT JOIN Staffs s_d ON d.StaffId = s_d.StaffId
+                                          LEFT JOIN CarsPower cp ON c.CarId = cp.CarId
+                                          LEFT JOIN PowerEngineers pe ON cp.PowerEngineerId = pe.PowerEngineerId
+                                          LEFT JOIN Engineers e_pe ON pe.EngineerId = e_pe.EngineerId
+                                          LEFT JOIN Staffs s_pe ON e_pe.StaffId = s_pe.StaffId
+                                          LEFT JOIN CarsAerodynamic ca ON c.CarId = ca.CarId
+                                          LEFT JOIN AerodynamicEngineers ae ON ca.AerodynamicEngineerId = ae.AerodynamicEngineerId
+                                          LEFT JOIN Engineers e_ae ON ae.EngineerId = e_ae.EngineerId
+                                          LEFT JOIN Staffs s_ae ON e_ae.StaffId = s_ae.StaffId
+                                          ORDER BY t.TeamId, c.CarId;";
+
+            #endregion
+
+            try
+            {
+                var teamDictionary = new Dictionary<int, FullInfoTeamResponseDTO>();
+
+                await _connection.QueryAsync<
+                    FullInfoTeamResponseDTO,
+                    FullInfoResponseDTO,
+                    FullInfoCarResponseDTO,
+                    FullInfoDriverResponseDTO,
+                    FullInfoPowerEngineerDTO,
+                    FullInfoAerodynamicEngineersDTO,
+                    FullInfoTeamResponseDTO>(
+                    sqlSelectFullInfoTeam,
+                    (team, boss, car, driver, powerEng, aeroEng) =>
+                    {
+                        if (!teamDictionary.TryGetValue(team.TeamId, out var teamEntry))
+                        {
+                            teamEntry = new FullInfoTeamResponseDTO
+                            {
+                                TeamId = team.TeamId,
+                                Name = team.Name,
+                                Bosses = new List<FullInfoResponseDTO>(),
+                                Cars = new List<FullInfoCarResponseDTO>()
+                            };
+                            teamDictionary.Add(teamEntry.TeamId, teamEntry);
+                        }
+
+                        if (boss is not null && !teamEntry.Bosses.Any(b => b.BossId == boss.BossId))
+                        {
+                            teamEntry.Bosses.Add(boss);
+                        }
+
+                        if (car is not null)
+                        {
+                            var carEntry = teamEntry.Cars.FirstOrDefault(c => c.CarId == car.CarId);
+                            if (carEntry is null)
+                            {
+                                carEntry = new FullInfoCarResponseDTO
+                                {
+                                    CarId = car.CarId,
+                                    Model = car.Model,
+                                    AerodynamicCoefficient = car.AerodynamicCoefficient,
+                                    PowerCoefficient = car.PowerCoefficient,
+                                    Weight = car.Weight,
+                                    Drivers = new List<FullInfoDriverResponseDTO>(),
+                                    PowerEngineers = new List<FullInfoPowerEngineerDTO>(),
+                                    AerodynamicEngineers = new List<FullInfoAerodynamicEngineersDTO>()
+                                };
+                                teamEntry.Cars.Add(carEntry);
+                            }
+
+                            if (driver is not null && !carEntry.Drivers.Any(d => d.DriverId == driver.DriverId))
+                                carEntry.Drivers.Add(driver);
+
+                            if (powerEng is not null && !carEntry.PowerEngineers.Any(pe => pe.PowerEngineerId == powerEng.PowerEngineerId))
+                                carEntry.PowerEngineers.Add(powerEng);
+
+                            if (aeroEng is not null && !carEntry.AerodynamicEngineers.Any(ae => ae.AerodynamicEngineerId == aeroEng.AerodynamicEngineerId))
+                                carEntry.AerodynamicEngineers.Add(aeroEng);
+                        }
+
+                        return teamEntry;
+                    },
+                    splitOn: "BossId,CarId,DriverId,PowerEngineerId,AerodynamicEngineerId"
+                );
+
+                return teamDictionary.Values;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching teams with Dapper grouping");
+                throw;
+            }
+        }
 
     }
 }

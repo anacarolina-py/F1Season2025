@@ -41,6 +41,8 @@ namespace F1Season2025.TeamManagement.Services.Teams.Interfaces
 
         Task AssignPowerEngineerToTeamAsync(int teamId, int powerEngineerId);
 
+        Task<IEnumerable<FullInfoTeamResponseDTO>> GetFullInfoTeams();
+
 
     }
 }
