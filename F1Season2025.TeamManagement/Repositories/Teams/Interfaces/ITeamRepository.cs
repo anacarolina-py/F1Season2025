@@ -53,5 +53,7 @@ namespace F1Season2025.TeamManagement.Repositories.Teams.Interfaces
         Task<int> GetActivePowerEngineersCountByTeamIdAsync(int teamId);
         Task ReactivatePowerEngineerTeamRelationshipAsync(int teamId, int powerEngineerId);
         Task AssignPowerEngineerToTeamAsync(int teamId, int powerEngineerId);
+
+        Task<IEnumerable<FullInfoTeamResponseDTO>> GetFullInfoTeams();
     }
 }

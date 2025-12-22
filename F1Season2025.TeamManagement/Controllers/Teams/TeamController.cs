@@ -475,4 +475,23 @@ public class TeamController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    [HttpGet("all/fullinfo")]
+    public async Task<ActionResult<IEnumerable<FullInfoTeamResponseDTO>>> GetFullInfoTeams()
+    {
+        try
+        {
+            _logger.LogInformation("Searching for teams");
+            var teams = await _teamService.GetFullInfoTeams();
+            if (!teams.Any())
+                return NotFound("There are not teams.");
+            return Ok(teams);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error searching for teams: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
 }

@@ -586,5 +586,20 @@ namespace F1Season2025.TeamManagement.Services.Teams
                 throw;
             }
         }
+
+        public async Task<IEnumerable<FullInfoTeamResponseDTO>> GetFullInfoTeams()
+        {
+            try
+            {
+                _logger.LogInformation("Searching for teams.");
+                return await _teamRepository.GetFullInfoTeams();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while searching for teams.");
+                throw;
+            }
+        }
+
     }
 }
