@@ -297,8 +297,6 @@ namespace F1Season2025.Competition.Controllers
                     message = ex.Message
                 });
             }
-        }
-
-       
+        }       
     }
 }
