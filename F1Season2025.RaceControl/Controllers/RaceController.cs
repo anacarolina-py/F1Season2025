@@ -40,7 +40,7 @@ public class RaceController : ControllerBase
         }
     }
 
-    [HttpPost("{idCircuit}")]
+    [HttpPost("create-race/{idCircuit}")]
     public async Task<ActionResult<RaceControlResponseDto>> CreateRaceAsync(string idCircuit)
     {
         try

@@ -108,7 +108,7 @@ namespace F1Season2025.Competition.Services
                 }
             }
 
-            if (!seasonStarted)
+            if (!seasonStarted && round != 1)
             {
                 throw new InvalidOperationException("The season has not started yet. You must start the season before simulating races.");
             }
@@ -216,6 +216,12 @@ namespace F1Season2025.Competition.Services
         {
             var competitions = (await _competitions.GetAllCompetitionsAsync()).ToList();
 
+            var canStart = await _teamServiceClient.ValidateSeasonAsync();
+
+            if (!canStart)
+            {
+                throw new InvalidOperationException("Teams are not ready to start the season.");
+            }
             if (competitions.Count != 24)
             {
                 throw new InvalidOperationException("The season must have exactly 24 races to start.");
@@ -228,12 +234,6 @@ namespace F1Season2025.Competition.Services
                     throw new InvalidOperationException("Season has already started.");
                 }
 
-                var canStart = await _teamServiceClient.ValidateSeasonAsync();
-
-                if (!canStart)
-                {
-                    throw new InvalidOperationException("Teams are not ready to start the season.");
-                }
             }
         }
 

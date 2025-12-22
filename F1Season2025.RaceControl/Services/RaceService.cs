@@ -202,16 +202,16 @@ public class RaceService : IRaceService
             var clientTeamManagement = _factory.CreateClient("TeamManagementClient");
 
             _logger.LogInformation("Create Engeneering client");
-            var clientEngeneering = _factory.CreateClient("EngeneeringClient");
+            var clientEngeneering = _factory.CreateClient("EngineeringClient");
 
             _logger.LogInformation("Get all active drivers");
-            var driversResponse = await clientTeamManagement.GetFromJsonAsync<List<DriverResponseDTO>>("api/drivers/actives");
+            var driversResponse = await clientTeamManagement.GetFromJsonAsync<List<DriverResponseDTO>>("api/driver/actives");
 
             _logger.LogInformation("Get all active teams");
-            var teamsResponse = await clientTeamManagement.GetFromJsonAsync<List<TeamResponseDTO>>("api/teams/actives");
+            var teamsResponse = await clientTeamManagement.GetFromJsonAsync<List<TeamResponseDTO>>("api/team/actives");
 
             _logger.LogInformation("Get handicap drivers");
-            var handicapDrivers = await clientEngeneering.GetFromJsonAsync<List<DriverHandicapDTO>>("api/engeneering/driver/handicap");
+            var handicapDrivers = await clientEngeneering.GetFromJsonAsync<List<DriverHandicapDTO>>("api/engineering/driver/handicaps");
 
             if (driversResponse is null)
                 throw new Exception("Drivers not found");
@@ -223,7 +223,13 @@ public class RaceService : IRaceService
             {
                 var team = teamsResponse.Where(t => t.TeamId == driver.TeamId).FirstOrDefault();
 
-                var handicap = handicapDrivers.Where(d => d.Id == driver.StaffId).FirstOrDefault();
+                var handicap = handicapDrivers.FirstOrDefault(d => d.Id == driver.StaffId);
+
+                if (handicap is null)
+                {
+                    throw new Exception($"Handicap not found for driver {driver.FirstName}");
+                }
+
 
                 drivers.Add(new DriverChampionship(driver.StaffId, driver.FirstName, driver.DriverId, driver.TeamId, team.Name, handicap.Handicap));
             }

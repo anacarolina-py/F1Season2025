@@ -36,6 +36,7 @@ builder.Services.AddHttpClient("CompetitionClient", client =>
 builder.Services.AddHttpClient("EngineeringClient", client =>
 {
     client.BaseAddress = new Uri("https://localhost:8001/");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
 
