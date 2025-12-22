@@ -400,4 +400,113 @@ public class CarRepository : ICarRepository
             throw;
         }
     }
+
+
+    public async Task<CarDriverResponseDTO?> GetDriverCarRelationshipAsync(int carId, int driverId)
+    {
+        var sqlSelectDriverCarRelashionship = @"SELECT DriverId, CarId, Status
+                                                      FROM CarsDrivers
+                                                      WHERE CarId = @CarId AND 
+                                                            DriverId = @DriverId";
+        try
+        {
+            _logger.LogInformation("Retrieving driver and car relationship from the database.");
+            return await _connection.QueryFirstOrDefaultAsync<CarDriverResponseDTO>(sqlSelectDriverCarRelashionship, new
+            {
+                CarId = carId,
+                DriverId = driverId
+            });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while retrieving driver and car relationship.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while retrieving driver and car relationship.");
+            throw;
+        }
+    }
+
+    public async Task<int> GetDriverCarCountAsync(int carId)
+    {
+        var sqlCountDriverCar = @"SELECT COUNT(*)
+                                         FROM CarsDrivers
+                                         WHERE Status = 'Ativo' AND 
+                                               CarId = @CarId";
+
+        try
+        {
+            _logger.LogInformation("Counting active drivers assigned to car with Id: {CarId}", carId);
+            return await _connection.ExecuteScalarAsync<int>(sqlCountDriverCar, new { CarId = carId });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while counting drivers for car.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while counting drivers for car.");
+            throw;
+        }
+    }
+
+    public async Task ReactivateDriverCarRelationshipAsync(int carId, int driverId)
+    {
+        var sqlReactivateDriverCarRelashionship = @"UPDATE CarsDrivers
+                                                          SET Status = 'Ativo'
+                                                          WHERE CarId = @CarId AND 
+                                                                DriverId = @DriverId";
+
+        try
+        {
+            _logger.LogInformation("Reactivating driver and car relationship in the database.");
+            await _connection.ExecuteAsync(sqlReactivateDriverCarRelashionship, new
+            {
+                CarId = carId,
+                DriverId = driverId
+            });
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while reactivating driver and car relationship.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while reactivating driver and car relationship.");
+            throw;
+        }
+    }
+
+    public async Task AssignDriverToCarAsync(int carId, int driverId)
+    {
+        var sqlInsertDriverCarRelashionship = @"INSERT INTO CarsDrivers(CarId, DriverId, Status)
+                                                       VALUES(@CarId, @DriverId, @Status)";
+
+        try
+        {
+            _logger.LogInformation("Assigning driver to car in the database.");
+            await _connection.ExecuteAsync(sqlInsertDriverCarRelashionship, new
+            {
+                CarId = carId,
+                DriverId = driverId,
+                Status = "Ativo"
+            });
+
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError(ex, "SQL error occurred while assigning driver to car.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while assigning driver to car.");
+            throw;
+        }
+    }
+
 }

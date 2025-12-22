@@ -1,4 +1,5 @@
 ﻿using Domain.Competition.Models.DTOs.Competition;
+using Domain.Competition.Models.DTOs.Competitions;
 using F1Season2025.Competition.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -35,11 +36,11 @@ namespace F1Season2025.Competition.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new 
-                { 
-                    status = 500, 
-                    error = "Internal Error", 
-                    message = ex.Message 
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    error = "Internal Error",
+                    message = ex.Message
                 });
             }
         }
@@ -53,19 +54,21 @@ namespace F1Season2025.Competition.Controllers
             }
             catch (ArgumentException ex)
             {
-                return StatusCode(400, new 
-                { 
-                    status = 400, error = "Invalid data", 
-                    message = ex.Message 
+                return StatusCode(400, new
+                {
+                    status = 400,
+                    error = "Invalid data",
+                    message = ex.Message
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, 
-                    new 
-                    { 
-                        status = 500, error = "Internal Error", 
-                        message = ex.Message 
+                return StatusCode(500,
+                    new
+                    {
+                        status = 500,
+                        error = "Internal Error",
+                        message = ex.Message
                     });
             }
         }
@@ -88,10 +91,11 @@ namespace F1Season2025.Competition.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new 
-                { 
-                    status = 500, error = "Internal Error", 
-                    message = ex.Message 
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    error = "Internal Error",
+                    message = ex.Message
                 });
             }
         }
@@ -243,5 +247,56 @@ namespace F1Season2025.Competition.Controllers
 
             }
         }
+
+        [HttpPost("season/start")]
+        public async Task<IActionResult> StartSeasonAsync()
+        {
+            try
+            {
+                await _competitionService.StartSeasonAsync();
+
+
+                return Ok(new { Message = "Season started successfully" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+        [HttpPost("finishrace")]
+        public async Task<IActionResult> FinishRaceAsync([FromBody] CompetitionRaceResultDto raceResults)
+        {
+            try
+            {
+                _logger.LogInformation("Received race results for processing.");
+                await _competitionService.ProcessRaceFinishAsync(raceResults);
+
+                return Ok(
+                    new
+                    {
+                        Message = "Race results processed and competition updated."
+                    });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning(ex.Message);
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new {error = ex.Message});
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Erro processing race");
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    error = "Internal Error",
+                    message = ex.Message
+                });
+            }
+        }       
     }
 }

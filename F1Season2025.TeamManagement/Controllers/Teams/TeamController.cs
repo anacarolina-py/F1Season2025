@@ -2,6 +2,7 @@
 using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
 using F1Season2025.TeamManagement.Services.Teams.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace F1Season2025.TeamManagement.Controllers.Teams;
 
@@ -24,14 +25,19 @@ public class TeamController : ControllerBase
         return Ok("Team is Ok");
     }
 
-    [HttpPost]
-    public async Task<ActionResult> CreateTeamAsync([FromBody] TeamRequestDTO teamDTO)
+    [HttpPost("producer")]
+    public async Task<ActionResult> ProduceTeamAsync([FromBody] TeamRequestDTO teamDTO)
     {
         try
         {
             _logger.LogInformation("Creating a new team");
-            await _teamService.CreateTeamAsync(teamDTO);
+            await _teamService.ProduceTeamAsync(teamDTO);
             return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Error creating team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
         }
         catch (ArgumentException ex)
         {
@@ -46,6 +52,32 @@ public class TeamController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError($"Error creating team: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost("consumer")]
+    public async Task<ActionResult> ConsumeTeamAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Reading teams from queue...");
+            await _teamService.ConsumeTeamAsync();
+            return Created();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error reading teams from queue: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error reading teams from queue: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error reading teams from queue: {ex.Message}");
             return StatusCode(500, "Internal server error");
         }
     }
@@ -274,9 +306,9 @@ public class TeamController : ControllerBase
             var result = await _teamService.GetEngineeringInfo(teamId);
 
             if (result == null || !result.Any())
-                return NoContent(); 
+                return NoContent();
 
-            return Ok(result); 
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -285,10 +317,162 @@ public class TeamController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new
             {
                 message = "Internal server error",
-                stackTrace = ex.StackTrace
-            }); 
+            });
         }
     }
 
-}
+    [HttpPost("teamids/{teamId}/driverids/{driverId}/")]
+    public async Task<ActionResult> AssignDriverToTeamAsync(int teamId,int driverId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning driver with DriverId {DriverId} to team with TeamId {TeamId}.", driverId, teamId);
+            await _teamService.AssignDriverToTeamAsync(teamId, driverId);
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Database error assigning driver to team: {ex.Message}" );
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error assigning driver to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error assigning driver to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError( $"Unexpected error assigning driver to team: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
 
+    [HttpPost("teamids/{teamId}/carids/{carId}/")]
+    public async Task<ActionResult> AssignCarToTeamAsync(int teamId, int carId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning car with CarId {CarId} to team with TeamId {TeamId}.", carId, teamId);
+            await _teamService.AssignCarToTeamAsync(teamId, carId);
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Database error assigning car to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error assigning car to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error assigning car to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Unexpected error assigning car to team: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost("teamids/{teamId}/bossids/{bossId}/")]
+    public async Task<ActionResult> AssignBossToTeamAsync(int teamId, int bossId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning boss with BossId {BossId} to team with TeamId {TeamId}.", bossId, teamId);
+            await _teamService.AssignBossToTeamAsync(teamId, bossId);
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Database error assigning boss to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error assigning boss to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error assigning boss to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Unexpected error assigning boss to team: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost("teamids/{teamId}/aeroengineerids/{aerodynamicEngineerId}/")]
+    public async Task<ActionResult> AssignAerodynamicEngineerToTeamAsync(int teamId, int aerodynamicEngineerId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning aerodynamic engineer with AerodynamicEngineerId {AerodynamicEngineerId} to team with TeamId {TeamId}.", aerodynamicEngineerId, teamId);
+            await _teamService.AssignAerodynamicEngineerToTeamAsync(teamId, aerodynamicEngineerId);
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Database error assigning aerodynamic engineer to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error assigning aerodynamic engineer to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error assigning aerodynamic engineer to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Unexpected error assigning aerodynamic engineer to team: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost("teamids/{teamId}/pengineerids/{powerEngineerId}/")]
+    public async Task<ActionResult> AssignPowerEngineerToTeamAsync(int teamId, int powerEngineerId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning power engineer with PowerEngineerId {PowerEngineerId} to team with TeamId {TeamId}.", powerEngineerId, teamId);
+            await _teamService.AssignPowerEngineerToTeamAsync(teamId, powerEngineerId);
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Database error assigning power engineer to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error assigning power engineer to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error assigning power engineer to team: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Unexpected error assigning power engineer to team: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+}

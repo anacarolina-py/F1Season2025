@@ -284,6 +284,7 @@ public class CarController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
     [HttpPost("carids/{carId}/aeroengineerids/{aeroEngineerId}")]
     public async Task<ActionResult> AssignAerodynamicEngineerToCarAsync(int carId, int aeroEngineerId)
     {
@@ -316,4 +317,35 @@ public class CarController : ControllerBase
         }
     }
 
+    [HttpPost("carids/{carId}/driverids/{driverId}")]
+    public async Task<ActionResult> AssignDriverToCarAsync(int carId, int driverId)
+    {
+        try
+        {
+            _logger.LogInformation("Assigning driver to car");
+
+            await _carService.AssignDriverToCarAsync(carId, driverId);
+            return Created();
+        }
+        catch (SqlException ex)
+        {
+            _logger.LogError($"Error assigning driver to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError($"Error assigning driver to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Error assigning driver to car: {ex.Message}");
+            return BadRequest($"{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error assigning driver to car: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }

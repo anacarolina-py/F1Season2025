@@ -1,12 +1,14 @@
 ﻿using Domain.TeamManagement.Models.DTOs.Teams;
 using Domain.TeamManagement.Models.DTOs.Teams.Relashionships;
-using Domain.TeamManagement.Models.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace F1Season2025.TeamManagement.Services.Teams.Interfaces
 {
     public interface ITeamService
     {
-        Task CreateTeamAsync(TeamRequestDTO teamDTO);
+        Task ProduceTeamAsync(TeamRequestDTO teamDTO);
+
+        Task ConsumeTeamAsync();
 
         Task<TeamResponseDTO?> GetTeamByIdAsync(int teamId);
 
@@ -28,5 +30,17 @@ namespace F1Season2025.TeamManagement.Services.Teams.Interfaces
 
         Task<TeamsValidateResponseDTO> ValidateTeamsAsync();
         Task<IEnumerable<EngineeringInfoDTO>> GetEngineeringInfo(int teamId);
+
+        Task AssignDriverToTeamAsync(int teamId,int driverId);
+
+        Task AssignBossToTeamAsync(int teamId, int bossId);
+
+        Task AssignCarToTeamAsync(int teamId, int carId);
+
+        Task AssignAerodynamicEngineerToTeamAsync(int teamId, int aerodynamicEngineerId);
+
+        Task AssignPowerEngineerToTeamAsync(int teamId, int powerEngineerId);
+
+
     }
 }

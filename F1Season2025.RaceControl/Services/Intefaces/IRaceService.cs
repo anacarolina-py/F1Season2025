@@ -11,4 +11,7 @@ public interface IRaceService
     Task<RaceControlResponseDto> StartFreePracticeAsync(string idCircuit, int number);
     Task<RaceControlResponseDto> FinishFreePracticeAsync(string idCircuit, int number);
     Task<RaceControlResponseDto> StartQualifyingAsync(string idCircuit);
+    Task<RaceControlResponseDto> FinishQualifyingAsync(string idCircuit);
+    Task<RaceControlResponseDto> StartMainRaceAsync(string idCircuit);
+    Task<RaceControlResponseDto> FinishMainRaceAsync(string idCircuit);
 }

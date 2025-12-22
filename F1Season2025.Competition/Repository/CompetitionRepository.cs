@@ -1,4 +1,5 @@
-﻿using Domain.Competition.Models.Entities;
+﻿using Domain.Competition.Models.DTOs.Competitions;
+using Domain.Competition.Models.Entities;
 using F1Season2025.Competition.Data;
 using F1Season2025.Competition.Repository.Interfaces;
 using MongoDB.Bson;
@@ -10,11 +11,13 @@ namespace F1Season2025.Competition.Repository
     {
         private readonly ILogger<CompetitionRepository> _logger;
         private readonly IMongoCollection<Competitions> _collection;
+        private readonly IMongoCollection<DriverStanding> _standings;
 
         public CompetitionRepository(ILogger<CompetitionRepository> logger, ConnectionDB connection)
         {
             _logger = logger;
             _collection = connection.GetMongoCollection<Competitions>("competitions");
+            _standings = connection.GetMongoCollection<DriverStanding>("driverStandings");
         }
 
         public async Task AddCompetitionAsync(Competitions competition)
@@ -28,17 +31,14 @@ namespace F1Season2025.Competition.Repository
         {
             _logger.LogInformation($"Searching competition for round {round}");
 
-            return await _collection
-                .Find(c => c.Round == round)
-                .FirstOrDefaultAsync();
+            return await _collection.Find(c => c.Round == round).FirstOrDefaultAsync();
         }
 
         public async Task<int> GetActiveCompetitionsCountAsync()
         {
             _logger.LogInformation("Counting active competitions");
 
-            return (int)await _collection
-                .CountDocumentsAsync(c => c.IsActive);
+            return (int)await _collection.CountDocumentsAsync(c => c.IsActive);
         }
 
         public async Task UpdateStatusRaceAsync(Competitions competition)
@@ -54,9 +54,7 @@ namespace F1Season2025.Competition.Repository
         {
             _logger.LogInformation("Listing all competitions");
 
-            return await _collection
-                .Find(_ => true)
-                .ToListAsync();
+            return await _collection.Find(c => true).ToListAsync();
         }
         public async Task UpdateActiveStatusAsync(ObjectId id, bool isActive)
         {
@@ -72,15 +70,33 @@ namespace F1Season2025.Competition.Repository
         {
             _logger.LogInformation($"Searching competition with id: {id}");
 
-            return await _collection
-                .Find(c => c.Id == id)
-                .FirstOrDefaultAsync();
+            return await _collection.Find(c => c.Id == id).FirstOrDefaultAsync();
         }
         public async Task<bool> CheckCompetitionExistsAsync(string circuitName, string country)
         {
             _logger.LogInformation($"Checking existence of competition with: {circuitName}");
 
             return await _collection.Find(c => c.Circuit.NameCircuit == circuitName && c.Circuit.Country == country).AnyAsync();
+        }
+
+        public async Task<DriverStanding?> GetStandingByDriverIdAsync(string driverId)
+        {
+            return await _standings.Find(ds => ds.DriverId == driverId).FirstOrDefaultAsync();
+        }
+
+        public async Task UpdateStadingAsync(DriverStanding driverStanding)
+        {
+            var filter = Builders<DriverStanding>.Filter.Eq(ds => ds.DriverId, driverStanding.DriverId);
+
+            await _standings.ReplaceOneAsync(filter, 
+                driverStanding,
+                new ReplaceOptions { IsUpsert = true }
+                );
+        }
+
+        public async Task<IEnumerable<DriverStanding>> GetAllStandingsAsync()
+        {
+            return await _standings.Find(ds => true).ToListAsync();
         }
     }
 }

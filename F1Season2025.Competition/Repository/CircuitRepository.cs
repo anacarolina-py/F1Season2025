@@ -28,18 +28,14 @@ namespace F1Season2025.Competition.Repository
         {
             _logger.LogInformation($"Searching circuit with Id {id}");
 
-            return await _collection
-                .Find(c => c.Id == id)
-                .FirstOrDefaultAsync();
+            return await _collection.Find(c => c.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Circuit>> GetAllCircuitsAsync()
         {
             _logger.LogInformation("Listing all circuits");
 
-            return await _collection
-               .Find(_ => true)
-               .ToListAsync();
+            return await _collection.Find(c => true).ToListAsync();
         }
         public async Task<bool> ExistCircuitNameCountryAsync(string nameCircuit, string country)
         {
